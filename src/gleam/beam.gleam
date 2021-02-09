@@ -1,4 +1,3 @@
-//// Return a string representation of any term
 
 import gleam/atom.{Atom}
 import gleam/dynamic.{Dynamic}
@@ -14,6 +13,7 @@ import gleam/beam/charlist.{Charlist}
 external fn erl_format(String, List(a)) -> Charlist =
   "io_lib" "format"
 
+/// Return a string representation of any term
 pub fn format(term) {
   charlist.to_string(erl_format("~p", [term]))
 }
