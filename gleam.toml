@@ -1,0 +1,6 @@
+name = "gleam_beam"
+
+[docs]
+links = [
+  { title = 'GitHub', href = 'https://github.com/midas-framework/beam' }
+]

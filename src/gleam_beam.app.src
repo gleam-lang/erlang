@@ -1,0 +1,16 @@
+{application, gleam_beam,
+ [{description, "Interop with the BEAM runtime"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {applications,
+   [kernel,
+    stdlib,
+    gleam_stdlib
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {include_files, ["gleam.toml", "gen"]},
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+]}.
