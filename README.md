@@ -4,4 +4,8 @@ Library for interoperating with specific functionality in the erlang runtime (BE
 
 *This is only for functionality that is not part of the [standard library](https://hex.pm/packages/gleam_stdlib)*
 
+## Features
 
+- Erlang binary format
+- Charlists
+- Erlang logger, level and message formats

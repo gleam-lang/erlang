@@ -6,7 +6,6 @@
 
 // https://elixir-lang.org/getting-started/binaries-strings-and-char-lists.html#charlists
 // Elixir makes charlist one word
-
 /// List of codepoints
 pub external type Charlist
 
