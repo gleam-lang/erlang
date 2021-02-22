@@ -96,7 +96,7 @@ pub fn cast_log_message(raw) {
 external fn erl_add_handler(Atom, Atom, Map(Atom, Dynamic)) -> Dynamic =
   "logger" "add_handler"
 
-pub fn add_handler(handler: fn(ExitReason, Stacktrace, Int) -> Nil) -> Nil {
+pub fn add_handler(handler: fn(Dynamic, Stacktrace, Int) -> Nil) -> Nil {
   let handler_module = atom.create_from_string("gleam@beam@logger@handler")
   let config =
     map.from_list([

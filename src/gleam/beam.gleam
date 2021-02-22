@@ -1,4 +1,3 @@
-
 import gleam/atom.{Atom}
 import gleam/dynamic.{Dynamic}
 import gleam/function.{rescue}
@@ -105,6 +104,42 @@ pub fn cast_exit_reason(raw) {
     k, Error(_) if k == system_limit -> Ok(SystemLimit)
     _, _ -> Error("Not a runtime exit reason")
   }
+}
+
+pub type Location {
+  Location(module: String, function: String, line: Int)
+}
+
+pub type DevReason {
+  Todo(location: Location, message: String)
+  AssertNotMatched(location: Location, value: Dynamic)
+}
+
+pub fn cast_dev_reason(raw) {
+  try gleam_error = dynamic.field(raw, atom.create_from_string("gleam_error"))
+  try gleam_error = dynamic.atom(gleam_error)
+  try module = dynamic.field(raw, atom.create_from_string("module"))
+  try module = dynamic.atom(module)
+  let module = atom.to_string(module)
+  try function = dynamic.field(raw, atom.create_from_string("function"))
+  try function = dynamic.atom(function)
+  let function = atom.to_string(function)
+  try line = dynamic.field(raw, atom.create_from_string("line"))
+  try line = dynamic.int(line)
+  let location = Location(module, function, line)
+
+  let todo_atom = atom.create_from_string("todo")
+  let assert_atom = atom.create_from_string("assert")
+
+  let message =
+    dynamic.field(raw, atom.create_from_string("message"))
+    |> result.then(dynamic.string)
+  let value = dynamic.field(raw, atom.create_from_string("value"))
+  case gleam_error, message, value {
+    e, Ok(message), _ if e == todo_atom -> Todo(location, message)
+    e, _, Ok(value) if e == assert_atom -> AssertNotMatched(location, value)
+  }
+  |> Ok
 }
 
 /// Safely cast a dynamic stacktrace to typed data.

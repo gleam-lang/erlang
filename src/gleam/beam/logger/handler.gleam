@@ -59,8 +59,8 @@ pub fn cast_proc_lib_report(raw) {
   case kind {
     k if k == error -> {
       try reason = dynamic.element(error_info, 1)
-      io.debug(reason)
-      try reason = beam.cast_exit_reason(reason)
+      // io.debug(reason)
+      // try reason = beam.cast_exit_reason(reason)
       try stacktrace = dynamic.element(error_info, 2)
       try stacktrace = beam.cast_stacktrace(stacktrace)
       tuple(reason, stacktrace)
