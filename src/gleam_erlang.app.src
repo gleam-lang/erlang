@@ -1,5 +1,5 @@
-{application, gleam_beam,
- [{description, "Interop with the BEAM runtime"},
+{application, gleam_erlang,
+ [{description, "A Gleam library for Erlang specific code"},
   {vsn, "0.1.0"},
   {registered, []},
   {applications,

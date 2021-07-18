@@ -1,6 +1,6 @@
-name = "gleam_beam"
+name = "gleam_erlang"
 
 [docs]
 links = [
-  { title = 'GitHub', href = 'https://github.com/midas-framework/beam' }
+  { title = 'GitHub', href = 'https://github.com/gleam-lang/erlang' }
 ]

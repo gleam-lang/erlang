@@ -1,12 +1,12 @@
 import gleam/dynamic
-import gleam/beam/charlist
+import gleam/erlang/charlist
 import gleam/should
 
 pub fn to_string_test() {
-  "Hello, from beam!"
+  "Hello, from erlang!"
   |> charlist.from_string()
   |> charlist.to_string()
-  |> should.equal("Hello, from beam!")
+  |> should.equal("Hello, from erlang!")
 }
 
 pub fn empty_string_test() {

@@ -7,7 +7,7 @@ import gleam/list
 import gleam/map
 import gleam/result
 import gleam/string
-import gleam/beam/charlist.{Charlist}
+import gleam/erlang/charlist.{Charlist}
 
 external fn erl_format(String, List(a)) -> Charlist =
   "io_lib" "format"
@@ -65,7 +65,7 @@ pub type ExitReason {
 
 /// A stacktrace data structure 
 pub type Stacktrace =
-  List(tuple(Atom, String, Int, String, Int))
+  List(#(Atom, String, Int, String, Int))
 
 /// Safely transform dynamic to exit reason type 
 pub fn cast_exit_reason(raw) {
@@ -184,5 +184,5 @@ fn cast_stack_frame(raw) {
     |> result.map_error(fn(_: Nil) { "Missing key 'line'" })
     |> result.then(dynamic.int)
 
-  Ok(tuple(module, function, arity, filename, line_number))
+  Ok(#(module, function, arity, filename, line_number))
 }

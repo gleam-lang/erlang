@@ -1,5 +1,5 @@
 import gleam/atom
-import gleam/dynamic.{Dynamic}
+import gleam/dynamic
 import gleam/list
 import gleam/map
 import gleam/result
@@ -7,13 +7,12 @@ import gleam/int
 import gleam/io
 import gleam/os
 import gleam/string
-import gleam/beam
-import gleam/beam
-import gleam/beam/logger.{Event, Report}
+import gleam/erlang
+import gleam/erlang/logger.{Event, Report}
 
 // TODO what happens if exit normal
 fn do_log(event, config) {
-  try Event(level, metadata, message) = logger.cast_log_event(event)
+  try Event(_level, metadata, message) = logger.cast_log_event(event)
   assert Ok(handler) = map.get(config, atom.create_from_string("handler"))
   let timestamp =
     map.get(metadata, atom.create_from_string("time"))
@@ -27,18 +26,20 @@ fn do_log(event, config) {
 
   case message {
     Report(report) -> {
-      try tuple(reason, stacktrace) = cast_proc_lib_report(report)
+      try #(reason, stacktrace) = cast_proc_lib_report(report)
       handler(reason, stacktrace, timestamp)
       Ok(Nil)
     }
     _ -> Ok(Nil)
   }
-  Ok(Nil)
 }
 
 pub fn log(event, config) {
-  assert Ok(_) = do_log(event, config)
-  Nil
+  // https://github.com/gleam-lang/gleam/issues/1183
+  // assert Ok(_) = do_log(event, config)
+  case do_log(event, config) {
+    Ok(_) -> Nil
+  }
 }
 
 pub fn cast_proc_lib_report(raw) {
@@ -60,10 +61,10 @@ pub fn cast_proc_lib_report(raw) {
     k if k == error -> {
       try reason = dynamic.element(error_info, 1)
       // io.debug(reason)
-      // try reason = beam.cast_exit_reason(reason)
+      // try reason = erlang.cast_exit_reason(reason)
       try stacktrace = dynamic.element(error_info, 2)
-      try stacktrace = beam.cast_stacktrace(stacktrace)
-      tuple(reason, stacktrace)
+      try stacktrace = erlang.cast_stacktrace(stacktrace)
+      #(reason, stacktrace)
       |> Ok
     }
   }

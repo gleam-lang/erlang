@@ -1,11 +1,9 @@
-# Gleam Beam
+# Gleam Erlang
 
-Library for interoperating with specific functionality in the erlang runtime (BEAM).
-
-*This is only for functionality that is not part of the [standard library](https://hex.pm/packages/gleam_stdlib)*
+A library for making use of Erlang specific code!
 
 ## Features
 
-- Erlang binary format
-- Charlists
-- Erlang logger, level and message formats
+- Erlang binary format (de)serialisation.
+- Charlists.
+- Erlang logger, level and message formats.

@@ -4,7 +4,7 @@ import gleam/dynamic.{Dynamic}
 import gleam/map.{Map}
 import gleam/result
 import gleam/io
-import gleam/beam.{ExitReason, Stacktrace}
+import gleam/erlang.{Stacktrace}
 
 // These are the log levels used in the erlang logger
 // https://erlang.org/doc/apps/kernel/logger_chapter.html#log-level
@@ -97,11 +97,11 @@ external fn erl_add_handler(Atom, Atom, Map(Atom, Dynamic)) -> Dynamic =
   "logger" "add_handler"
 
 pub fn add_handler(handler: fn(Dynamic, Stacktrace, Int) -> Nil) -> Nil {
-  let handler_module = atom.create_from_string("gleam@beam@logger@handler")
+  let handler_module = atom.create_from_string("gleam@erlang@logger@handler")
   let config =
     map.from_list([
-      tuple(atom.create_from_string("handler"), dynamic.from(handler)),
-      tuple(
+      #(atom.create_from_string("handler"), dynamic.from(handler)),
+      #(
         atom.create_from_string("level"),
         dynamic.from(atom.create_from_string("error")),
       ),
