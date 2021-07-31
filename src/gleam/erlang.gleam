@@ -186,3 +186,21 @@ fn cast_stack_frame(raw) {
 
   Ok(#(module, function, arity, filename, line_number))
 }
+
+/// Error value returned by `get_line` function
+///
+pub type GetLineError {
+  Eof
+  NoData
+}
+
+/// Reads a line from standard input with the given prompt.
+///
+/// # Example
+///
+///    > io.get_line("Language: ")
+///    // -> Language: <- gleam
+///    Ok("gleam\n")
+///
+pub external fn get_line(prompt: String) -> Result(String, GetLineError) =
+  "gleam_erlang_ffi" "get_line"
