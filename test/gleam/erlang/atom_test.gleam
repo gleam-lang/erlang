@@ -1,4 +1,5 @@
-import gleam/atom
+import gleam/erlang/atom
+import gleam/dynamic
 import gleam/should
 
 pub fn from_string_test() {
@@ -42,4 +43,28 @@ pub fn to_string_test() {
   |> atom.create_from_string
   |> atom.to_string
   |> should.equal("expect")
+}
+
+pub fn from_dynamic_test() {
+  ""
+  |> atom.create_from_string
+  |> dynamic.from
+  |> atom.from_dynamic
+  |> should.equal(Ok(atom.create_from_string("")))
+
+  "ok"
+  |> atom.create_from_string
+  |> dynamic.from
+  |> atom.from_dynamic
+  |> should.equal(Ok(atom.create_from_string("ok")))
+
+  1
+  |> dynamic.from
+  |> atom.from_dynamic
+  |> should.be_error
+
+  []
+  |> dynamic.from
+  |> atom.from_dynamic
+  |> should.be_error
 }
