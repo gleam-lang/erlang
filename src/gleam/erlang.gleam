@@ -1,4 +1,4 @@
-import gleam/atom.{Atom}
+import gleam/erlang/atom.{Atom}
 import gleam/dynamic.{Dynamic}
 import gleam/function.{rescue}
 import gleam/int
@@ -117,7 +117,7 @@ pub type DevReason {
 
 pub fn cast_dev_reason(raw) {
   try gleam_error = dynamic.field(raw, atom.create_from_string("gleam_error"))
-  try gleam_error = dynamic.atom(gleam_error)
+  try gleam_error = atom.from_dynamic(gleam_error)
   try module = dynamic.field(raw, atom.create_from_string("module"))
   try module = dynamic.string(module)
   try function = dynamic.field(raw, atom.create_from_string("function"))
@@ -151,10 +151,10 @@ pub fn cast_stacktrace(raw) -> Result(Stacktrace, String) {
 fn cast_stack_frame(raw) {
   try module =
     dynamic.element(raw, 0)
-    |> result.then(dynamic.atom)
+    |> result.then(atom.from_dynamic)
 
   try function_raw = dynamic.element(raw, 1)
-  let function = case dynamic.atom(function_raw) {
+  let function = case atom.from_dynamic(function_raw) {
     Ok(function) -> atom.to_string(function)
     Error(_) -> charlist.to_string(dynamic.unsafe_coerce(function_raw))
   }

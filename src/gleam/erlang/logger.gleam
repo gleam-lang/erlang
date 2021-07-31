@@ -1,5 +1,7 @@
+// TODO: test this module.
 // Default setting is false for SASL compatible https://erlang.org/doc/man/kernel_app.html#logger_sasl_compatible
-import gleam/atom.{Atom}
+import gleam
+import gleam/erlang/atom.{Atom}
 import gleam/dynamic.{Dynamic}
 import gleam/map.{Map}
 import gleam/result
@@ -20,18 +22,17 @@ pub type Level {
   Debug
 }
 
-pub fn cast_log_level(raw) {
-  let emergency = atom.create_from_string("emergency")
-  let alert = atom.create_from_string("alert")
-  let critical = atom.create_from_string("critical")
-  let error = atom.create_from_string("error")
-  let warning = atom.create_from_string("warning")
-  let notice = atom.create_from_string("notice")
-  let info = atom.create_from_string("info")
-  let debug = atom.create_from_string("debug")
-  try atom = dynamic.atom(raw)
+pub fn log_level_from_dynamic(raw: Dynamic) {
+  let emergency = dynamic.from(Emergency)
+  let alert = dynamic.from(Alert)
+  let critical = dynamic.from(Critical)
+  let error = dynamic.from(Error)
+  let warning = dynamic.from(Warning)
+  let notice = dynamic.from(Notice)
+  let info = dynamic.from(Info)
+  let debug = dynamic.from(Debug)
 
-  case atom {
+  case raw {
     a if a == emergency -> Ok(Emergency)
     a if a == alert -> Ok(Alert)
     a if a == critical -> Ok(Critical)
@@ -40,8 +41,8 @@ pub fn cast_log_level(raw) {
     a if a == notice -> Ok(Notice)
     a if a == info -> Ok(Info)
     a if a == debug -> Ok(Debug)
+    _ -> gleam.Error("Not a valid logger level")
   }
-  // _ -> result.Error("Not a valid logger level")
 }
 
 // Erl log event is this or string or format plus args
@@ -53,14 +54,14 @@ pub type Event {
 // https://erlang.org/doc/man/logger.html#type-log_event
 pub fn cast_log_event(raw) {
   try level = dynamic.field(raw, atom.create_from_string("level"))
-  try level = cast_log_level(level)
+  try level = log_level_from_dynamic(level)
 
   try meta = dynamic.field(raw, atom.create_from_string("meta"))
   // Documentation says this field must be in format Map(Atom, term)
   let metadata: Map(Atom, Dynamic) = dynamic.unsafe_coerce(meta)
 
   try msg = dynamic.field(raw, atom.create_from_string("msg"))
-  try message = cast_log_message(msg)
+  try message = log_message_from_dynamic(msg)
   Event(level, metadata, message)
   |> Ok
 }
@@ -68,22 +69,21 @@ pub fn cast_log_event(raw) {
 pub type Message {
   Format(string: String, args: List(Dynamic))
   Report(Dynamic)
-  // Would be nice to call this field String as that is how it's defined
-  Str(String)
+  String(String)
 }
 
-pub fn cast_log_message(raw) {
+pub fn log_message_from_dynamic(raw: Dynamic) {
   try first = dynamic.element(raw, 0)
   try second = dynamic.element(raw, 1)
 
   let report = atom.create_from_string("report")
   let string = atom.create_from_string("string")
 
-  case dynamic.atom(first) {
+  case atom.from_dynamic(first) {
     Ok(k) if k == report -> Ok(Report(second))
     Ok(k) if k == string -> {
       try str = dynamic.string(second)
-      Ok(Str(str))
+      Ok(String(str))
     }
     _ -> {
       try format_str = dynamic.string(first)

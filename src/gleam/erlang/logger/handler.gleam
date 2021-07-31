@@ -1,4 +1,4 @@
-import gleam/atom
+import gleam/erlang/atom
 import gleam/dynamic
 import gleam/list
 import gleam/map
@@ -51,7 +51,7 @@ pub fn cast_proc_lib_report(raw) {
     |> result.map_error(fn(_) { "Missing error_info key" })
 
   try kind = dynamic.element(error_info, 0)
-  try kind = dynamic.atom(kind)
+  try kind = atom.from_dynamic(kind)
 
   let error = atom.create_from_string("error")
   // Other kinds are catch and exit. 
