@@ -1,4 +1,4 @@
-# Gleam Erlang ☄️
+# Gleam Erlang 🐙
 
 A library for making use of Erlang specific code!
 
