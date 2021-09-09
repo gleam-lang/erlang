@@ -23,10 +23,11 @@ atom_from_dynamic(Data) when is_atom(Data) ->
 atom_from_dynamic(_) ->
     {error, list_to_binary("expected an atom, got some other type")}.
 
--spec get_line(io:prompt()) -> {ok, string() | unicode:unicode_binary()} | {error, eof} |  {error, no_data}.
+-spec get_line(io:prompt()) -> {ok, unicode:unicode_binary()} | {error, eof | no_data}.
 get_line(Prompt) ->
     case io:get_line(Prompt) of
         eof -> {error, eof};
         {error, _} -> {error, no_data};
-        Data -> {ok, Data}
+        Data when is_binary(Data) -> {ok, Data};
+        Data when is_list(Data) -> {ok, unicode:characters_to_binary(Data)}
     end.
