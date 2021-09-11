@@ -1,24 +1,23 @@
 import gleam/dynamic
 import gleam/erlang/charlist
-import gleam/should
 
 pub fn to_string_test() {
-  "Hello, from erlang!"
-  |> charlist.from_string()
-  |> charlist.to_string()
-  |> should.equal("Hello, from erlang!")
+  assert "Hello, from erlang!" =
+    "Hello, from erlang!"
+    |> charlist.from_string()
+    |> charlist.to_string()
 }
 
 pub fn empty_string_test() {
-  []
-  |> dynamic.from
-  |> dynamic.unsafe_coerce
-  |> charlist.to_string
-  |> should.equal("")
+  assert "" =
+    []
+    |> dynamic.from
+    |> dynamic.unsafe_coerce
+    |> charlist.to_string
 
-  ""
-  |> charlist.from_string()
-  |> dynamic.from
-  |> dynamic.unsafe_coerce
-  |> should.equal([])
+  assert [] =
+    ""
+    |> charlist.from_string()
+    |> dynamic.from
+    |> dynamic.unsafe_coerce
 }

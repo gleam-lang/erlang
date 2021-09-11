@@ -1,6 +1,6 @@
 -module(gleam_erlang_ffi).
 -export([atom_from_dynamic/1, atom_create_from_string/1, atom_to_string/1,
-         atom_from_string/1, get_line/1]).
+         rescue/1, atom_from_string/1, get_line/1]).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, atom_not_loaded}.
 atom_from_string(S) ->
@@ -20,8 +20,8 @@ atom_to_string(S) ->
 -spec atom_from_dynamic(any()) -> {ok, atom()} | {error, binary()}.
 atom_from_dynamic(Data) when is_atom(Data) ->
     {ok, Data};
-atom_from_dynamic(_) ->
-    {error, list_to_binary("expected an atom, got some other type")}.
+atom_from_dynamic(Data) ->
+    {error, {decode_error, <<"Atom">>, gleam@dynamic:classify(Data)}}.
 
 -spec get_line(io:prompt()) -> {ok, unicode:unicode_binary()} | {error, eof | no_data}.
 get_line(Prompt) ->
@@ -30,4 +30,12 @@ get_line(Prompt) ->
         {error, _} -> {error, no_data};
         Data when is_binary(Data) -> {ok, Data};
         Data when is_list(Data) -> {ok, unicode:characters_to_binary(Data)}
+    end.
+
+rescue(F) ->
+    try {ok, F()}
+    catch
+        throw:X -> {error, {thrown, X}};
+        error:X -> {error, {errored, X}};
+        exit:X -> {error, {exited, X}}
     end.

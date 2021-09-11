@@ -1,70 +1,64 @@
 import gleam/erlang/atom
-import gleam/dynamic
-import gleam/should
+import gleam/dynamic.{DecodeError}
 
 pub fn from_string_test() {
   atom.create_from_string("this is an existing atom")
 
-  "this is an existing atom"
-  |> atom.from_string
-  |> should.be_ok
+  assert Ok(_) = atom.from_string("this is an existing atom")
 
-  "this is not an atom we have seen before"
-  |> atom.from_string
-  |> should.equal(Error(atom.AtomNotLoaded))
+  assert Error(atom.AtomNotLoaded) =
+    atom.from_string("this is not an atom we have seen before")
 }
 
 pub fn create_from_string_test() {
-  "ok"
-  |> atom.create_from_string
-  |> Ok
-  |> should.equal(atom.from_string("ok"))
+  let result =
+    "ok"
+    |> atom.create_from_string
+    |> Ok
+  assert True = result == atom.from_string("ok")
 
-  "expect"
-  |> atom.create_from_string
-  |> Ok
-  |> should.equal(atom.from_string("expect"))
+  let result =
+    "expect"
+    |> atom.create_from_string
+    |> Ok
+  assert True = result == atom.from_string("expect")
 
-  "this is another atom we have not seen before"
-  |> atom.create_from_string
-  |> Ok
-  |> should.equal(atom.from_string(
-    "this is another atom we have not seen before",
-  ))
+  let result =
+    "this is another atom we have not seen before"
+    |> atom.create_from_string
+    |> Ok
+  assert True =
+    result == atom.from_string("this is another atom we have not seen before")
 }
 
 pub fn to_string_test() {
-  "ok"
-  |> atom.create_from_string
-  |> atom.to_string
-  |> should.equal("ok")
+  assert "ok" = atom.to_string(atom.create_from_string("ok"))
 
-  "expect"
-  |> atom.create_from_string
-  |> atom.to_string
-  |> should.equal("expect")
+  assert "expect" = atom.to_string(atom.create_from_string("expect"))
 }
 
 pub fn from_dynamic_test() {
-  ""
-  |> atom.create_from_string
-  |> dynamic.from
-  |> atom.from_dynamic
-  |> should.equal(Ok(atom.create_from_string("")))
+  let result =
+    ""
+    |> atom.create_from_string
+    |> dynamic.from
+    |> atom.from_dynamic
+  assert True = result == Ok(atom.create_from_string(""))
 
-  "ok"
-  |> atom.create_from_string
-  |> dynamic.from
-  |> atom.from_dynamic
-  |> should.equal(Ok(atom.create_from_string("ok")))
+  let result =
+    "ok"
+    |> atom.create_from_string
+    |> dynamic.from
+    |> atom.from_dynamic
+  assert True = result == Ok(atom.create_from_string("ok"))
 
-  1
-  |> dynamic.from
-  |> atom.from_dynamic
-  |> should.be_error
+  assert Error(DecodeError(expected: "Atom", found: "Int")) =
+    1
+    |> dynamic.from
+    |> atom.from_dynamic
 
-  []
-  |> dynamic.from
-  |> atom.from_dynamic
-  |> should.be_error
+  assert Error(DecodeError(expected: "Atom", found: "List")) =
+    []
+    |> dynamic.from
+    |> atom.from_dynamic
 }
