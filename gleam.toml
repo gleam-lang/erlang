@@ -1,6 +1,17 @@
 name = "gleam_erlang"
 
-[docs]
+version = "0.2.0"
+licences = ["Apache-2.0"]
+description = "A standard library for the Gleam programming language"
+
+repository = { type = "github", user = "gleam-lang", repo = "erlang" }
 links = [
-  { title = 'GitHub', href = 'https://github.com/gleam-lang/erlang' }
+  { title = "Website", href = "https://gleam.run" },
+  { title = "Sponsor", href = "https://github.com/sponsors/lpil" },
 ]
+
+[dependencies]
+gleam_stdlib = "~> 0.18"
+
+[dev-dependencies]
+gleeunit = "~> 0.1"
