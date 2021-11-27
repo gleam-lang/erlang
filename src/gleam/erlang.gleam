@@ -4,6 +4,7 @@ import gleam/list
 import gleam/map
 import gleam/result
 import gleam/string
+import gleam/erlang/atom.{Atom}
 import gleam/erlang/charlist.{Charlist}
 
 external fn erl_format(String, List(a)) -> Charlist =
@@ -100,4 +101,31 @@ external fn get_start_arguments() -> List(Charlist) =
 pub fn start_arguments() -> List(String) {
   get_start_arguments()
   |> list.map(charlist.to_string)
+}
+
+/// Starts an OTP application's process tree in the background, as well as
+/// the trees of any applications that the given application depends upon. An
+/// OTP application typically maps onto a Gleam or Hex package.
+///
+/// Returns a list of the applications that were started. Calling this function
+/// for application that have already been started is a no-op so you do not need
+/// to check the application state beforehand.
+///
+/// In Gleam we prefer to not use these implicit background process trees, but
+/// you will likely still need to start the trees of OTP applications written in
+/// other BEAM languages such as Erlang or Elixir, including those included by
+/// default with Erlang/OTP.
+///
+/// For more information see the OTP documentation.
+/// https://www.erlang.org/doc/man/application.html#ensure_all_started-1
+/// https://www.erlang.org/doc/man/application.html#start-1
+///
+pub external fn ensure_all_started(
+  application: Atom,
+) -> Result(List(Atom), EnsureAllStartedError) =
+  "gleam_erlang_ffi" "ensure_all_started"
+
+pub type EnsureAllStartedError {
+  UnknownApplication(name: Atom)
+  ApplicationFailedToStart(name: Atom, reason: Dynamic)
 }
