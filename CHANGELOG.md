@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- The `erlang` module gains the `ensure_all_started` function.
+
 ## v0.3.0 - 2021-11-23
 
 - The `erlang` module gains the `start_arguments` function.
