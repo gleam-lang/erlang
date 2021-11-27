@@ -90,3 +90,14 @@ pub type Crash {
   Thrown(Dynamic)
   Errored(Dynamic)
 }
+
+external fn get_start_arguments() -> List(Charlist) =
+  "init" "get_plain_arguments"
+
+/// Get the arguments given to the program when it was started.
+///
+/// This is sometimes called `argv` in other languages.
+pub fn start_arguments() -> List(String) {
+  get_start_arguments()
+  |> list.map(charlist.to_string)
+}
