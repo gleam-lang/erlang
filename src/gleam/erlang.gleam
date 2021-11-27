@@ -66,7 +66,7 @@ pub type TimeUnit {
 
 /// Returns the current OS system time.
 ///
-/// https://erlang.org/doc/apps/erts/time_correction.html#OS_System_Time
+/// <https://erlang.org/doc/apps/erts/time_correction.html#OS_System_Time>
 pub external fn system_time(TimeUnit) -> Int =
   "os" "system_time"
 
@@ -117,8 +117,8 @@ pub fn start_arguments() -> List(String) {
 /// default with Erlang/OTP.
 ///
 /// For more information see the OTP documentation.
-/// https://www.erlang.org/doc/man/application.html#ensure_all_started-1
-/// https://www.erlang.org/doc/man/application.html#start-1
+/// - <https://www.erlang.org/doc/man/application.html#ensure_all_started-1>
+/// - <https://www.erlang.org/doc/man/application.html#start-1>
 ///
 pub external fn ensure_all_started(
   application: Atom,
