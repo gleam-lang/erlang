@@ -1,6 +1,7 @@
 -module(gleam_erlang_ffi).
 -export([atom_from_dynamic/1, atom_create_from_string/1, atom_to_string/1,
-         rescue/1, atom_from_string/1, get_line/1, ensure_all_started/1]).
+         rescue/1, atom_from_string/1, get_line/1, ensure_all_started/1,
+         sleep/1, sleep_forever/0]).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, atom_not_loaded}.
 atom_from_string(S) ->
@@ -47,3 +48,11 @@ ensure_all_started(Application) ->
         {error, {ProblemApp, {"no such file or directory", _}}} ->
             {error, {unknown_application, ProblemApp}}
     end.
+
+sleep(Microseconds) ->
+    timer:sleep(Microseconds),
+    nil.
+
+sleep_forever() ->
+    timer:sleep(infinity),
+    nil.

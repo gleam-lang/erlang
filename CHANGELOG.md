@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.0 - 2021-12-04
+
+- The `erlang` module gains the `sleep` and `sleep_forever` functions.
+
 ## v0.4.0 - 2021-11-30
 
 - The `erlang` module gains the `ensure_all_started` function.

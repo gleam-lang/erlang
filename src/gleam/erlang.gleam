@@ -129,3 +129,13 @@ pub type EnsureAllStartedError {
   UnknownApplication(name: Atom)
   ApplicationFailedToStart(name: Atom, reason: Dynamic)
 }
+
+/// Suspends the process calling this function for the specified number of
+/// milliseconds.
+pub external fn sleep(Int) -> Nil =
+  "gleam_erlang_ffi" "ensure_all_started"
+
+/// Suspends the process calling this function for the specified number of
+/// milliseconds.
+pub external fn sleep_forever() -> Nil =
+  "gleam_erlang_ffi" "sleep_forever"
