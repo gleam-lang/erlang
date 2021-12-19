@@ -121,7 +121,7 @@ pub type Reason {
 ///
 /// Returns a Result containing the file's contents as a String if the
 /// operation was successful, or Reason if the operation failed.
-/// 
+///
 /// ## Examples
 ///
 ///    > read_file("example.txt")
@@ -130,7 +130,7 @@ pub type Reason {
 ///    > read_file("does_not_exist.txt")
 ///    Error(Enoent)
 ///
-pub external fn read_file(filename: String) -> Result(String, Reason) =
+pub external fn read_file(filename: String) -> Result(BitString, Reason) =
   "gleam_erlang_ffi" "read_file"
 
 /// Write the given contents to a file of the given name.
@@ -148,7 +148,7 @@ pub external fn read_file(filename: String) -> Result(String, Reason) =
 ///
 pub external fn write_file(
   filename: String,
-  contents: String,
+  contents: BitString,
 ) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "write_file"
 
