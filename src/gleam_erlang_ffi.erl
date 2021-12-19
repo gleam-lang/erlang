@@ -1,7 +1,7 @@
 -module(gleam_erlang_ffi).
 -export([atom_from_dynamic/1, atom_create_from_string/1, atom_to_string/1,
          rescue/1, atom_from_string/1, get_line/1, ensure_all_started/1,
-         sleep/1, sleep_forever/0]).
+         sleep/1, sleep_forever/0, read_file/1, write_file/2, delete_file/1]).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, atom_not_loaded}.
 atom_from_string(S) ->
@@ -56,3 +56,18 @@ sleep(Microseconds) ->
 sleep_forever() ->
     timer:sleep(infinity),
     nil.
+
+read_file(Filename) ->
+  file:read_file(Filename).
+
+write_file(Filename, Contents) ->
+  case file:write_file(Filename, Contents) of
+    ok -> {ok, nil};
+    {error, Reason} -> {error, Reason}
+  end.
+
+delete_file(Filename) ->
+  case file:delete(Filename) of
+    ok -> {ok, nil};
+    {error, Reason} -> {error, Reason}
+  end.
