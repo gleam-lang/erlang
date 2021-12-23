@@ -58,16 +58,41 @@ sleep_forever() ->
     nil.
 
 read_file(Filename) ->
-  file:read_file(Filename).
+    case file:read_file(Filename) of
+        {ok, Bitstring} -> {ok, Bitstring};
+        {error, Reason} ->
+            ensure_posix(Reason),
+            {error, Reason}
+    end.
 
 write_file(Filename, Contents) ->
-  case file:write_file(Filename, Contents) of
-    ok -> {ok, nil};
-    {error, Reason} -> {error, Reason}
-  end.
+    case file:write_file(Filename, Contents) of
+        ok -> {ok, nil};
+        {error, Reason} ->
+            ensure_posix(Reason),
+            {error, Reason}
+    end.
 
 delete_file(Filename) ->
-  case file:delete(Filename) of
-    ok -> {ok, nil};
-    {error, Reason} -> {error, Reason}
-  end.
+    case file:delete(Filename) of
+        ok -> {ok, nil};
+        {error, Reason} ->
+            ensure_posix(Reason),
+            {error, Reason}
+    end.
+
+ensure_posix(Error) ->
+    IsPosixCode = posix(Error),
+    if IsPosixCode =:= true -> Error;
+       true -> error(erlang_error)
+    end.
+
+posix(Error) ->
+    lists:member(Error, [eacces, eagain, ebadf, ebadmsg, ebusy, edeadlk,
+                         edeadlock, edquot, eexist, efault, efbig, eftype, eintr,
+                         einval, eio, eisdir, eloop, emfile, emlink, emultihop,
+                         enametoolong, enfile, enobufs, enodev, enolck, enolink,
+                         enoent, enomem, enospc, enosr, enostr, enosys, enotblk,
+                         enotdir, enotsup, enxio, eopnotsupp, eoverflow, eperm,
+                         epipe, erange, erofs, espipe , esrch , estale, etxtbsy,
+                         exdev]).
