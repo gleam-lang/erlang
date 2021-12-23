@@ -111,13 +111,16 @@ pub type Reason {
 ///
 /// ## Examples
 ///
-///    > read_file("example.txt")
+///    > read_bits("example.txt")
 ///    Ok("Hello, World!")
 ///
-///    > read_file("does_not_exist.txt")
+///    > read_bits(from: "example.txt")
+///    Ok("Hello, World!")
+///
+///    > read_bits("does_not_exist.txt")
 ///    Error(Enoent)
 ///
-pub external fn read_file(filename: String) -> Result(BitString, Reason) =
+pub external fn read_bits(from: String) -> Result(BitString, Reason) =
   "gleam_erlang_ffi" "read_file"
 
 /// Write the given contents to a file of the given name.
@@ -127,14 +130,17 @@ pub external fn read_file(filename: String) -> Result(BitString, Reason) =
 ///
 /// ## Examples
 ///
-///    > write_file("file.txt", "Hello, World!")
+///    > write_bits("file.txt", <<"Hello, World!">>)
 ///    Ok(Nil)
 ///
-///    > write_file("does_not_exist/file.txt", "Hello, World!")
+///    > write_bits(contents: <<"Hello, World!">>, to: "file.txt")
+///    Ok(Nil)
+///
+///    > write_bits("does_not_exist/file.txt", <<"Hello, World!">>)
 ///    Error(Enoent)
 ///
-pub external fn write_file(
-  filename: String,
+pub external fn write_bits(
+  to: String,
   contents: BitString,
 ) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "write_file"
