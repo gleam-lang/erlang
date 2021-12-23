@@ -3,118 +3,105 @@
 //// The functions included in this module are for high-level concepts such as
 //// reading and writing.
 
-/// There are various reasons why a file system operation could fail. Reason
-/// represents all of the reasons that Erlang surfaces. These are separated into
-/// two categories:
-///
-/// ## POSIX Errors
-/// - `Eacces` :: Permission denied.
-/// - `Eagain` :: Resource temporarily unavailable.
-/// - `Ebadf` :: Bad file number.
-/// - `Ebadmsg` :: Bad message.
-/// - `Ebusy` :: File busy.
-/// - `Edeadlk` :: Resource deadlock avoided.
-/// - `Edeadlock` :: On most architectures, same as `Edeadlk`. On some
-///  architectures, it means "File locking deadlock error."
-/// - `Edquot` :: Disk quota exceeded.
-/// - `Eexist` :: File already exists.
-/// - `Efault` :: Bad address in system call argument.
-/// - `Efbig` :: File too large.
-/// - `Eftype` :: Inappropriate file type or format. Usually caused by trying to
-///  set the "sticky bit" on a regular file (not a directory).
-/// - `Eintr` :: Interrupted system call.
-/// - `Einval` :: Invalid argument.
-/// - `Eio` :: I/O error.
-/// - `Eisdir` :: Illegal operation on a directory.
-/// - `Eloop` :: Too many levels of symbolic links.
-/// - `Emfile` :: Too many open files.
-/// - `Emlink` :: Too many links.
-/// - `Emultihop` :: Multihop attempted.
-/// - `Enametoolong` :: Filename too long.
-/// - `Enfile` :: File table overflow
-/// - `Enobufs` :: No buffer space available.
-/// - `Enodev` :: No such device.
-/// - `Enolck` :: No locks available.
-/// - `Enolink` :: Link has been severed.
-/// - `Enoent` :: No such file or directory.
-/// - `Enomem` :: Not enough memory.
-/// - `Enospc` :: No space left on device.
-/// - `Enosr` :: No STREAM resources.
-/// - `Enostr` :: Not a STREAM.
-/// - `Enosys` :: Function not implemented.
-/// - `Enotblk` :: Block device required.
-/// - `Enotdir` :: Not a directory.
-/// - `Enotsup` :: Operation not supported.
-/// - `Enxio` :: No such device or address.
-/// - `Eopnotsupp` :: Operation not supported on socket.
-/// - `Eoverflow` :: Value too large to be stored in data type.
-/// - `Eperm` :: Not owner.
-/// - `Epipe` :: Broken pipe.
-/// - `Erange` :: Result too large.
-/// - `Erofs` :: Read-only file system.
-/// - `Espipe` :: Invalid seek.
-/// - `Esrch` :: No such process.
-/// - `Estale` :: Stale remote file handle.
-/// - `Etxtbsy` :: Text file busy.
-/// - `Exdev` :: Cross-domain link.
-///
-/// ## Erlang Errors
-/// - `Badarg` :: Bad argument; usually the argument is of an invalid type. Due
-///  to Gleam's strong typing, this error should not be encountered when the
-///  functions of this module are called from Gleam code.
-/// - `Terminated` :: File server process is terminated.
-/// - `SystemLimit` :: A system limit was hit, probably not enough ports.
+/// Reason represents all of the reasons that Erlang surfaces of why a file
+/// system operation could fail.
 pub type Reason {
+  /// Permission denied.
   Eacces
+  /// Resource temporarily unavailable.
   Eagain
+  /// Bad file number
   Ebadf
+  /// Bad message.
   Ebadmsg
+  /// File busy.
   Ebusy
+  /// Resource deadlock avoided.
   Edeadlk
+  /// On most architectures, same as `Edeadlk`. On some architectures, it
+  /// means "File locking deadlock error."
   Edeadlock
+  /// Disk quota exceeded.
   Edquot
+  /// File already exists.
   Eexist
+  /// Bad address in system call argument.
   Efault
+  /// File too large.
   Efbig
+  /// Inappropriate file type or format. Usually caused by trying to set the
+  /// "sticky bit" on a regular file (not a directory).
   Eftype
+  /// Interrupted system call.
   Eintr
+  /// Invalid argument.
   Einval
+  /// I/O error.
   Eio
+  /// Illegal operation on a directory.
   Eisdir
+  /// Too many levels of symbolic links.
   Eloop
+  /// Too many open files.
   Emfile
+  /// Too many links.
   Emlink
+  /// Multihop attempted.
   Emultihop
+  /// Filename too long
   Enametoolong
+  /// File table overflow
   Enfile
+  /// No buffer space available.
   Enobufs
+  /// No such device.
   Enodev
+  /// No locks available.
   Enolck
+  /// Link has been severed.
   Enolink
+  /// No such file or directory.
   Enoent
+  /// Not enough memory.
   Enomem
+  /// No space left on device.
   Enospc
+  /// No STREAM resources.
   Enosr
+  /// Not a STREAM.
   Enostr
+  /// Function not implemented.
   Enosys
+  /// Block device required.
   Enotblk
+  /// Not a directory.
   Enotdir
+  /// Operation not supported.
   Enotsup
+  /// No such device or address.
   Enxio
+  /// Operation not supported on socket.
   Eopnotsupp
+  /// Value too large to be stored in data type.
   Eoverflow
+  /// Not owner.
   Eperm
+  /// Broken pipe.
   Epipe
+  /// Result too large.
   Erange
+  /// Read-only file system.
   Erofs
+  /// Invalid seek.
   Espipe
+  /// No such process.
   Esrch
+  /// Stale remote file handle.
   Estale
+  /// Text file busy.
   Etxtbsy
+  /// Cross-domain link.
   Exdev
-  Bardarg
-  Terminated
-  SystemLimit
 }
 
 /// Read the contents of the given file.
