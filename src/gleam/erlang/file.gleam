@@ -159,11 +159,11 @@ pub external fn write_file(
 ///
 /// ## Examples
 ///
-///    > delete_file("file.txt")
+///    > delete("file.txt")
 ///    Ok(Nil)
 ///
-///    > delete_file("does_not_exist.txt")
+///    > delete("does_not_exist.txt")
 ///    Error(Enoent)
 ///
-pub external fn delete_file(filename: String) -> Result(Nil, Reason) =
+pub external fn delete(String) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "delete_file"
