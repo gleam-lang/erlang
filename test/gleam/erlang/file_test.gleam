@@ -1,44 +1,39 @@
 import gleam/string
 import gleam/erlang/file
 
-pub fn successful_read_test() {
-  assert Ok(<<"Hello, World!\n":utf8>>) =
-    file.read_bits("test/fixtures/success.txt")
-}
+pub fn utf8_test() {
+  let path = tmp_path("success.txt")
+  assert Error(file.Enoent) = file.read(path)
 
-pub fn unsuccessful_read_test() {
-  assert Error(file.Enoent) = file.read_bits("test/fixtures/does_not_exist.txt")
-}
-
-pub fn successful_write_test() {
-  let path = tmp_path("write_test.txt")
-
-  assert Ok(Nil) = file.write_bits(path, <<"Hello, World!":utf8>>)
-  assert Ok(<<"Hello, World!":utf8>>) = file.read_bits(path)
-
-  // Cleanup
-  file.delete(path)
-}
-
-pub fn unsuccessful_write_test() {
-  let path = tmp_path("doesnt_exist/write_test.txt")
-
-  assert Error(file.Enoent) = file.write_bits(path, <<"Hello, World!":utf8>>)
-}
-
-pub fn successful_delete_test() {
-  let path = tmp_path("example.txt")
-  file.write_bits(path, <<>>)
+  assert Ok(Nil) = file.write(path, "Hello,\nWorld!")
+  assert Ok("Hello,\nWorld!") = file.read(path)
 
   assert Ok(Nil) = file.delete(path)
+  assert Error(file.Enoent) = file.read(path)
 }
 
-pub fn unsuccessful_delete_test() {
-  let path = tmp_path("missing.txt")
+pub fn non_utf8_test() {
+  let path = tmp_path("cat.jpeg")
+  assert Error(file.Enoent) = file.read_bits(path)
 
-  assert Error(file.Enoent) = file.delete(path)
+  assert Ok(Nil) = file.write_bits(path, <<255, 216, 255, 219>>)
+  assert Error(file.NotUTF8) = file.read(path)
+  assert Ok(<<255, 216, 255, 219>>) = file.read_bits(path)
+
+  assert Ok(Nil) = file.delete(path)
+  assert Error(file.Enoent) = file.read_bits(path)
+}
+
+pub fn non_existent_test() {
+  let nonexistent = tmp_path("nonexistent/cat.jpeg")
+
+  assert Error(file.Enoent) = file.read(nonexistent)
+  assert Error(file.Enoent) = file.read_bits(nonexistent)
+  assert Error(file.Enoent) = file.write(nonexistent, "Hello, World!")
+  assert Error(file.Enoent) =
+    file.write_bits(nonexistent, <<255, 216, 255, 219>>)
 }
 
 fn tmp_path(filename: String) {
-  string.concat(["test/tmp", filename])
+  string.concat(["test/tmp/", filename])
 }

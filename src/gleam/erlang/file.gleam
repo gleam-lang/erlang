@@ -3,8 +3,13 @@
 //// The functions included in this module are for high-level concepts such as
 //// reading and writing.
 
+import gleam/bit_string
+import gleam/result
+
 /// Reason represents all of the reasons that Erlang surfaces of why a file
-/// system operation could fail.
+/// system operation could fail. Most of these reasons are POSIX errors, which
+/// come from the operating system and start with `E`. Others have been added to
+/// represent other issues that may arise.
 pub type Reason {
   /// Permission denied.
   Eacces
@@ -102,20 +107,54 @@ pub type Reason {
   Etxtbsy
   /// Cross-domain link.
   Exdev
+  /// File was requested to be read as UTF-8, but is not UTF-8 encoded.
+  NotUTF8
 }
 
-/// Read the contents of the given file.
+/// Read the contents of the given file as a String
 ///
-/// Returns a Result containing the file's contents as a String if the
+/// Assumes the file is UTF-8 encoded. Returns a Result containing the file's
+/// contents as a String if the operation was successful, or Reason if the file
+/// operation failed. If the file is not UTF-8 encoded, the `NotUTF8` variant
+/// will be returned.
+///
+/// ## Examples
+///
+///    > read("example.txt")
+///    Ok("Hello, World!")
+///
+///    > read(from: "example.txt")
+///    Ok("Hello, World!")
+///
+///    > read("does_not_exist.txt")
+///    Error(Enoent)
+///
+///    > read("cat.gif")
+///    Error(NotUTF8)
+///
+pub fn read(from: String) -> Result(String, Reason) {
+  from
+  |> read_bits()
+  |> result.then(fn(content) {
+    case bit_string.to_string(content) {
+      Ok(string) -> Ok(string)
+      Error(Nil) -> Error(NotUTF8)
+    }
+  })
+}
+
+/// Read the contents of the given file as a BitString
+///
+/// Returns a Result containing the file's contents as a BitString if the
 /// operation was successful, or Reason if the operation failed.
 ///
 /// ## Examples
 ///
 ///    > read_bits("example.txt")
-///    Ok("Hello, World!")
+///    Ok(<<"Hello, World!">>)
 ///
-///    > read_bits(from: "example.txt")
-///    Ok("Hello, World!")
+///    > read_bits(from: "cat.gif")
+///    Ok(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
 ///
 ///    > read_bits("does_not_exist.txt")
 ///    Error(Enoent)
@@ -123,20 +162,42 @@ pub type Reason {
 pub external fn read_bits(from: String) -> Result(BitString, Reason) =
   "gleam_erlang_ffi" "read_file"
 
-/// Write the given contents to a file of the given name.
+/// Write the given String contents to a file of the given name.
 ///
 /// Returns a Result with Nil if the operation was successful or a Reason
 /// otherwise.
 ///
 /// ## Examples
 ///
-///    > write_bits("file.txt", <<"Hello, World!">>)
+///    > write("file.txt", "Hello, World!")
 ///    Ok(Nil)
 ///
-///    > write_bits(contents: <<"Hello, World!">>, to: "file.txt")
+///    > write(contents: "Hello, World!", to: "file.txt")
 ///    Ok(Nil)
 ///
-///    > write_bits("does_not_exist/file.txt", <<"Hello, World!">>)
+///    > write("does_not_exist/file.txt", "Hello, World!")
+///    Error(Enoent)
+///
+pub fn write(to: String, contents: String) -> Result(Nil, Reason) {
+  contents
+  |> bit_string.from_string
+  |> write_bits(to, _)
+}
+
+/// Write the given BitString contents to a file of the given name.
+///
+/// Returns a Result with Nil if the operation was successful or a Reason
+/// otherwise.
+///
+/// ## Examples
+///
+///    > write_bits("cat.gif", <<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
+///    Ok(Nil)
+///
+///    > write_bits(contents: <<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, to: "cat.gif")
+///    Ok(Nil)
+///
+///    > write_bits("does_not_exist/cat.gif", <<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
 ///    Error(Enoent)
 ///
 pub external fn write_bits(
