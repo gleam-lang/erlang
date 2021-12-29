@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add `file` module featuring `read`, `read_bits`, `write`, `write_bits`, and `delete` functions.
+
 ## v0.5.0 - 2021-12-04
 
 - The `erlang` module gains the `sleep` and `sleep_forever` functions.
