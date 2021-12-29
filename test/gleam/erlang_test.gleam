@@ -23,14 +23,12 @@ pub fn term_to_binary_test() {
 }
 
 pub fn ensure_all_started_ok_test() {
-  let gleam_erlang = atom.create_from_string("gleam_erlang")
-  let gleam_stdlib = atom.create_from_string("gleam_stdlib")
-  assert Ok([app1, app2]) = erlang.ensure_all_started(gleam_erlang)
-  assert True = app1 == gleam_stdlib
-  assert True = app2 == gleam_erlang
+  let inets = atom.create_from_string("inets")
+  assert Ok([app1]) = erlang.ensure_all_started(inets)
+  assert True = app1 == inets
 
   // If they are already started then empty list is returned
-  assert Ok([]) = erlang.ensure_all_started(gleam_erlang)
+  assert Ok([]) = erlang.ensure_all_started(inets)
 }
 
 pub fn ensure_all_started_unknown_test() {
