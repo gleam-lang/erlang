@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## v0.6.0 - 2021-12-29
 
-- Add `file` module featuring `read`, `read_bits`, `write`, `write_bits`, and `delete` functions.
+- Add `file` module featuring `read`, `read_bits`, `write`, `write_bits`, and
+  `delete` functions.
 
 ## v0.5.0 - 2021-12-04
 
