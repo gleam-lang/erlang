@@ -65,7 +65,7 @@ read_file(Filename) ->
             {error, Reason}
     end.
 
-write_file(Filename, Contents) ->
+write_file(Contents, Filename) ->
     case file:write_file(Filename, Contents) of
         ok -> {ok, nil};
         {error, Reason} ->

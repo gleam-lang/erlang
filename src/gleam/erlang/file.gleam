@@ -169,19 +169,19 @@ pub external fn read_bits(from: String) -> Result(BitString, Reason) =
 ///
 /// ## Examples
 ///
-///    > write("file.txt", "Hello, World!")
+///    > write("Hello, World!", "file.txt")
 ///    Ok(Nil)
 ///
-///    > write(contents: "Hello, World!", to: "file.txt")
+///    > write(to: "file.txt", contents: "Hello, World!")
 ///    Ok(Nil)
 ///
-///    > write("does_not_exist/file.txt", "Hello, World!")
+///    > write("Hello, World!", "does_not_exist/file.txt")
 ///    Error(Enoent)
 ///
-pub fn write(to: String, contents: String) -> Result(Nil, Reason) {
+pub fn write(contents: String, to: String) -> Result(Nil, Reason) {
   contents
   |> bit_string.from_string
-  |> write_bits(to, _)
+  |> write_bits(to)
 }
 
 /// Write the given BitString contents to a file of the given name.
@@ -191,18 +191,18 @@ pub fn write(to: String, contents: String) -> Result(Nil, Reason) {
 ///
 /// ## Examples
 ///
-///    > write_bits("cat.gif", <<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
+///    > write_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "cat.gif")
 ///    Ok(Nil)
 ///
-///    > write_bits(contents: <<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, to: "cat.gif")
+///    > write_bits(to: "cat.gif", contents: <<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
 ///    Ok(Nil)
 ///
-///    > write_bits("does_not_exist/cat.gif", <<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
+///    > write_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "does_not_exist/cat.gif")
 ///    Error(Enoent)
 ///
 pub external fn write_bits(
-  to: String,
   contents: BitString,
+  to: String,
 ) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "write_file"
 
