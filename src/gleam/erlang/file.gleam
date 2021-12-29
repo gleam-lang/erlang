@@ -132,9 +132,9 @@ pub type Reason {
 ///    > read("cat.gif")
 ///    Error(NotUTF8)
 ///
-pub fn read(from: String) -> Result(String, Reason) {
-  from
-  |> read_bits()
+pub fn read(from path: String) -> Result(String, Reason) {
+  path
+  |> do_read_bits()
   |> result.then(fn(content) {
     case bit_string.to_string(content) {
       Ok(string) -> Ok(string)
@@ -159,7 +159,11 @@ pub fn read(from: String) -> Result(String, Reason) {
 ///    > read_bits("does_not_exist.txt")
 ///    Error(Enoent)
 ///
-pub external fn read_bits(from: String) -> Result(BitString, Reason) =
+pub fn read_bits(from path: String) -> Result(BitString, Reason) {
+  do_read_bits(path)
+}
+
+external fn do_read_bits(path) -> Result(BitString, Reason) =
   "gleam_erlang_ffi" "read_file"
 
 /// Write the given String contents to a file of the given name.
@@ -178,10 +182,10 @@ pub external fn read_bits(from: String) -> Result(BitString, Reason) =
 ///    > write("Hello, World!", "does_not_exist/file.txt")
 ///    Error(Enoent)
 ///
-pub fn write(contents: String, to: String) -> Result(Nil, Reason) {
+pub fn write(contents contents: String, to path: String) -> Result(Nil, Reason) {
   contents
   |> bit_string.from_string
-  |> write_bits(to)
+  |> do_write_bits(path)
 }
 
 /// Write the given BitString contents to a file of the given name.
@@ -200,9 +204,16 @@ pub fn write(contents: String, to: String) -> Result(Nil, Reason) {
 ///    > write_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "does_not_exist/cat.gif")
 ///    Error(Enoent)
 ///
-pub external fn write_bits(
+pub fn write_bits(
+  contents contents: BitString,
+  to path: String,
+) -> Result(Nil, Reason) {
+  do_write_bits(contents, path)
+}
+
+external fn do_write_bits(
   contents: BitString,
-  to: String,
+  path: String,
 ) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "write_file"
 

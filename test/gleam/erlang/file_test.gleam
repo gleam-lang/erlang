@@ -34,6 +34,20 @@ pub fn non_existent_test() {
     file.write_bits(<<255, 216, 255, 219>>, nonexistent)
 }
 
+pub fn label_test() {
+  let path = tmp_path("success.txt")
+  assert Error(file.Enoent) = file.read(from: path)
+
+  assert Ok(Nil) = file.write(to: path, contents: "Hello,\nWorld!")
+  assert Ok("Hello,\nWorld!") = file.read(from: path)
+
+  assert Ok(Nil) = file.write_bits(to: path, contents: <<255, 216, 255, 219>>)
+  assert Ok(<<255, 216, 255, 219>>) = file.read_bits(from: path)
+
+  assert Ok(Nil) = file.delete(path)
+  assert Error(file.Enoent) = file.read(from: path)
+}
+
 fn tmp_path(filename: String) {
   string.concat(["test/tmp/", filename])
 }
