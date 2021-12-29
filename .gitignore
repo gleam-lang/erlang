@@ -20,3 +20,4 @@ log
 logs
 rebar3.crashdump
 build
+test/tmp
