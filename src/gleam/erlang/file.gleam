@@ -111,6 +111,99 @@ pub type Reason {
   NotUTF8
 }
 
+/// Returns true if path refers to a directory, otherwise false.
+///
+/// ## Examples
+///
+///    > is_directory("/tmp")
+///    True
+///
+///    > is_directory("resume.pdf")
+///    False
+pub external fn is_directory(path: String) -> Bool =
+  "filelib" "is_dir"
+
+/// Returns true if path refers to a file, otherwise false.
+///
+/// ## Examples
+///
+///    > is_file("resume.pdf")
+///    True
+///
+///    > is_file("/tmp")
+///    True
+///
+///    > is_file("/does_not_exist")
+///    False
+pub external fn is_file(path: String) -> Bool =
+  "filelib" "is_file"
+
+/// Tries to create a directory. Missing parent directories are not created.
+///
+/// Returns a Result of nil if the directory is created or Reason if the
+/// operation failed.
+///
+/// ## Examples
+///
+///    > make_directory("/tmp/foo")
+///    Ok(Nil)
+///
+///    > make_directory("relative_directory")
+///    Ok(Nil)
+///
+///    > make_directory("/tmp/missing_intermediate_directory/foo")
+///    Error(Enoent)
+pub external fn make_directory(path: String) -> Result(Nil, Reason) =
+  "gleam_erlang_ffi" "make_directory"
+
+/// Lists all files in a directory, except files with
+/// [raw filenames](https://www.erlang.org/doc/apps/stdlib/unicode_usage.html#notes-about-raw-filenames).
+///
+/// Returns a Result containing the list of filenames in the directory, or Reason
+/// if the operation failed.
+///
+/// ## Examples
+///
+///    > list_directory("/tmp")
+///    Ok(["FB01293B-8597-4359-80D5-130140A0C0DE","AlTest2.out"])
+///
+///    > list_directory("resume.docx")
+///    Error(Enotdir)
+pub external fn list_directory(path: String) -> Result(List(String), Reason) =
+  "gleam_erlang_ffi" "list_directory"
+
+/// Deletes a directory.
+///
+/// The directory must be empty before it can be deleted. Returns a nil Success
+/// or Reason if the operation failed.
+///
+/// ## Examples
+///
+///    > delete_directory("foo")
+///    Ok(Nil)
+///
+///    > delete_directory("does_not_exist/")
+///    Error(Enoent)
+pub external fn delete_directory(path: String) -> Result(Nil, Reason) =
+  "gleam_erlang_ffi" "delete_directory"
+
+/// Deletes a file or directory recursively.
+///
+/// Returns a nil Success or Reason if the operation failed.
+///
+/// ## Examples
+///
+///    > recursive_delete("foo")
+///    Ok(Nil)
+///
+///    > recursive_delete("/bar")
+///    Ok(Nil)
+///
+///    > recursive_delete("does_not_exist/")
+///    Error(Enoent)
+pub external fn recursive_delete(path: String) -> Result(Nil, Reason) =
+  "gleam_erlang_ffi" "recursive_delete"
+
 /// Read the contents of the given file as a String
 ///
 /// Assumes the file is UTF-8 encoded. Returns a Result containing the file's

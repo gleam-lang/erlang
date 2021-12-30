@@ -1,7 +1,8 @@
 -module(gleam_erlang_ffi).
 -export([atom_from_dynamic/1, atom_create_from_string/1, atom_to_string/1,
          rescue/1, atom_from_string/1, get_line/1, ensure_all_started/1,
-         sleep/1, sleep_forever/0, read_file/1, write_file/2, delete_file/1]).
+         sleep/1, sleep_forever/0, read_file/1, write_file/2, delete_file/1,
+         delete_directory/1, recursive_delete/1, list_directory/1, make_directory/1]).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, atom_not_loaded}.
 atom_from_string(S) ->
@@ -76,6 +77,42 @@ write_file(Contents, Filename) ->
 delete_file(Filename) ->
     case file:delete(Filename) of
         ok -> {ok, nil};
+        {error, Reason} ->
+            ensure_posix(Reason),
+            {error, Reason}
+    end.
+
+make_directory(Dir) ->
+    case file:make_dir(Dir) of
+        ok ->
+            {ok, nil};
+        {error, Reason} ->
+            ensure_posix(Reason),
+            {error, Reason}
+    end.
+
+list_directory(Dir) ->
+    case file:list_dir(Dir) of
+        {ok, Filenames} ->
+            {ok, [list_to_binary(Filename) || Filename <- Filenames]};
+        {error, Reason} ->
+            ensure_posix(Reason),
+            {error, Reason}
+    end.
+
+delete_directory(Dir) ->
+    case file:del_dir(Dir) of
+        ok ->
+            {ok, nil};
+        {error, Reason} ->
+            ensure_posix(Reason),
+            {error, Reason}
+    end.
+
+recursive_delete(Dir) ->
+    case file:del_dir_r(Dir) of
+        ok ->
+            {ok, nil};
         {error, Reason} ->
             ensure_posix(Reason),
             {error, Reason}
