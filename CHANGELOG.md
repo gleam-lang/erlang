@@ -1,5 +1,10 @@
 # Changelog
 
+## vNext
+
+- Add `is_directory`, `is_file`, `make_directory`, `list_directory`, `delete_directory`,
+  `recursive_delete` functions to `file` module.
+
 ## v0.6.0 - 2021-12-29
 
 - Add `file` module featuring `read`, `read_bits`, `write`, `write_bits`, and
