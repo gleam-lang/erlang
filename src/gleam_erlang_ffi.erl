@@ -4,6 +4,25 @@
          sleep/1, sleep_forever/0, read_file/1, write_file/2, delete_file/1,
          delete_directory/1, recursive_delete/1, list_directory/1, make_directory/1]).
 
+-define(is_posix_error(Error), 
+    Error =:= eacces orelse Error =:= eagain orelse Error =:= ebadf orelse
+    Error =:= ebadmsg orelse Error =:= ebusy orelse Error =:= edeadlk orelse
+    Error =:= edeadlock orelse Error =:= edquot orelse Error =:= eexist orelse
+    Error =:= efault orelse Error =:= efbig orelse Error =:= eftype orelse
+    Error =:= eintr orelse Error =:= einval orelse Error =:= eio orelse
+    Error =:= eisdir orelse Error =:= eloop orelse Error =:= emfile orelse
+    Error =:= emlink orelse Error =:= emultihop orelse Error =:= enametoolong orelse
+    Error =:= enfile orelse Error =:= enobufs orelse Error =:= enodev orelse
+    Error =:= enolck orelse Error =:= enolink orelse Error =:= enoent orelse
+    Error =:= enomem orelse Error =:= enospc orelse Error =:= enosr orelse
+    Error =:= enostr orelse Error =:= enosys orelse Error =:= enotblk orelse
+    Error =:= enotdir orelse Error =:= enotsup orelse Error =:= enxio orelse
+    Error =:= eopnotsupp orelse Error =:= eoverflow orelse Error =:= eperm orelse
+    Error =:= epipe orelse Error =:= erange orelse Error =:= erofs orelse
+    Error =:= espipe orelse Error =:= esrch orelse Error =:= estale orelse
+    Error =:= etxtbsy orelse Error =:= exdev
+).
+
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, atom_not_loaded}.
 atom_from_string(S) ->
     try {ok, binary_to_existing_atom(S, utf8)}
@@ -58,78 +77,35 @@ sleep_forever() ->
     timer:sleep(infinity),
     nil.
 
-read_file(Filename) ->
-    case file:read_file(Filename) of
-        {ok, Bitstring} -> {ok, Bitstring};
-        {error, Reason} ->
-            ensure_posix(Reason),
-            {error, Reason}
+posix_result(Result) ->
+    case Result of
+        ok -> {ok, nil};
+        {ok, Value} -> {ok, Value};
+        {error, Reason} when ?is_posix_error(Reason) -> {error, Reason}
     end.
+
+read_file(Filename) ->
+    posix_result(file:read_file(Filename)).
 
 write_file(Contents, Filename) ->
-    case file:write_file(Filename, Contents) of
-        ok -> {ok, nil};
-        {error, Reason} ->
-            ensure_posix(Reason),
-            {error, Reason}
-    end.
+    posix_result(file:write_file(Filename, Contents)).
 
 delete_file(Filename) ->
-    case file:delete(Filename) of
-        ok -> {ok, nil};
-        {error, Reason} ->
-            ensure_posix(Reason),
-            {error, Reason}
-    end.
+    posix_result(file:delete(Filename)).
 
 make_directory(Dir) ->
-    case file:make_dir(Dir) of
-        ok ->
-            {ok, nil};
-        {error, Reason} ->
-            ensure_posix(Reason),
-            {error, Reason}
-    end.
+    posix_result(file:make_dir(Dir)).
 
 list_directory(Dir) ->
     case file:list_dir(Dir) of
         {ok, Filenames} ->
             {ok, [list_to_binary(Filename) || Filename <- Filenames]};
-        {error, Reason} ->
-            ensure_posix(Reason),
+        {error, Reason} when ?is_posix_error(Reason) ->
             {error, Reason}
     end.
 
 delete_directory(Dir) ->
-    case file:del_dir(Dir) of
-        ok ->
-            {ok, nil};
-        {error, Reason} ->
-            ensure_posix(Reason),
-            {error, Reason}
-    end.
+    posix_result(file:del_dir(Dir)).
 
 recursive_delete(Dir) ->
-    case file:del_dir_r(Dir) of
-        ok ->
-            {ok, nil};
-        {error, Reason} ->
-            ensure_posix(Reason),
-            {error, Reason}
-    end.
-
-ensure_posix(Error) ->
-    IsPosixCode = posix(Error),
-    if IsPosixCode =:= true -> Error;
-       true -> error(erlang_error)
-    end.
-
-posix(Error) ->
-    lists:member(Error, [eacces, eagain, ebadf, ebadmsg, ebusy, edeadlk,
-                         edeadlock, edquot, eexist, efault, efbig, eftype, eintr,
-                         einval, eio, eisdir, eloop, emfile, emlink, emultihop,
-                         enametoolong, enfile, enobufs, enodev, enolck, enolink,
-                         enoent, enomem, enospc, enosr, enostr, enosys, enotblk,
-                         enotdir, enotsup, enxio, eopnotsupp, eoverflow, eperm,
-                         epipe, erange, erofs, espipe , esrch , estale, etxtbsy,
-                         exdev]).
+    posix_result(file:del_dir_r(Dir)).
