@@ -2,8 +2,9 @@
 
 ## vNext
 
-- Add `is_directory`, `is_file`, `make_directory`, `list_directory`, `delete_directory`,
-  `recursive_delete` functions to `file` module.
+- Add `is_directory`, `is_file`, `make_directory`, `list_directory`,
+  `delete_directory`, `recursive_delete` functions to `file` module.
+- Add `env` module with `get_all`, `get`, `set`, and `unset` functions.
 
 ## v0.6.0 - 2021-12-29
 
