@@ -112,9 +112,10 @@ recursive_delete(Dir) ->
     posix_result(file:del_dir_r(Dir)).
 
 get_all_env() ->
-    BinVars = lists:map(fun({Key, Value}) ->
-      {list_to_binary(Key), list_to_binary(Value)}
-    end, os:env()),
+    BinVars = lists:map(fun(VarString) ->
+                                [VarName, VarVal] = string:split(VarString, "="),
+                                {list_to_binary(VarName), list_to_binary(VarVal)}
+                        end, os:getenv()),
     maps:from_list(BinVars).
 
 get_env(Name) ->
