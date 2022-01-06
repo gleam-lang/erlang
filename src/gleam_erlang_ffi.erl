@@ -2,9 +2,10 @@
 -export([atom_from_dynamic/1, atom_create_from_string/1, atom_to_string/1,
          rescue/1, atom_from_string/1, get_line/1, ensure_all_started/1,
          sleep/1, sleep_forever/0, read_file/1, write_file/2, delete_file/1,
-         delete_directory/1, recursive_delete/1, list_directory/1, make_directory/1]).
+         delete_directory/1, recursive_delete/1, list_directory/1,
+         make_directory/1, get_all_env/0, get_env/1, set_env/2, unset_env/1]).
 
--define(is_posix_error(Error), 
+-define(is_posix_error(Error),
     Error =:= eacces orelse Error =:= eagain orelse Error =:= ebadf orelse
     Error =:= ebadmsg orelse Error =:= ebusy orelse Error =:= edeadlk orelse
     Error =:= edeadlock orelse Error =:= edquot orelse Error =:= eexist orelse
@@ -109,3 +110,23 @@ delete_directory(Dir) ->
 
 recursive_delete(Dir) ->
     posix_result(file:del_dir_r(Dir)).
+
+get_all_env() ->
+    BinVars = lists:map(fun({Key, Value}) ->
+      {list_to_binary(Key), list_to_binary(Value)}
+    end, os:env()),
+    maps:from_list(BinVars).
+
+get_env(Name) ->
+    case os:getenv(binary_to_list(Name)) of
+        false -> {error, nil};
+        Value -> {ok, list_to_binary(Value)}
+    end.
+
+set_env(Name, Value) ->
+    os:putenv(binary_to_list(Name), binary_to_list(Value)),
+    nil.
+
+unset_env(Name) ->
+    os:unsetenv(binary_to_list(Name)),
+    nil.
