@@ -113,9 +113,9 @@ recursive_delete(Dir) ->
 
 get_all_env() ->
     BinVars = lists:map(fun(VarString) ->
-                                [VarName, VarVal] = string:split(VarString, "="),
-                                {list_to_binary(VarName), list_to_binary(VarVal)}
-                        end, os:getenv()),
+        [VarName, VarVal] = string:split(VarString, "="),
+        {list_to_binary(VarName), list_to_binary(VarVal)}
+    end, os:getenv()),
     maps:from_list(BinVars).
 
 get_env(Name) ->
