@@ -1,10 +1,11 @@
 # Changelog
 
-## vNext
+## v0.7.0 - 2022-01-13
 
 - Add `is_directory`, `is_file`, `make_directory`, `list_directory`,
   `delete_directory`, `recursive_delete` functions to `file` module.
-- Add `os` module with `get_all_env`, `get_env`, `set_env`, and `unset_env` functions.
+- Add `os` module with `get_all_env`, `get_env`, `set_env`, and `unset_env`
+  functions.
 
 ## v0.6.0 - 2021-12-29
 
