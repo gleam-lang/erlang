@@ -63,3 +63,48 @@ pub external fn set_env(name: String, value: String) -> Nil =
 ///
 pub external fn unset_env(name: String) -> Nil =
   "gleam_erlang_ffi" "unset_env"
+
+/// Run a command in a command shell.
+///
+/// This function returns the output of the command as a String.
+///
+/// ## Examples
+///
+///    > cmd("ls")
+///    "Code\nDesktop\nDocuments\nMusic\nPictures\nVideos"
+///
+///    > cmd("ls -a")
+///    ".\n..\n.asdf\n.config\nCode\nDesktop\nDocuments\nMusic\nPictures\nVideos"
+///
+pub external fn cmd(String) -> String =
+  "gleam_erlang_ffi" "cmd"
+
+/// Represents operating system kernels
+pub type Kernel {
+  // A popular open source operating system kernel
+  Linux
+  // The kernel used by Apple operating systems, such as macOS and iOS.
+  Darwin
+  // The kernel underlying the various editions of the Windows operating system.
+  Nt
+  // An operating system kernel other than Linux, Darwin, or NT.
+  Other(String)
+}
+
+/// Returns the kernel of the host operating system.
+///
+/// Unknown kernels are reported as `Other(String)`; e.g. `Other("freebsd")`.
+///
+/// ## Examples
+///
+///    > kernel()
+///    Linux
+///    > kernel()
+///    Darwin
+///    > kernel()
+///    Nt
+///    > kernel()
+///    Other("freebsd")
+///
+pub external fn kernel() -> Kernel =
+  "gleam_erlang_ffi" "kernel"
