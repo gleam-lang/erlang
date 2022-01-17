@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.8.0 - 2022-01-17
+
+- Use `DecodeErrors` in the `atom` module for the `from_dynamic` function.
+
 ## v0.7.0 - 2022-01-13
 
 - Add `is_directory`, `is_file`, `make_directory`, `list_directory`,

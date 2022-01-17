@@ -1,5 +1,5 @@
 import gleam/erlang/atom
-import gleam/dynamic.{DecodeErrors}
+import gleam/dynamic.{DecodeError}
 
 pub fn from_string_test() {
   atom.create_from_string("this is an existing atom")
@@ -52,12 +52,12 @@ pub fn from_dynamic_test() {
     |> atom.from_dynamic
   assert True = result == Ok(atom.create_from_string("ok"))
 
-  assert Error([DecodeError(expected: "Atom", found: "Int")]) =
+  assert Error([DecodeError(expected: "Atom", found: "Int", path: [])]) =
     1
     |> dynamic.from
     |> atom.from_dynamic
 
-  assert Error([DecodeError(expected: "Atom", found: "List")]) =
+  assert Error([DecodeError(expected: "Atom", found: "List", path: [])]) =
     []
     |> dynamic.from
     |> atom.from_dynamic
