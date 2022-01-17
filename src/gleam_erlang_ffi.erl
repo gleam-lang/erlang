@@ -43,7 +43,7 @@ atom_to_string(S) ->
 atom_from_dynamic(Data) when is_atom(Data) ->
     {ok, Data};
 atom_from_dynamic(Data) ->
-    {error, {decode_error, <<"Atom">>, gleam@dynamic:classify(Data)}}.
+    {error, [{decode_error, <<"Atom">>, gleam@dynamic:classify(Data)}]}.
 
 -spec get_line(io:prompt()) -> {ok, unicode:unicode_binary()} | {error, eof | no_data}.
 get_line(Prompt) ->
