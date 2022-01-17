@@ -1,8 +1,8 @@
 import gleam/erlang/os
 
-pub fn cmd_test() {
+pub fn command_test() {
   // Not sure Windows has an 'echo' command; might be *nix only.
-  assert "Hello, World!\n" = os.cmd("echo \"Hello, World!\"")
+  assert "Hello, World!\n" = os.command("echo \"Hello, World!\"")
 }
 
 pub fn kernel_test() {
