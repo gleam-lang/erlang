@@ -6,10 +6,16 @@ pub fn command_test() {
 }
 
 pub fn kernel_test() {
-  // Ok, I _really_ doubt Windows has a `uname`.
-  case os.cmd("uname -s") {
-    "Linux" -> os.Linux
-    "Darwin" -> os.Darwin
-    other -> os.Other(other)
+  // I doubt Windows has a `uname`, reconsider testing approach
+  case os.command("uname -s") {
+    "Linux\n" -> {
+      assert os.Linux = os.kernel()
+    }
+    "Darwin\n" -> {
+      assert os.Darwin = os.kernel()
+    }
+    _ -> {
+      assert os.Other(_) = os.kernel()
+    }
   }
 }
