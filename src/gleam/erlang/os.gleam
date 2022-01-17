@@ -70,13 +70,13 @@ pub external fn unset_env(name: String) -> Nil =
 ///
 /// ## Examples
 ///
-///    > cmd("ls")
+///    > command("ls")
 ///    "Code\nDesktop\nDocuments\nMusic\nPictures\nVideos"
 ///
-///    > cmd("ls -a")
+///    > command("ls -a")
 ///    ".\n..\n.asdf\n.config\nCode\nDesktop\nDocuments\nMusic\nPictures\nVideos"
 ///
-pub external fn cmd(String) -> String =
+pub external fn command(String) -> String =
   "gleam_erlang_ffi" "cmd"
 
 /// Represents operating system kernels
