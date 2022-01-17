@@ -1,6 +1,6 @@
 name = "gleam_erlang"
 
-version = "0.7.0"
+version = "0.8.0"
 licences = ["Apache-2.0"]
 description = "A Gleam library for working with Erlang"
 
@@ -11,7 +11,7 @@ links = [
 ]
 
 [dependencies]
-gleam_stdlib = "~> 0.18"
+gleam_stdlib = "~> 0.19"
 
 [dev-dependencies]
-gleeunit = "~> 0.1"
+gleeunit = "~> 0.6"

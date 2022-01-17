@@ -73,7 +73,7 @@ pub external fn to_string(Atom) -> String =
 ///    Ok(create_from_string("hello"))
 ///
 ///    > from_dynamic(dynamic.from(123))
-///    Error([DecodeError(expected: "Atom", found: "Int")])
+///    Error([DecodeError(expected: "Atom", found: "Int", path: [])])
 ///
 pub external fn from_dynamic(from: Dynamic) -> Result(Atom, DecodeErrors) =
   "gleam_erlang_ffi" "atom_from_dynamic"
