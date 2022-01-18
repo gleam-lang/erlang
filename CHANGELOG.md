@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.8.0 - 2022-01-17
+## v0.8.0 - 2022-01-18
 
 - Use `DecodeErrors` in the `atom` module for the `from_dynamic` function.
 
