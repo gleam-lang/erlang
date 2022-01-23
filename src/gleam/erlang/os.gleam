@@ -64,47 +64,32 @@ pub external fn set_env(name: String, value: String) -> Nil =
 pub external fn unset_env(name: String) -> Nil =
   "gleam_erlang_ffi" "unset_env"
 
-/// Run a command in a command shell.
-///
-/// This function returns the output of the command as a String.
-///
-/// ## Examples
-///
-///    > command("ls")
-///    "Code\nDesktop\nDocuments\nMusic\nPictures\nVideos"
-///
-///    > command("ls -a")
-///    ".\n..\n.asdf\n.config\nCode\nDesktop\nDocuments\nMusic\nPictures\nVideos"
-///
-pub external fn command(String) -> String =
-  "gleam_erlang_ffi" "cmd"
-
 /// Represents operating system kernels
-pub type Kernel {
-  // A popular open source operating system kernel
+pub type OsFamily {
+  // The family which includes modern versions of the Windows operating system.
+  WindowsNt
+  // The family of operating systems based on the open source Linux kernel.
   Linux
-  // The kernel used by Apple operating systems, such as macOS and iOS.
+  // The family of Apple operating systems such as macOS and iOS.
   Darwin
-  // The kernel underlying the various editions of the Windows operating system.
-  Nt
-  // An operating system kernel other than Linux, Darwin, or NT.
+  // The family of operating systems based on the FreeBSD kernel.
+  FreeBsd
+  // An operating system kernel other than Linux, Darwin, FreeBSD, or NT.
   Other(String)
 }
 
 /// Returns the kernel of the host operating system.
 ///
-/// Unknown kernels are reported as `Other(String)`; e.g. `Other("freebsd")`.
+/// Unknown kernels are reported as `Other(String)`; e.g. `Other("sunos")`.
 ///
 /// ## Examples
 ///
-///    > kernel()
+///    > family()
 ///    Linux
-///    > kernel()
+///    > family()
 ///    Darwin
-///    > kernel()
-///    Nt
-///    > kernel()
-///    Other("freebsd")
+///    > family()
+///    Other("sunos")
 ///
-pub external fn kernel() -> Kernel =
-  "gleam_erlang_ffi" "kernel"
+pub external fn family() -> OsFamily =
+  "gleam_erlang_ffi" "os_family"
