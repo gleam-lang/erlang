@@ -36,3 +36,8 @@ pub fn ensure_all_started_unknown_test() {
   assert Error(UnknownApplication(problem)) = erlang.ensure_all_started(unknown)
   assert True = problem == unknown
 }
+
+pub fn sleep_test() {
+  // Exists just to ensure the function does not error
+  erlang.sleep(1)
+}

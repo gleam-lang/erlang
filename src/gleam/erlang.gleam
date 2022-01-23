@@ -133,7 +133,7 @@ pub type EnsureAllStartedError {
 /// Suspends the process calling this function for the specified number of
 /// milliseconds.
 pub external fn sleep(Int) -> Nil =
-  "gleam_erlang_ffi" "ensure_all_started"
+  "gleam_erlang_ffi" "sleep"
 
 /// Suspends the process calling this function for the specified number of
 /// milliseconds.
