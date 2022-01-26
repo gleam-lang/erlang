@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.9.0 - Unreleased
+## v0.9.0 - 2022-01-26
 
 - The `os` module gains the `family` function.
 - Fixed a bug where the `erlang.sleep` function would fail.
