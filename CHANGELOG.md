@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.9.0 - Unreleased
+
+- The `os` module gains the `family` function.
+- Fixed a bug where the `erlang.sleep` function would fail.
+
 ## v0.8.0 - 2022-01-18
 
 - Use `DecodeErrors` in the `atom` module for the `from_dynamic` function.
