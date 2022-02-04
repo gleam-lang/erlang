@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.9.1 - 2022-02-04
+
+- Corrected the `NotUTF8` file error variant name to `NotUtf8`.
+
 ## v0.9.0 - 2022-01-26
 
 - The `os` module gains the `family` function.

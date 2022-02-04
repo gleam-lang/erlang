@@ -22,7 +22,7 @@ pub fn non_utf8_test() {
   assert Error(file.Enoent) = file.read_bits(path)
 
   assert Ok(Nil) = file.write_bits(<<255, 216, 255, 219>>, path)
-  assert Error(file.NotUTF8) = file.read(path)
+  assert Error(file.NotUtf8) = file.read(path)
   assert Ok(<<255, 216, 255, 219>>) = file.read_bits(path)
 
   assert Ok(Nil) = file.delete(path)

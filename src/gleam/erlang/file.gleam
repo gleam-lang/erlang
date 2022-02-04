@@ -108,7 +108,7 @@ pub type Reason {
   /// Cross-domain link.
   Exdev
   /// File was requested to be read as UTF-8, but is not UTF-8 encoded.
-  NotUTF8
+  NotUtf8
 }
 
 /// Returns true if path refers to a directory, otherwise false.
@@ -231,7 +231,7 @@ pub fn read(from path: String) -> Result(String, Reason) {
   |> result.then(fn(content) {
     case bit_string.to_string(content) {
       Ok(string) -> Ok(string)
-      Error(Nil) -> Error(NotUTF8)
+      Error(Nil) -> Error(NotUtf8)
     }
   })
 }
