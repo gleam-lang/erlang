@@ -144,5 +144,5 @@ os_family() ->
         {unix, freebsd} ->
             free_bsd;
         {_, Other} ->
-            {other, atom_to_binary(Other)}
+            {other, atom_to_binary(Other, utf8)}
     end.
