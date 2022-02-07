@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.9.2 - 2022-02-07
+
+- Switched from `atom_to_binary/1` to `atom_to_binary/2` to support older
+  versions of Erlang.
+
 ## v0.9.1 - 2022-02-04
 
 - Corrected the `NotUTF8` file error variant name to `NotUtf8`.
