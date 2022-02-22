@@ -18,7 +18,7 @@ gleam add gleam_erlang
 
 And then use it in your code
 
-```rust
+```gleam
 import gleam/io
 import gleam/erlang/file
 
