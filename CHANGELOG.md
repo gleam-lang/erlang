@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.9.3 - 2022-05-24
+
+- Fixed some warnings with latest version of Gleam.
+
 ## v0.9.2 - 2022-02-07
 
 - Switched from `atom_to_binary/1` to `atom_to_binary/2` to support older
