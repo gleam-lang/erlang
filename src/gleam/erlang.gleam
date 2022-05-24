@@ -1,9 +1,5 @@
 import gleam/dynamic.{Dynamic}
-import gleam/int
 import gleam/list
-import gleam/map
-import gleam/result
-import gleam/string
 import gleam/erlang/atom.{Atom}
 import gleam/erlang/charlist.{Charlist}
 
