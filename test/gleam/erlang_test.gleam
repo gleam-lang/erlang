@@ -1,4 +1,5 @@
 import gleam/dynamic
+import gleam/iterator
 import gleam/erlang.{UnknownApplication}
 import gleam/erlang/atom
 
@@ -35,4 +36,11 @@ pub fn ensure_all_started_unknown_test() {
   let unknown = atom.create_from_string("wibble_application")
   assert Error(UnknownApplication(problem)) = erlang.ensure_all_started(unknown)
   assert True = problem == unknown
+}
+
+pub fn make_reference_test() {
+  let reference = erlang.make_reference()
+  iterator.range(0, 100_000)
+  |> iterator.map(fn(_) { assert True = reference != erlang.make_reference() })
+  |> iterator.run
 }

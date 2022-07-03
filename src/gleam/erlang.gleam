@@ -125,3 +125,22 @@ pub type EnsureAllStartedError {
   UnknownApplication(name: Atom)
   ApplicationFailedToStart(name: Atom, reason: Dynamic)
 }
+
+// TODO: changelog
+/// A unique reference value.
+///
+/// It holds no particular meaning or value, but unique values are often useful
+/// in programs are used heavily within both Gleam and Erlang's OTP frameworks.
+///
+/// More can be read about refernces in the [Erlang documentation][1].
+///
+/// [1]: https://www.erlang.org/doc/efficiency_guide/advanced.html#unique_references
+///
+pub external type Reference
+
+// TODO: changelog
+// TODO: test
+/// Create a new unique reference.
+///
+pub external fn make_reference() -> Reference =
+  "erlang" "make_ref"
