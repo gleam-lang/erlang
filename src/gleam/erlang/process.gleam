@@ -39,13 +39,36 @@ external fn spawn_link(fn() -> anything) -> Pid =
   "erlang" "spawn_link"
 
 // TODO: changelog
-// TODO: document
+/// A `Subject` is a value that processes can use to send and receive messages
+/// to and from each other in a well typed way.
+///
+/// Each subject is "owned" by the process that created it. Any process can use
+/// the `send` function to sent a message of the correct type to the process
+/// that owns the subject, and the owner can use the `receive` function or the
+/// `Selector` type to receive these messages.
+///
+/// The `Subject` type is similar to the "channel" types found in other
+/// languages and the "topic" concept found in some pub-sub systems.
+///
+/// # Examples
+///
+/// ```gleam
+/// let subject = new_subject()
+///
+/// // Send a message via the subject
+/// send(subject, "Hello, Joe!")
+///
+/// // Receive the message
+/// receive(subject, within: 10)
+/// ```
+///
 pub opaque type Subject(message) {
   Subject(owner: Pid, tag: Reference)
 }
 
 // TODO: changelog
-// TODO: document
+/// Create a new `Subject` owned by the current process.
+///
 pub fn new_subject() -> Subject(message) {
   Subject(owner: self(), tag: erlang.make_reference())
 }
@@ -63,8 +86,30 @@ external type DoNotLeak
 external fn raw_send(Pid, message) -> DoNotLeak =
   "erlang" "send"
 
-// TODO: document
-// TODO: changelog
+/// Send a message to a process via a `Subject`. The message must be of the type
+/// that the subject accepts.
+///
+/// This function does not wait for the `Subject` owner process to call the
+/// `receive` function, instead it returns once the message has been placed in
+/// the process' mailbox.
+///
+/// # Ordering
+///
+/// If process P1 sends two messages to process P2 it is guarenteed that process
+/// P1 will receive the messages in the order they were sent.
+///
+/// If you wish to receive the messages in a different order you can send them
+/// on two different subjects and the receiver function can call the `receive`
+/// function for each subject in the desired order, or you can write some Erlang
+/// code to perform a selective receive.
+///
+/// # Examples
+///
+/// ```gleam
+/// let subject = new_subject()
+/// send(subject, "Hello, Joe!")
+/// ```
+///
 pub fn send(subject: Subject(message), message: message) -> Nil {
   raw_send(subject.owner, #(subject.tag, message))
   Nil
