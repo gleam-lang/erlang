@@ -125,16 +125,3 @@ pub type EnsureAllStartedError {
   UnknownApplication(name: Atom)
   ApplicationFailedToStart(name: Atom, reason: Dynamic)
 }
-
-/// Suspends the process calling this function for the specified number of
-/// milliseconds.
-///
-pub external fn sleep(Int) -> Nil =
-  "gleam_erlang_ffi" "sleep"
-
-/// Suspends the process forever! This may be useful for suspending the main
-/// process in a Gleam program when it has no more work to do but we want other
-/// processes to continue to work.
-///
-pub external fn sleep_forever() -> Nil =
-  "gleam_erlang_ffi" "sleep_forever"
