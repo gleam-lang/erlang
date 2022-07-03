@@ -4,7 +4,7 @@
          sleep/1, sleep_forever/0, read_file/1, write_file/2, delete_file/1,
          delete_directory/1, recursive_delete/1, list_directory/1,
          make_directory/1, get_all_env/0, get_env/1, set_env/2, unset_env/1,
-         os_family/0]).
+         os_family/0, new_selector/0, selecting/3, select/2]).
 
 -define(is_posix_error(Error),
     Error =:= eacces orelse Error =:= eagain orelse Error =:= ebadf orelse
@@ -145,4 +145,19 @@ os_family() ->
             free_bsd;
         {_, Other} ->
             {other, atom_to_binary(Other, utf8)}
+    end.
+
+new_selector() ->
+    {selector, #{}}.
+
+selecting({selector, Handlers}, {subject, _Pid, Ref}, Fn) ->
+    {selector, Handlers#{Ref => Fn}}.
+
+select({selector, Handlers}, Timeout) ->
+    receive
+        {Tag, Message} when is_map_key(Tag, Handlers) ->
+            Fn = maps:get(Tag, Handlers),
+            {ok, Fn(Message)}
+    after Timeout ->
+        {error, nil}
     end.
