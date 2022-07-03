@@ -1,21 +1,4 @@
-// TODO: changelog
-/// A unique reference value.
-///
-/// It holds no particular meaning or value, but unique values are often useful
-/// in programs are used heavily within both Gleam and Erlang's OTP frameworks.
-///
-/// More can be read about refernces in the [Erlang documentation][1].
-///
-/// [1]: https://www.erlang.org/doc/efficiency_guide/advanced.html#unique_references
-///
-pub external type Reference
-
-// TODO: changelog
-// TODO: test
-/// Create a new unique reference.
-///
-pub external fn make_reference() -> Reference =
-  "erlang" "make_ref"
+import gleam/erlang.{Reference}
 
 // TODO: changelog
 /// A `Pid` (or Process identifier) is a reference to an Erlang process. Each
@@ -30,7 +13,6 @@ pub external fn self() -> Pid =
   "erlang" "self"
 
 // TODO: changelog
-// TODO: test
 /// Create a new Erlang process that runs concurrently to the creator. In other
 /// languages this might be called a fibre, a green thread, or a coroutine.
 ///
@@ -43,7 +25,7 @@ pub external fn self() -> Pid =
 ///
 /// [1]: https://www.erlang.org/doc/reference_manual/processes.html
 ///
-pub fn start(linked link: Bool, running implementation: fn() -> anything) -> Pid {
+pub fn start(running implementation: fn() -> anything, linked link: Bool) -> Pid {
   case link {
     True -> spawn_link(implementation)
     False -> spawn(implementation)
@@ -65,7 +47,7 @@ pub opaque type Subject(message) {
 // TODO: changelog
 // TODO: document
 pub fn new_subject() -> Subject(message) {
-  Subject(owner: self(), tag: make_reference())
+  Subject(owner: self(), tag: erlang.make_reference())
 }
 
 // TODO: changelog
@@ -82,7 +64,6 @@ external fn raw_send(Pid, message) -> DoNotLeak =
   "erlang" "send"
 
 // TODO: document
-// TODO: test
 // TODO: changelog
 pub fn send(subject: Subject(message), message: message) -> Nil {
   raw_send(subject.owner, #(subject.tag, message))
@@ -90,7 +71,6 @@ pub fn send(subject: Subject(message), message: message) -> Nil {
 }
 
 // TODO: changelog
-// TODO: test
 // TODO: document
 pub fn receive(
   from subject: Subject(message),
@@ -111,7 +91,6 @@ pub external fn new_selector() -> Selector(payload) =
   "gleam_erlang_ffi" "new_selector"
 
 // TODO: changelog
-// TODO: test
 // TODO: document
 pub external fn select(
   from: Selector(payload),
@@ -142,3 +121,12 @@ pub external fn sleep(Int) -> Nil =
 ///
 pub external fn sleep_forever() -> Nil =
   "gleam_erlang_ffi" "sleep_forever"
+
+/// Check to see whether the process for a given `Pid` is alive.
+///
+/// See the [Erlang documentation][1] for more information.
+///
+/// [1]: http://erlang.org/doc/man/erlang.html#is_process_alive-1
+///
+pub external fn is_alive(Pid) -> Bool =
+  "erlang" "is_process_alive"
