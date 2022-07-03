@@ -63,7 +63,6 @@ pub opaque type Subject(message) {
 }
 
 // TODO: changelog
-// TODO: test
 // TODO: document
 pub fn new_subject() -> Subject(message) {
   Subject(owner: self(), tag: make_reference())
