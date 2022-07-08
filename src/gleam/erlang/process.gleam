@@ -55,7 +55,7 @@ external fn spawn_link(fn() -> anything) -> Pid =
 /// ```gleam
 /// let subject = new_subject()
 ///
-/// // Send a message via the subject
+/// // Send a message with the subject
 /// send(subject, "Hello, Joe!")
 ///
 /// // Receive the message
@@ -74,8 +74,8 @@ pub fn new_subject() -> Subject(message) {
 }
 
 // TODO: changelog
-/// Get the owner process for a `Subject`. This is the process that will receive
-/// messages sent via the `Subject`.
+/// Get the owner process for a `Subject`. This is the process that created the
+/// `Subject` and will receive messages sent with it.
 ///
 pub fn subject_owner(subject: Subject(message)) -> Pid {
   subject.owner
@@ -86,8 +86,8 @@ external type DoNotLeak
 external fn raw_send(Pid, message) -> DoNotLeak =
   "erlang" "send"
 
-/// Send a message to a process via a `Subject`. The message must be of the type
-/// that the subject accepts.
+/// Send a message to a process using a `Subject`. The message must be of the
+/// type that the `Subject` accepts.
 ///
 /// This function does not wait for the `Subject` owner process to call the
 /// `receive` function, instead it returns once the message has been placed in
@@ -116,7 +116,19 @@ pub fn send(subject: Subject(message), message: message) -> Nil {
 }
 
 // TODO: changelog
-// TODO: document
+/// Receive a message that has been sent to current process using the `Subject`.
+///
+/// If there is not an existing message for the `Subject` in the process'
+/// mailbox or one does not arrive `within` the permitted timeout then the
+/// `Error(Nil)` is returned.
+///
+/// Only the process that is owner of the `Subject` can receive a message using
+/// it. If a process that does not own the `Subject` attempts to receive with it
+/// then it will not receive a message.
+///
+/// To wait for messages from multiple `Subject`s at the same time see the
+/// `Selector` type.
+///
 pub fn receive(
   from subject: Subject(message),
   within milliseconds: Int,
@@ -127,16 +139,50 @@ pub fn receive(
 }
 
 // TODO: changelog
-// TODO: document
+
+/// A type that enables a process to wait for messages from multiple `Subject`s
+/// at the same time, returning whichever message arrives first.
+///
+/// Used with the `new_selector`, `selecting`, and `select` functions.
+///
+/// # Examples
+///
+/// ```gleam
+/// > let int_subject = new_subject()
+/// > let float_subject = new_subject()
+/// > send(int_subject, 1)
+/// >
+/// > let selector =
+/// >   new_selector()
+/// >   |> selecting(int_subject, int.to_string)
+/// >   |> selecting(float_subject, float.to_string)
+/// >
+/// > select(selector)
+/// Ok("1")
+/// ```
+///
 pub external type Selector(payload)
 
 // TODO: changelog
-// TODO: document
+/// Create a new `Selector` which can be used to receive messages on multiple
+/// `Subject`s at once.
+///
 pub external fn new_selector() -> Selector(payload) =
   "gleam_erlang_ffi" "new_selector"
 
 // TODO: changelog
-// TODO: document
+/// Receive a message that has been sent to current process using any of the
+/// `Subject`s that have been added to the `Selector` with the `selecting`
+/// function.
+///
+/// If there is not an existing message for the `Selector` in the process'
+/// mailbox or one does not arrive `within` the permitted timeout then the
+/// `Error(Nil)` is returned.
+///
+/// Only the process that is owner of the `Subject`s can receive a message using
+/// them. If a process that does not own the a `Subject` attempts to receive
+/// with it then it will not receive a message.
+///
 pub external fn select(
   from: Selector(payload),
   within: Int,
@@ -144,7 +190,14 @@ pub external fn select(
   "gleam_erlang_ffi" "select"
 
 // TODO: changelog
-// TODO: document
+/// Add a new `Subject` to the `Selector` to that it's messages can be received.
+///
+/// The `mapping` function provided with the `Subject` can be used to convert
+/// the type of messages received using this `Subject`. This is useful for when
+/// you wish to add multiple `Subject`s to a `Seletor` when they have differing
+/// message types. If you do not wish to transform the incoming messages in any
+/// way then the `identity` function can be given.
+///
 pub external fn selecting(
   Selector(payload),
   for: Subject(message),
