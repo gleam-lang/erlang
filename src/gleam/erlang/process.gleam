@@ -1,18 +1,15 @@
 import gleam/erlang.{Reference}
 
-// TODO: changelog
 /// A `Pid` (or Process identifier) is a reference to an Erlang process. Each
 /// process has a `Pid` and it is one of the lowest level building blocks of
 /// inter-process communication in the Erlang and Gleam OTP frameworks.
 ///
 pub external type Pid
 
-// TODO: changelog
 /// Get the `Pid` for the current process.
 pub external fn self() -> Pid =
   "erlang" "self"
 
-// TODO: changelog
 /// Create a new Erlang process that runs concurrently to the creator. In other
 /// languages this might be called a fibre, a green thread, or a coroutine.
 ///
@@ -38,7 +35,6 @@ external fn spawn(fn() -> anything) -> Pid =
 external fn spawn_link(fn() -> anything) -> Pid =
   "erlang" "spawn_link"
 
-// TODO: changelog
 /// A `Subject` is a value that processes can use to send and receive messages
 /// to and from each other in a well typed way.
 ///
@@ -66,14 +62,12 @@ pub opaque type Subject(message) {
   Subject(owner: Pid, tag: Reference)
 }
 
-// TODO: changelog
 /// Create a new `Subject` owned by the current process.
 ///
 pub fn new_subject() -> Subject(message) {
   Subject(owner: self(), tag: erlang.make_reference())
 }
 
-// TODO: changelog
 /// Get the owner process for a `Subject`. This is the process that created the
 /// `Subject` and will receive messages sent with it.
 ///
@@ -115,7 +109,6 @@ pub fn send(subject: Subject(message), message: message) -> Nil {
   Nil
 }
 
-// TODO: changelog
 /// Receive a message that has been sent to current process using the `Subject`.
 ///
 /// If there is not an existing message for the `Subject` in the process'
@@ -137,8 +130,6 @@ pub fn receive(
   |> selecting(subject, fn(x) { x })
   |> select(within: milliseconds)
 }
-
-// TODO: changelog
 
 /// A type that enables a process to wait for messages from multiple `Subject`s
 /// at the same time, returning whichever message arrives first.
@@ -163,14 +154,12 @@ pub fn receive(
 ///
 pub external type Selector(payload)
 
-// TODO: changelog
 /// Create a new `Selector` which can be used to receive messages on multiple
 /// `Subject`s at once.
 ///
 pub external fn new_selector() -> Selector(payload) =
   "gleam_erlang_ffi" "new_selector"
 
-// TODO: changelog
 /// Receive a message that has been sent to current process using any of the
 /// `Subject`s that have been added to the `Selector` with the `selecting`
 /// function.
@@ -189,7 +178,6 @@ pub external fn select(
 ) -> Result(payload, Nil) =
   "gleam_erlang_ffi" "select"
 
-// TODO: changelog
 /// Add a new `Subject` to the `Selector` to that it's messages can be received.
 ///
 /// The `mapping` function provided with the `Subject` can be used to convert
@@ -205,14 +193,12 @@ pub external fn selecting(
 ) -> Selector(payload) =
   "gleam_erlang_ffi" "selecting"
 
-// TODO: changelog
 /// Suspends the process calling this function for the specified number of
 /// milliseconds.
 ///
 pub external fn sleep(Int) -> Nil =
   "gleam_erlang_ffi" "sleep"
 
-// TODO: changelog
 /// Suspends the process forever! This may be useful for suspending the main
 /// process in a Gleam program when it has no more work to do but we want other
 /// processes to continue to work.

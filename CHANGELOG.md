@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- The `gleam/erlang` module gains the `Reference` type and `make_reference`
+  function.
+- The `gleam/erlang/process` module has been created with the `Pid`, `Subject`,
+  and `Selector` types and the `self`, `start`, `new_subject`, `subject_owner`,
+  `receive`, `new_selector`, `select`, `selecting`, `sleep`, `sleep_forever`,
+  and `is_alive` functions.
+- The `sleep` and `sleep_forever` functions have been moved to the
+  `gleam/erlang/process` module.
+
 ## v0.9.3 - 2022-05-24
 
 - Fixed some warnings with latest version of Gleam.
