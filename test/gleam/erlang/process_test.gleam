@@ -155,53 +155,49 @@ pub fn demonitor_test() {
   // There is no down message
   assert Error(Nil) = process.select(selector, 5)
 }
-// fn call_message(value) {
-//   fn(reply_channel) { #(value, reply_channel) }
-// }
 
-// pub fn try_call_test() {
-//   let parent_subject = process.new_subject()
+pub fn try_call_test() {
+  let parent_subject = process.new_subject()
 
-//   process.start(
-//     linked: True,
-//     running: fn() {
-//       // Send the child subject to the parent so it can call the child
-//       let child_subject = process.new_subject()
-//       process.send(parent_subject, child_subject)
-//       // Wait for the channel to be called
-//       assert Ok(#(x, reply)) = process.receive(child_subject, 50)
-//       // Reply
-//       process.send(reply, x + 1)
-//     },
-//   )
+  process.start(
+    linked: True,
+    running: fn() {
+      // Send the child subject to the parent so it can call the child
+      let child_subject = process.new_subject()
+      process.send(parent_subject, child_subject)
+      // Wait for the subject to be messaged
+      assert Ok(#(x, reply)) = process.receive(child_subject, 50)
+      // Reply
+      process.send(reply, x + 1)
+    },
+  )
 
-//   assert Ok(call_sender) = process.receive(parent_subject, 50)
+  assert Ok(call_subject) = process.receive(parent_subject, 50)
 
-//   // Call the child process over the channel
-//   call_sender
-//   |> process.try_call(call_message(1), 50)
-//   |> should.equal(Ok(2))
-// }
+  // Call the child process and get a response.
+  assert Ok(2) =
+    process.try_call(call_subject, fn(subject) { #(1, subject) }, 50)
+}
 
-// pub fn try_call_timeout_test() {
-//   let #(parent_sender, parent_receiver) = process.new_channel()
+pub fn try_call_timeout_test() {
+  let parent_subject = process.new_subject()
 
-//   process.start(fn() {
-//     // Send the call channel to the parent
-//     let #(call_sender, call_receiver) = process.new_channel()
-//     process.send(parent_sender, call_sender)
-//     // Wait for the channel to be called
-//     assert Ok(#(x, reply_channel)) = process.receive(call_receiver, 50)
-//     // Reply, after a delay
-//     sleep(20)
-//     process.send(reply_channel, x + 1)
-//   })
+  process.start(
+    linked: True,
+    running: fn() {
+      // Send the call subject to the parent
+      let child_subject = process.new_subject()
+      process.send(parent_subject, child_subject)
+      // Wait for the subject to be called
+      assert Ok(_) = process.receive(child_subject, 50)
+      // Never reply
+      process.sleep(100)
+    },
+  )
 
-//   assert Ok(call_sender) = process.receive(parent_receiver, 50)
+  assert Ok(call_subject) = process.receive(parent_subject, 50)
 
-//   // Call the child process over the channel
-//   call_sender
-//   |> process.try_call(call_message(1), 10)
-//   |> result.is_error
-//   |> should.be_true
-// }
+  // Call the child process over the subject
+  assert Error(process.CallTimeout) =
+    process.try_call(call_subject, fn(x) { x }, 10)
+}

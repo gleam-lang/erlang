@@ -278,82 +278,82 @@ pub fn selecting_process_down(
 ///
 pub external fn demonitor_process(monitor: ProcessMonitor) -> Nil =
   "gleam_erlang_ffi" "demonitor"
-// // TODO: document
-// // TODO: test
-// // TODO: changelog
-// /// An error returned when making a call to a process.
-// ///
-// pub type CallError(msg) {
-//   /// The process being called exited before it sent a response.
-//   ///
-//   CalleeDown(reason: Dynamic)
 
-//   /// The process being called did not response within the permitted amount of
-//   /// time.
-//   ///
-//   CallTimeout
-// }
+// TODO: document
+// TODO: test
+// TODO: changelog
+/// An error returned when making a call to a process.
+///
+pub type CallError(msg) {
+  /// The process being called exited before it sent a response.
+  ///
+  CalleeDown(reason: Dynamic)
 
-// // TODO: document
-// // TODO: test
-// // TODO: changelog
-// // TODO: test error paths
-// // This function is based off of Erlang's gen:do_call/4.
-// /// Send a message over a channel and wait for a reply.
-// ///
-// /// If the receiving process exits or does not reply within the allowed amount
-// /// of time then an error is returned.
-// ///
-// pub fn try_call(
-//   subject: Subject(request),
-//   make_request: fn(Subject(response)) -> request,
-//   within timeout: Int,
-// ) -> Result(response, CallError(response)) {
-//   let reply_subject = new_subject()
+  /// The process being called did not response within the permitted amount of
+  /// time.
+  ///
+  CallTimeout
+}
 
-//   // Monitor the callee process so we can tell if it goes down (meaning we
-//   // won't get a reply)
-//   let monitor = monitor_process(pid(sender))
+// TODO: document
+// TODO: test
+// TODO: changelog
+// TODO: test error paths
+// This function is based off of Erlang's gen:do_call/4.
+/// Send a message to a process and wait for a reply.
+///
+/// If the receiving process exits or does not reply within the allowed amount
+/// of time then an error is returned.
+///
+pub fn try_call(
+  subject: Subject(request),
+  make_request: fn(Subject(response)) -> request,
+  within timeout: Int,
+) -> Result(response, CallError(response)) {
+  let reply_subject = new_subject()
 
-//   // Send the request to the process over the channel
-//   send(sender, make_request(reply_sender))
+  // Monitor the callee process so we can tell if it goes down (meaning we
+  // won't get a reply)
+  let monitor = monitor_process(subject_owner(subject))
 
-//   let receiver =
-//     reply_receiver
-//     |> map_receiver(Ok)
-//     |> merge_receiver(map_receiver(
-//       monitor,
-//       fn(down: ProcessDown) { Error(CalleeDown(reason: down.reason)) },
-//     ))
+  // Send the request to the process over the channel
+  send(subject, make_request(reply_subject))
 
-//   // Await a reply or handle failure modes (timeout, process down, etc)
-//   let res = receive(receiver, timeout)
+  // Await a reply or handle failure modes (timeout, process down, etc)
+  let result =
+    new_selector()
+    |> selecting(reply_subject, Ok)
+    |> selecting_process_down(
+      monitor,
+      fn(down: ProcessDown) { Error(CalleeDown(reason: down.reason)) },
+    )
+    |> select(timeout)
 
-//   // Demonitor the process and close the channels as we're done
-//   close_channels(receiver)
+  // Demonitor the process and close the channels as we're done
+  demonitor_process(monitor)
 
-//   // Prepare an appropriate error (if present) for the caller
-//   case res {
-//     Error(Nil) -> Error(CallTimeout)
-//     Ok(res) -> res
-//   }
-// }
+  // Prepare an appropriate error (if present) for the caller
+  case result {
+    Error(Nil) -> Error(CallTimeout)
+    Ok(res) -> res
+  }
+}
 
-// // TODO: changelog
-// // TODO: document
-// // TODO: test
-// // TODO: test error paths
-// /// Send a message over a channel and wait for a reply.
-// ///
-// /// If the receiving process exits or does not reply within the allowed amount
-// /// of time the calling process crashes. If you wish an error to be returned
-// /// instead see the `try_call` function.
-// ///
-// pub fn call(
-//   subject: Subject(request),
-//   make_request: fn(Subject(response)) -> request,
-//   within timeout: Int,
-// ) -> response {
-//   assert Ok(resp) = try_call(sender, make_request, timeout)
-//   resp
-// }
+// TODO: changelog
+// TODO: document
+// TODO: test
+// TODO: test error paths
+/// Send a message to a process and wait for a reply.
+///
+/// If the receiving process exits or does not reply within the allowed amount
+/// of time the calling process crashes. If you wish an error to be returned
+/// instead see the `try_call` function.
+///
+pub fn call(
+  subject: Subject(request),
+  make_request: fn(Subject(response)) -> request,
+  within timeout: Int,
+) -> response {
+  assert Ok(resp) = try_call(subject, make_request, timeout)
+  resp
+}
