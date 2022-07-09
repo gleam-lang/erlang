@@ -279,9 +279,6 @@ pub fn selecting_process_down(
 pub external fn demonitor_process(monitor: ProcessMonitor) -> Nil =
   "gleam_erlang_ffi" "demonitor"
 
-// TODO: document
-// TODO: test
-// TODO: changelog
 /// An error returned when making a call to a process.
 ///
 pub type CallError(msg) {
@@ -295,8 +292,6 @@ pub type CallError(msg) {
   CallTimeout
 }
 
-// TODO: document
-// TODO: changelog
 // This function is based off of Erlang's gen:do_call/4.
 /// Send a message to a process and wait for a reply.
 ///
@@ -338,7 +333,6 @@ pub fn try_call(
 }
 
 // TODO: changelog
-// TODO: document
 /// Send a message to a process and wait for a reply.
 ///
 /// If the receiving process exits or does not reply within the allowed amount
