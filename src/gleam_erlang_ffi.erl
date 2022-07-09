@@ -150,11 +150,17 @@ os_family() ->
 new_selector() ->
     {selector, #{}}.
 
-selecting({selector, Handlers}, {subject, _Pid, Ref}, Fn) ->
-    {selector, Handlers#{Ref => Fn}}.
+selecting({selector, Handlers}, Tag, Fn) ->
+    {selector, Handlers#{Tag => Fn}}.
 
 select({selector, Handlers}, Timeout) ->
     receive
+        % Monitored process down messages
+        {'DOWN', Ref, process, Pid, Reason} when is_map_key(Ref, Handlers) ->
+            Fn = maps:get(Ref, Handlers),
+            {ok, Fn({process_down, Pid, Reason})};
+
+        % Subject messages in the gen `{ref(), Msg}` format
         {Tag, Message} when is_map_key(Tag, Handlers) ->
             Fn = maps:get(Tag, Handlers),
             {ok, Fn(Message)}

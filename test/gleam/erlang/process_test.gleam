@@ -1,6 +1,6 @@
 import gleam/int
 import gleam/float
-import gleam/erlang/process
+import gleam/erlang/process.{ProcessDown}
 
 pub fn self_test() {
   let subject = process.new_subject()
@@ -91,3 +91,89 @@ pub fn selector_test() {
   assert Ok("3.0") = process.select(selector, 0)
   assert Error(Nil) = process.select(selector, 0)
 }
+
+pub fn monitor_test_test() {
+  // Spawn child
+  let parent_subject = process.new_subject()
+  let pid =
+    process.start(
+      linked: False,
+      running: fn() {
+        let subject = process.new_subject()
+        process.send(parent_subject, subject)
+        // Wait for the parent to send a message before exiting
+        process.receive(subject, 150)
+      },
+    )
+
+  // Monitor child
+  let monitor = process.monitor_process(pid)
+
+  // There is no monitor message while the child is alive
+  assert Error(Nil) =
+    process.new_selector()
+    |> process.selecting_process_down(monitor, fn(x) { x })
+    |> process.select(0)
+
+  // Shutdown child to trigger monitor
+  assert Ok(child_subject) = process.receive(parent_subject, 50)
+  process.send(child_subject, Nil)
+
+  // We get a process down message!
+  assert Ok(ProcessDown(downed_pid, _reason)) =
+    process.new_selector()
+    |> process.selecting_process_down(monitor, fn(x) { x })
+    |> process.select(50)
+
+  assert True = downed_pid == pid
+}
+// fn call_message(value) {
+//   fn(reply_channel) { #(value, reply_channel) }
+// }
+
+// pub fn try_call_test() {
+//   let parent_subject = process.new_subject()
+
+//   process.start(
+//     linked: True,
+//     running: fn() {
+//       // Send the child subject to the parent so it can call the child
+//       let child_subject = process.new_subject()
+//       process.send(parent_subject, child_subject)
+//       // Wait for the channel to be called
+//       assert Ok(#(x, reply)) = process.receive(child_subject, 50)
+//       // Reply
+//       process.send(reply, x + 1)
+//     },
+//   )
+
+//   assert Ok(call_sender) = process.receive(parent_subject, 50)
+
+//   // Call the child process over the channel
+//   call_sender
+//   |> process.try_call(call_message(1), 50)
+//   |> should.equal(Ok(2))
+// }
+
+// pub fn try_call_timeout_test() {
+//   let #(parent_sender, parent_receiver) = process.new_channel()
+
+//   process.start(fn() {
+//     // Send the call channel to the parent
+//     let #(call_sender, call_receiver) = process.new_channel()
+//     process.send(parent_sender, call_sender)
+//     // Wait for the channel to be called
+//     assert Ok(#(x, reply_channel)) = process.receive(call_receiver, 50)
+//     // Reply, after a delay
+//     sleep(20)
+//     process.send(reply_channel, x + 1)
+//   })
+
+//   assert Ok(call_sender) = process.receive(parent_receiver, 50)
+
+//   // Call the child process over the channel
+//   call_sender
+//   |> process.try_call(call_message(1), 10)
+//   |> result.is_error
+//   |> should.be_true
+// }
