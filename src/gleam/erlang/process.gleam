@@ -296,9 +296,7 @@ pub type CallError(msg) {
 }
 
 // TODO: document
-// TODO: test
 // TODO: changelog
-// TODO: test error paths
 // This function is based off of Erlang's gen:do_call/4.
 /// Send a message to a process and wait for a reply.
 ///
@@ -341,8 +339,6 @@ pub fn try_call(
 
 // TODO: changelog
 // TODO: document
-// TODO: test
-// TODO: test error paths
 /// Send a message to a process and wait for a reply.
 ///
 /// If the receiving process exits or does not reply within the allowed amount
