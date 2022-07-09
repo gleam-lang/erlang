@@ -126,7 +126,6 @@ pub type EnsureAllStartedError {
   ApplicationFailedToStart(name: Atom, reason: Dynamic)
 }
 
-// TODO: changelog
 /// A unique reference value.
 ///
 /// It holds no particular meaning or value, but unique values are often useful
@@ -138,8 +137,6 @@ pub type EnsureAllStartedError {
 ///
 pub external type Reference
 
-// TODO: changelog
-// TODO: test
 /// Create a new unique reference.
 ///
 pub external fn make_reference() -> Reference =
