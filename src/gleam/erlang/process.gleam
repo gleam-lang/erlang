@@ -1,5 +1,4 @@
 import gleam/erlang.{Reference}
-import gleam/erlang/atom
 import gleam/dynamic.{Dynamic}
 
 /// A `Pid` (or Process identifier) is a reference to an Erlang process. Each
@@ -203,12 +202,6 @@ external fn insert_selector_handler(
 ) -> Selector(payload) =
   "gleam_erlang_ffi" "insert_selector_handler"
 
-external fn remove_selector_handler(
-  Selector(payload),
-  for: tag,
-) -> Selector(payload) =
-  "gleam_erlang_ffi" "remove_selector_handler"
-
 /// Suspends the process calling this function for the specified number of
 /// milliseconds.
 ///
@@ -248,7 +241,6 @@ pub type ProcessDown {
   ProcessDown(pid: Pid, reason: Dynamic)
 }
 
-// TODO: document
 // TODO: changelog
 /// Start monitoring a process so that when the monitored process exits a
 /// message is to the monitoring process.
@@ -257,8 +249,10 @@ pub type ProcessDown {
 /// process was not alive when this function is called the message will never
 /// be received.
 ///
-/// Closing the channel with `close_channels` demonitors the process and
-/// flushes any monitor message for this channel from the message inbox.
+/// The down message can be received with a `Selector` and the
+/// `selecting_process_down` function.
+///
+/// The process can be demonitored with the `demonitor_process` function.
 ///
 pub fn monitor_process(pid: Pid) -> ProcessMonitor {
   Process
@@ -266,8 +260,10 @@ pub fn monitor_process(pid: Pid) -> ProcessMonitor {
   |> ProcessMonitor
 }
 
-// TODO: document
 // TODO: changelog
+/// Add a `ProcessMonitor` to a `Selector` so that the `ProcessDown` message can
+/// be received using the `Selector` and the `select` function.
+///
 pub fn selecting_process_down(
   selector: Selector(payload),
   monitor: ProcessMonitor,
@@ -276,8 +272,13 @@ pub fn selecting_process_down(
   insert_selector_handler(selector, monitor.tag, mapping)
 }
 
-// TODO: document
 // TODO: changelog
+/// Remove the monitor for a process so that when the monitor process exits a
+/// `ProcessDown` message is not sent to the monitoring process.
+///
+/// If the message has already been sent it is removed from the monitoring
+/// process' mailbox.
+///
 pub external fn demonitor_process(monitor: ProcessMonitor) -> Nil =
   "gleam_erlang_ffi" "demonitor"
 // // TODO: document
