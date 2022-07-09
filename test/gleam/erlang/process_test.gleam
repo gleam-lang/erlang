@@ -92,7 +92,7 @@ pub fn selector_test() {
   assert Error(Nil) = process.select(selector, 0)
 }
 
-pub fn monitor_test_test() {
+pub fn monitor_test() {
   // Spawn child
   let parent_subject = process.new_subject()
   let pid =
@@ -108,24 +108,52 @@ pub fn monitor_test_test() {
 
   // Monitor child
   let monitor = process.monitor_process(pid)
-
-  // There is no monitor message while the child is alive
-  assert Error(Nil) =
+  let selector =
     process.new_selector()
     |> process.selecting_process_down(monitor, fn(x) { x })
-    |> process.select(0)
+
+  // There is no monitor message while the child is alive
+  assert Error(Nil) = process.select(selector, 0)
 
   // Shutdown child to trigger monitor
   assert Ok(child_subject) = process.receive(parent_subject, 50)
   process.send(child_subject, Nil)
 
   // We get a process down message!
-  assert Ok(ProcessDown(downed_pid, _reason)) =
-    process.new_selector()
-    |> process.selecting_process_down(monitor, fn(x) { x })
-    |> process.select(50)
+  assert Ok(ProcessDown(downed_pid, _reason)) = process.select(selector, 50)
 
   assert True = downed_pid == pid
+}
+
+pub fn demonitor_test() {
+  // Spawn child
+  let parent_subject = process.new_subject()
+  let pid =
+    process.start(
+      linked: False,
+      running: fn() {
+        let subject = process.new_subject()
+        process.send(parent_subject, subject)
+        // Wait for the parent to send a message before exiting
+        process.receive(subject, 150)
+      },
+    )
+
+  // Monitor child
+  let monitor = process.monitor_process(pid)
+  let selector =
+    process.new_selector()
+    |> process.selecting_process_down(monitor, fn(x) { x })
+
+  // Shutdown child to trigger monitor
+  assert Ok(child_subject) = process.receive(parent_subject, 50)
+  process.send(child_subject, Nil)
+
+  // Demonitor the child
+  process.demonitor_process(monitor)
+
+  // There is no down message
+  assert Error(Nil) = process.select(selector, 5)
 }
 // fn call_message(value) {
 //   fn(reply_channel) { #(value, reply_channel) }
