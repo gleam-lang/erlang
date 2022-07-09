@@ -1,4 +1,6 @@
 import gleam/erlang.{Reference}
+import gleam/erlang/atom
+import gleam/dynamic.{Dynamic}
 
 /// A `Pid` (or Process identifier) is a reference to an Erlang process. Each
 /// process has a `Pid` and it is one of the lowest level building blocks of
@@ -186,9 +188,17 @@ pub external fn select(
 /// message types. If you do not wish to transform the incoming messages in any
 /// way then the `identity` function can be given.
 ///
-pub external fn selecting(
+pub fn selecting(
+  selector: Selector(payload),
+  for subject: Subject(message),
+  mapping transform: fn(message) -> payload,
+) -> Selector(payload) {
+  raw_selecting(selector, subject.tag, transform)
+}
+
+external fn raw_selecting(
   Selector(payload),
-  for: Subject(message),
+  for: tag,
   mapping: fn(message) -> payload,
 ) -> Selector(payload) =
   "gleam_erlang_ffi" "selecting"
@@ -214,3 +224,131 @@ pub external fn sleep_forever() -> Nil =
 ///
 pub external fn is_alive(Pid) -> Bool =
   "erlang" "is_process_alive"
+
+type ProcessMonitorFlag {
+  Process
+}
+
+external fn erlang_monitor_process(ProcessMonitorFlag, Pid) -> Reference =
+  "erlang" "monitor"
+
+pub opaque type ProcessMonitor {
+  ProcessMonitor(tag: Reference)
+}
+
+/// A message received when a monitored process exits.
+///
+pub type ProcessDown {
+  ProcessDown(pid: Pid, reason: Dynamic)
+}
+
+// TODO: document
+// TODO: changelog
+// TODO: test
+// TODO: test demonitoring
+// TODO: test flushing
+/// Start monitoring a process so that when the monitored process exits a
+/// message is to the monitoring process.
+///
+/// The message is only sent once, when the target process exits. If the
+/// process was not alive when this function is called the message will never
+/// be received.
+///
+/// Closing the channel with `close_channels` demonitors the process and
+/// flushes any monitor message for this channel from the message inbox.
+///
+pub fn monitor_process(pid: Pid) -> ProcessMonitor {
+  Process
+  |> erlang_monitor_process(pid)
+  |> ProcessMonitor
+}
+
+// TODO: document
+// TODO: changelog
+// TODO: test
+pub fn selecting_process_down(
+  selector: Selector(payload),
+  monitor: ProcessMonitor,
+  mapping: fn(ProcessDown) -> payload,
+) -> Selector(payload) {
+  raw_selecting(selector, monitor.tag, mapping)
+}
+// // TODO: document
+// // TODO: test
+// // TODO: changelog
+// /// An error returned when making a call to a process.
+// ///
+// pub type CallError(msg) {
+//   /// The process being called exited before it sent a response.
+//   ///
+//   CalleeDown(reason: Dynamic)
+
+//   /// The process being called did not response within the permitted amount of
+//   /// time.
+//   ///
+//   CallTimeout
+// }
+
+// // TODO: document
+// // TODO: test
+// // TODO: changelog
+// // TODO: test error paths
+// // This function is based off of Erlang's gen:do_call/4.
+// /// Send a message over a channel and wait for a reply.
+// ///
+// /// If the receiving process exits or does not reply within the allowed amount
+// /// of time then an error is returned.
+// ///
+// pub fn try_call(
+//   subject: Subject(request),
+//   make_request: fn(Subject(response)) -> request,
+//   within timeout: Int,
+// ) -> Result(response, CallError(response)) {
+//   let reply_subject = new_subject()
+
+//   // Monitor the callee process so we can tell if it goes down (meaning we
+//   // won't get a reply)
+//   let monitor = monitor_process(pid(sender))
+
+//   // Send the request to the process over the channel
+//   send(sender, make_request(reply_sender))
+
+//   let receiver =
+//     reply_receiver
+//     |> map_receiver(Ok)
+//     |> merge_receiver(map_receiver(
+//       monitor,
+//       fn(down: ProcessDown) { Error(CalleeDown(reason: down.reason)) },
+//     ))
+
+//   // Await a reply or handle failure modes (timeout, process down, etc)
+//   let res = receive(receiver, timeout)
+
+//   // Demonitor the process and close the channels as we're done
+//   close_channels(receiver)
+
+//   // Prepare an appropriate error (if present) for the caller
+//   case res {
+//     Error(Nil) -> Error(CallTimeout)
+//     Ok(res) -> res
+//   }
+// }
+
+// // TODO: changelog
+// // TODO: document
+// // TODO: test
+// // TODO: test error paths
+// /// Send a message over a channel and wait for a reply.
+// ///
+// /// If the receiving process exits or does not reply within the allowed amount
+// /// of time the calling process crashes. If you wish an error to be returned
+// /// instead see the `try_call` function.
+// ///
+// pub fn call(
+//   subject: Subject(request),
+//   make_request: fn(Subject(response)) -> request,
+//   within timeout: Int,
+// ) -> response {
+//   assert Ok(resp) = try_call(sender, make_request, timeout)
+//   resp
+// }
