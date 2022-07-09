@@ -1,11 +1,13 @@
 -module(gleam_erlang_ffi).
--export([atom_from_dynamic/1, atom_create_from_string/1, atom_to_string/1,
-         rescue/1, atom_from_string/1, get_line/1, ensure_all_started/1,
-         sleep/1, sleep_forever/0, read_file/1, write_file/2, delete_file/1,
-         delete_directory/1, recursive_delete/1, list_directory/1, demonitor/1,
-         make_directory/1, get_all_env/0, get_env/1, set_env/2, unset_env/1,
-         os_family/0, new_selector/0, select/2, insert_selector_handler/3]).
-         
+-export([
+    atom_from_dynamic/1, atom_create_from_string/1, atom_to_string/1, rescue/1,
+    atom_from_string/1, get_line/1, ensure_all_started/1, sleep/1, os_family/0, 
+    sleep_forever/0, read_file/1, write_file/2, delete_file/1, get_all_env/0,
+    get_env/1, set_env/2, unset_env/1, delete_directory/1, recursive_delete/1,
+    list_directory/1, demonitor/1, make_directory/1, new_selector/0, select/2,
+    insert_selector_handler/3
+]).
+
 -define(is_posix_error(Error),
     Error =:= eacces orelse Error =:= eagain orelse Error =:= ebadf orelse
     Error =:= ebadmsg orelse Error =:= ebusy orelse Error =:= edeadlk orelse
