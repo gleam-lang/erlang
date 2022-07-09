@@ -193,15 +193,21 @@ pub fn selecting(
   for subject: Subject(message),
   mapping transform: fn(message) -> payload,
 ) -> Selector(payload) {
-  raw_selecting(selector, subject.tag, transform)
+  insert_selector_handler(selector, subject.tag, transform)
 }
 
-external fn raw_selecting(
+external fn insert_selector_handler(
   Selector(payload),
   for: tag,
   mapping: fn(message) -> payload,
 ) -> Selector(payload) =
-  "gleam_erlang_ffi" "selecting"
+  "gleam_erlang_ffi" "insert_selector_handler"
+
+external fn remove_selector_handler(
+  Selector(payload),
+  for: tag,
+) -> Selector(payload) =
+  "gleam_erlang_ffi" "remove_selector_handler"
 
 /// Suspends the process calling this function for the specified number of
 /// milliseconds.
@@ -244,9 +250,6 @@ pub type ProcessDown {
 
 // TODO: document
 // TODO: changelog
-// TODO: test
-// TODO: test demonitoring
-// TODO: test flushing
 /// Start monitoring a process so that when the monitored process exits a
 /// message is to the monitoring process.
 ///
@@ -265,14 +268,18 @@ pub fn monitor_process(pid: Pid) -> ProcessMonitor {
 
 // TODO: document
 // TODO: changelog
-// TODO: test
 pub fn selecting_process_down(
   selector: Selector(payload),
   monitor: ProcessMonitor,
   mapping: fn(ProcessDown) -> payload,
 ) -> Selector(payload) {
-  raw_selecting(selector, monitor.tag, mapping)
+  insert_selector_handler(selector, monitor.tag, mapping)
 }
+
+// TODO: document
+// TODO: changelog
+pub external fn demonitor_process(monitor: ProcessMonitor) -> Nil =
+  "gleam_erlang_ffi" "demonitor"
 // // TODO: document
 // // TODO: test
 // // TODO: changelog
