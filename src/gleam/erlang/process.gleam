@@ -241,7 +241,6 @@ pub type ProcessDown {
   ProcessDown(pid: Pid, reason: Dynamic)
 }
 
-// TODO: changelog
 /// Start monitoring a process so that when the monitored process exits a
 /// message is to the monitoring process.
 ///
@@ -260,7 +259,6 @@ pub fn monitor_process(pid: Pid) -> ProcessMonitor {
   |> ProcessMonitor
 }
 
-// TODO: changelog
 /// Add a `ProcessMonitor` to a `Selector` so that the `ProcessDown` message can
 /// be received using the `Selector` and the `select` function.
 ///
@@ -272,7 +270,6 @@ pub fn selecting_process_down(
   insert_selector_handler(selector, monitor.tag, mapping)
 }
 
-// TODO: changelog
 /// Remove the monitor for a process so that when the monitor process exits a
 /// `ProcessDown` message is not sent to the monitoring process.
 ///
