@@ -201,3 +201,25 @@ pub fn try_call_timeout_test() {
   assert Error(process.CallTimeout) =
     process.try_call(call_subject, fn(x) { x }, 10)
 }
+
+pub fn call_test() {
+  let parent_subject = process.new_subject()
+
+  process.start(
+    linked: True,
+    running: fn() {
+      // Send the child subject to the parent so it can call the child
+      let child_subject = process.new_subject()
+      process.send(parent_subject, child_subject)
+      // Wait for the subject to be messaged
+      assert Ok(#(x, reply)) = process.receive(child_subject, 50)
+      // Reply
+      process.send(reply, x + 1)
+    },
+  )
+
+  assert Ok(call_subject) = process.receive(parent_subject, 50)
+
+  // Call the child process and get a response.
+  assert 2 = process.call(call_subject, fn(subject) { #(1, subject) }, 50)
+}
