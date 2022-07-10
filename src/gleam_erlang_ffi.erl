@@ -41,8 +41,6 @@ atom_create_from_string(S) ->
 atom_to_string(S) ->
     atom_to_binary(S, utf8).
 
-% TODO: Improve error type
--spec atom_from_dynamic(any()) -> {ok, atom()} | {error, binary()}.
 atom_from_dynamic(Data) when is_atom(Data) ->
     {ok, Data};
 atom_from_dynamic(Data) ->
