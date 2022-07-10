@@ -8,7 +8,8 @@
   `Selector`, and `CallError` types and the `self`, `start`, `new_subject`,
   `subject_owner`, `receive`, `new_selector`, `select`, `selecting`, `sleep`,
   `sleep_forever`, `monitoring_process`, `selecting_process_down`
-  `demonitor_process`, `try_call`, `call`, and `is_alive` functions.
+  `demonitor_process`, `try_call`, `call`, `selecting_subjectless_record`, and
+  `is_alive` functions.
 - The `sleep` and `sleep_forever` functions have been moved to the
   `gleam/erlang/process` module.
 

@@ -196,7 +196,6 @@ pub fn selecting(
   insert_selector_handler(selector, #(subject.tag, 2), handler)
 }
 
-// TODO: changelog
 /// Configure a `Selector` to receive tuple messages that have the specified
 /// size and given first element.
 ///
