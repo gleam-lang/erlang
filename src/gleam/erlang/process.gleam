@@ -192,7 +192,8 @@ pub fn selecting(
   for subject: Subject(message),
   mapping transform: fn(message) -> payload,
 ) -> Selector(payload) {
-  insert_selector_handler(selector, subject.tag, transform)
+  let handler = fn(message: #(Reference, message)) { transform(message.1) }
+  insert_selector_handler(selector, #(subject.tag, 2), handler)
 }
 
 external fn insert_selector_handler(
