@@ -1,5 +1,6 @@
 import gleam/int
 import gleam/float
+import gleam/dynamic
 import gleam/erlang/process.{ProcessDown}
 
 pub fn self_test() {
@@ -222,4 +223,33 @@ pub fn call_test() {
 
   // Call the child process and get a response.
   assert 2 = process.call(call_subject, fn(subject) { #(1, subject) }, 50)
+}
+
+external fn send(process.Pid, anything) -> Nil =
+  "erlang" "send"
+
+fn subjectless_receive(tag, size) {
+  process.new_selector()
+  |> process.selecting_subjectless_record(tag, size, dynamic.unsafe_coerce)
+  |> process.select(0)
+}
+
+pub fn selecting_subjectless_record_test() {
+  send(process.self(), #("a", 1))
+  send(process.self(), #("b", 2, 3))
+  send(process.self(), #("c", 4, 5, 6))
+  send(process.self(), "d")
+
+  assert Error(Nil) = subjectless_receive("a", 0)
+  assert Error(Nil) = subjectless_receive("d", 0)
+  assert Error(Nil) = subjectless_receive("d", 1)
+
+  assert Error(Nil) = subjectless_receive("c", 1)
+  assert Error(Nil) = subjectless_receive("c", 2)
+  assert Error(Nil) = subjectless_receive("c", 3)
+  assert Ok(#("c", 4, 5, 6)) = subjectless_receive("c", 4)
+
+  assert Ok(#("b", 2, 3)) = subjectless_receive("b", 3)
+
+  assert Ok(#("a", 1)) = subjectless_receive("a", 2)
 }
