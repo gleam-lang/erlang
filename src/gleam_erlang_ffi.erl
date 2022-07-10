@@ -155,15 +155,16 @@ insert_selector_handler({selector, Handlers}, Tag, Fn) ->
 
 select({selector, Handlers}, Timeout) ->
     receive
-        % Monitored process down messages
+        % Monitored process down messages.
+        % This is special cased so we can selectively receive based on the
+        % reference as well as the record tag.
         {'DOWN', Ref, process, Pid, Reason} when is_map_key(Ref, Handlers) ->
             Fn = maps:get(Ref, Handlers),
             {ok, Fn({process_down, Pid, Reason})};
 
-        % Subject messages in the gen `{ref(), Msg}` format
-        {Tag, Message} when is_map_key(Tag, Handlers) ->
-            Fn = maps:get(Tag, Handlers),
-            {ok, Fn(Message)}
+        Msg when is_map_key({element(1, Msg), tuple_size(Msg)}, Handlers) ->
+            Fn = maps:get({element(1, Msg), tuple_size(Msg)}, Handlers),
+            {ok, Fn(Msg)}
     after Timeout ->
         {error, nil}
     end.
