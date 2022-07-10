@@ -196,9 +196,22 @@ pub fn selecting(
   insert_selector_handler(selector, #(subject.tag, 2), handler)
 }
 
-// TODO: test
-// TODO: document
 // TODO: changelog
+/// Configure a `Selector` to receive tuple messages that have the specified
+/// size and given first element.
+///
+/// This function may be useful when interacting with Erlang code that sends
+/// messages for you to receive but does not use `Subject`s.
+///
+/// For example, if a process has been sent the message `#("name", "Lucy")` it could
+/// be receive like so:
+///
+/// ```gleam
+/// new_selector()
+/// |> selecting_subjectless_record("name", 2, fn(x) { x })
+/// |> select(0)
+/// ```
+///
 pub fn selecting_subjectless_record(
   selector: Selector(payload),
   tag: anything,
@@ -345,7 +358,6 @@ pub fn try_call(
   }
 }
 
-// TODO: changelog
 /// Send a message to a process and wait for a reply.
 ///
 /// If the receiving process exits or does not reply within the allowed amount
