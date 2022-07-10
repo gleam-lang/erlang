@@ -196,6 +196,18 @@ pub fn selecting(
   insert_selector_handler(selector, #(subject.tag, 2), handler)
 }
 
+// TODO: test
+// TODO: document
+// TODO: changelog
+pub fn selecting_subjectless_record(
+  selector: Selector(payload),
+  tag: anything,
+  size: Int,
+  mapping transform: fn(Dynamic) -> payload,
+) -> Selector(payload) {
+  insert_selector_handler(selector, #(tag, size), transform)
+}
+
 external fn insert_selector_handler(
   Selector(payload),
   for: tag,
