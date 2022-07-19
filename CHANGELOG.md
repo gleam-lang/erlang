@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.10.0 - 2022-07-19
 
 - The `gleam/erlang` module gains the `Reference` type and `make_reference`
   function.
