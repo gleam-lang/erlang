@@ -301,3 +301,30 @@ pub fn unlink_dead_test() {
   process.sleep(20)
   assert Nil = process.unlink(pid)
 }
+
+pub fn send_after_test() {
+  let subject = process.new_subject()
+
+  // 0 is received immediately, though asynchronously
+  process.send_after(subject, 0, "a")
+  assert Ok("a") = process.receive(subject, 5)
+
+  // With a delay it is sent later
+  process.send_after(subject, 5, "b")
+  assert Error(Nil) = process.receive(subject, 0)
+  assert Ok("b") = process.receive(subject, 10)
+}
+
+pub fn cancel_timer_test() {
+  let subject = process.new_subject()
+  let timer = process.send_after(subject, 5, "a")
+  assert process.Cancelled(_) = process.cancel_timer(timer)
+  assert Error(Nil) = process.receive(subject, 5)
+}
+
+pub fn cancel_already_fired_timer_test() {
+  let subject = process.new_subject()
+  let timer = process.send_after(subject, 0, "a")
+  assert Ok(_) = process.receive(subject, 5)
+  assert process.TimerNotFound = process.cancel_timer(timer)
+}

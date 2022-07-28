@@ -2,7 +2,8 @@
 
 ## v0.11.0 - unreleased
 
-- The `gleam/erlang/process` module gains the `link` and `unlink` functions.
+- The `gleam/erlang/process` module gains the `send_after`, `cancel_timer`,
+  `link`, and `unlink` functions.
 
 ## v0.10.0 - 2022-07-19
 

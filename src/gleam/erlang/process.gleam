@@ -393,3 +393,41 @@ pub fn unlink(pid: Pid) -> Nil {
   erlang_unlink(pid)
   Nil
 }
+
+pub external type Timer
+
+external fn erlang_send_after(Int, Pid, msg) -> Timer =
+  "erlang" "send_after"
+
+/// Send a message over a channel after a specified number of milliseconds.
+///
+pub fn send_after(subject: Subject(msg), delay: Int, message: msg) -> Timer {
+  erlang_send_after(delay, subject.owner, #(subject.tag, message))
+}
+
+external fn erlang_cancel_timer(Timer) -> Dynamic =
+  "erlang" "cancel_timer"
+
+/// Values returned when a timer is cancelled.
+///
+pub type Cancelled {
+  /// The timer could not be found. It likely has already triggered.
+  ///
+  TimerNotFound
+
+  /// The timer was found and cancelled before it triggered.
+  ///
+  /// The amount of remaining time before the timer was due to be triggered is
+  /// returned in milliseconds.
+  ///
+  Cancelled(time_remaining: Int)
+}
+
+/// Cancel a given timer, causing it not to trigger if it has not done already.
+///
+pub fn cancel_timer(timer: Timer) -> Cancelled {
+  case dynamic.int(erlang_cancel_timer(timer)) {
+    Ok(i) -> Cancelled(i)
+    Error(_) -> TimerNotFound
+  }
+}
