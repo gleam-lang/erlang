@@ -253,3 +253,51 @@ pub fn selecting_subjectless_record_test() {
 
   assert Ok(#("a", 1)) = subjectless_receive("a", 2)
 }
+
+pub fn linking_self_test() {
+  assert True = process.link(process.self())
+}
+
+pub fn linking_new_test() {
+  assert True =
+    process.link(process.start(
+      linked: False,
+      running: fn() { process.sleep(100) },
+    ))
+}
+
+pub fn relinking_test() {
+  assert True =
+    process.link(process.start(
+      linked: True,
+      running: fn() { process.sleep(100) },
+    ))
+}
+
+pub fn linking_dead_test() {
+  let pid = process.start(linked: True, running: fn() { Nil })
+  process.sleep(20)
+  assert False = process.link(pid)
+}
+
+pub fn unlink_unlinked_test() {
+  assert Nil =
+    process.unlink(process.start(
+      linked: False,
+      running: fn() { process.sleep(100) },
+    ))
+}
+
+pub fn unlink_linked_test() {
+  assert Nil =
+    process.unlink(process.start(
+      linked: True,
+      running: fn() { process.sleep(100) },
+    ))
+}
+
+pub fn unlink_dead_test() {
+  let pid = process.start(linked: True, running: fn() { Nil })
+  process.sleep(20)
+  assert Nil = process.unlink(pid)
+}

@@ -371,3 +371,25 @@ pub fn call(
   assert Ok(resp) = try_call(subject, make_request, timeout)
   resp
 }
+
+/// Creates a link between the calling process and another process.
+///
+/// When a process crashes any linked processes will also crash. This is useful
+/// to ensure that groups of processes that depend on each other all either
+/// succeed or fail together.
+///
+/// Returns `True` if the link was created successfully, returns `False` if the
+/// process was not alive and as such could not be linked.
+///
+pub external fn link(pid: Pid) -> Bool =
+  "gleam_erlang_ffi" "link"
+
+external fn erlang_unlink(pid: Pid) -> Bool =
+  "erlang" "unlink"
+
+/// Removes any existing link between the caller process and the target process.
+///
+pub fn unlink(pid: Pid) -> Nil {
+  erlang_unlink(pid)
+  Nil
+}

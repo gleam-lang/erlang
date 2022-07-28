@@ -5,7 +5,7 @@
     sleep_forever/0, read_file/1, write_file/2, delete_file/1, get_all_env/0,
     get_env/1, set_env/2, unset_env/1, delete_directory/1, recursive_delete/1,
     list_directory/1, demonitor/1, make_directory/1, new_selector/0, select/2,
-    insert_selector_handler/3
+    insert_selector_handler/3, link/1
 ]).
 
 -define(is_posix_error(Error),
@@ -171,3 +171,10 @@ select({selector, Handlers}, Timeout) ->
 
 demonitor({_, Reference}) ->
     erlang:demonitor(Reference, [flush]).
+
+link(Pid) ->
+    try 
+        erlang:link(Pid)
+    catch
+        error:_ -> false
+    end.
