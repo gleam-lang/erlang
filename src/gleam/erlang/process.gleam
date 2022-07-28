@@ -431,3 +431,25 @@ pub fn cancel_timer(timer: Timer) -> Cancelled {
     Error(_) -> TimerNotFound
   }
 }
+
+type KillFlag {
+  Kill
+}
+
+external fn erlang_kill(to: Pid, because: KillFlag) -> Bool =
+  "erlang" "exit"
+
+// Go, my pretties. Kill! Kill!
+// - Bart Simpson
+//
+/// Send an untrappable `kill` exit signal to the target process.
+///
+/// See the documentation for the Erlang [`erlang:exit`][1] function for more
+/// information.
+///
+/// [1]: https://erlang.org/doc/man/erlang.html#exit-1
+///
+pub fn kill(pid: Pid) -> Nil {
+  erlang_kill(pid, Kill)
+  Nil
+}

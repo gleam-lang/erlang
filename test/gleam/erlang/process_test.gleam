@@ -328,3 +328,10 @@ pub fn cancel_already_fired_timer_test() {
   assert Ok(_) = process.receive(subject, 5)
   assert process.TimerNotFound = process.cancel_timer(timer)
 }
+
+pub fn kill_test() {
+  let pid = process.start(linked: False, running: fn() { process.sleep(100) })
+  assert True = process.is_alive(pid)
+  assert Nil = process.kill(pid)
+  assert False = process.is_alive(pid)
+}
