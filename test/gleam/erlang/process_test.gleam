@@ -366,3 +366,10 @@ pub fn send_abnormal_exit_already_dead_test() {
   assert False = process.is_alive(pid)
   assert Nil = process.send_abnormal_exit(pid, "Bye")
 }
+
+pub fn trap_exit_test() {
+  assert Nil = process.trap_exits(True)
+  let pid = process.start(linked: True, running: fn() { process.sleep(100) })
+  // This would cause an error if we were not trapping exits
+  process.kill(pid)
+}

@@ -484,3 +484,15 @@ pub fn send_abnormal_exit(to pid: Pid, reason: String) -> Nil {
   erlang_send_exit(pid, Abnormal(reason))
   Nil
 }
+
+/// Set whether the current process is to trap exit signals or not.
+///
+/// When not trapping exits if a linked process crashes the exit signal
+/// propagates to the process which will also crash.
+/// This is the normal behaviour before this function is called.
+///
+/// When trapping exits (after this function is called) if a linked process
+/// crashes an exit message is sent to the process instead.
+///
+pub external fn trap_exits(Bool) -> Nil =
+  "gleam_erlang_ffi" "trap_exits"
