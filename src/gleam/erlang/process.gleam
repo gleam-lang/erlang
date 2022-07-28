@@ -453,3 +453,34 @@ pub fn kill(pid: Pid) -> Nil {
   erlang_kill(pid, Kill)
   Nil
 }
+
+pub type ExitReason {
+  Normal
+  Abnormal(reason: String)
+}
+
+external fn erlang_send_exit(to: Pid, because: whatever) -> Bool =
+  "erlang" "exit"
+
+// TODO: test
+/// Sends an exit signal to a process, indicating that the process is to shut
+/// down.
+///
+/// See the [Erlang documentation][erl] for more information.
+/// [erl]: http://erlang.org/doc/man/erlang.html#exit-2
+///
+pub fn send_exit(to pid: Pid) -> Nil {
+  erlang_send_exit(pid, Normal)
+  Nil
+}
+
+/// Sends an exit signal to a process, indicating that the process is to shut
+/// down due to an abnormal reason such as a failure.
+///
+/// See the [Erlang documentation][erl] for more information.
+/// [erl]: http://erlang.org/doc/man/erlang.html#exit-2
+///
+pub fn send_abnormal_exit(to pid: Pid, reason: String) -> Nil {
+  erlang_send_exit(pid, Abnormal(reason))
+  Nil
+}

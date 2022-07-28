@@ -3,7 +3,7 @@
 ## v0.11.0 - unreleased
 
 - The `gleam/erlang/process` module gains the `send_after`, `cancel_timer`,
-  `kill`, `link`, and `unlink` functions.
+  `send_exit`, `send_abnormal_exit`, `kill`, `link`, and `unlink` functions.
 
 ## v0.10.0 - 2022-07-19
 

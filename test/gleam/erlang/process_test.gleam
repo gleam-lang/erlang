@@ -298,7 +298,7 @@ pub fn unlink_linked_test() {
 
 pub fn unlink_dead_test() {
   let pid = process.start(linked: True, running: fn() { Nil })
-  process.sleep(20)
+  process.sleep(10)
   assert Nil = process.unlink(pid)
 }
 
@@ -334,4 +334,35 @@ pub fn kill_test() {
   assert True = process.is_alive(pid)
   assert Nil = process.kill(pid)
   assert False = process.is_alive(pid)
+}
+
+pub fn kill_already_dead_test() {
+  let pid = process.start(linked: True, running: fn() { Nil })
+  process.sleep(10)
+  assert False = process.is_alive(pid)
+  assert Nil = process.kill(pid)
+}
+
+pub fn send_exit_test() {
+  let pid = process.start(linked: False, running: fn() { process.sleep(100) })
+  assert Nil = process.send_exit(pid)
+}
+
+pub fn send_exit_already_dead_test() {
+  let pid = process.start(linked: True, running: fn() { Nil })
+  process.sleep(10)
+  assert False = process.is_alive(pid)
+  assert Nil = process.send_exit(pid)
+}
+
+pub fn send_abnormal_exit_test() {
+  let pid = process.start(linked: False, running: fn() { process.sleep(100) })
+  assert Nil = process.send_abnormal_exit(pid, "Bye")
+}
+
+pub fn send_abnormal_exit_already_dead_test() {
+  let pid = process.start(linked: True, running: fn() { Nil })
+  process.sleep(10)
+  assert False = process.is_alive(pid)
+  assert Nil = process.send_abnormal_exit(pid, "Bye")
 }
