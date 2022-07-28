@@ -1,6 +1,7 @@
 import gleam/int
 import gleam/float
 import gleam/dynamic
+import gleam/function
 import gleam/erlang/process.{ProcessDown}
 
 pub fn self_test() {
@@ -372,4 +373,14 @@ pub fn trap_exit_test() {
   let pid = process.start(linked: True, running: fn() { process.sleep(100) })
   // This would cause an error if we were not trapping exits
   process.kill(pid)
+}
+
+pub fn select_forever_test() {
+  let subject = process.new_subject()
+  process.send(subject, 1)
+
+  assert Ok(1) =
+    process.new_selector()
+    |> process.selecting(subject, function.identity)
+    |> process.select_forever
 }

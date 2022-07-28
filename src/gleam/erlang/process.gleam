@@ -173,10 +173,19 @@ pub external fn new_selector() -> Selector(payload) =
 /// them. If a process that does not own the a `Subject` attempts to receive
 /// with it then it will not receive a message.
 ///
+/// To wait forever for the next message rather than for a limited amount of
+/// time see the `select_forever` function.
+///
 pub external fn select(
   from: Selector(payload),
   within: Int,
 ) -> Result(payload, Nil) =
+  "gleam_erlang_ffi" "select"
+
+/// Similar to the `select` function but will wait forever for a message to
+/// arrive rather than timing out after a specified amount of time.
+///
+pub external fn select_forever(from: Selector(payload)) -> Result(payload, Nil) =
   "gleam_erlang_ffi" "select"
 
 /// Add a new `Subject` to the `Selector` to that it's messages can be received.
