@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.12.0 - Unreleased
+
+- The `gleam/erlang/process` module gains the `map_selector` and
+  `merge_selector` functions.
+
 ## v0.12.0 - 2022-07-30
 
 - The `gleam/erlang/process.select_forever` function no longer returns a result.
