@@ -4,7 +4,7 @@ A library for making use of Erlang specific code!
 
 ## Features
 
-- Typed safe Erlang processes and message sending.
+- Typed Erlang processes and message sending.
 - Erlang binary format (de)serialisation.
 - Functions for working with Erlang's charlists.
 - Reading, writing, and deletion of files.
