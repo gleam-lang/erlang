@@ -188,13 +188,21 @@ pub external fn select(
 pub external fn select_forever(from: Selector(payload)) -> payload =
   "gleam_erlang_ffi" "select"
 
-// TODO: document
-// TODO: changelog
+/// Add a transformation function to a selector. When a message is received
+/// using this selector the tranformation function is applied to the message.
+///
+/// This function can be used to change the type of messages received and may
+/// be useful when combined with the `merge_selector` function.
+///
 pub external fn map_selector(Selector(a), fn(a) -> b) -> Selector(b) =
   "gleam_erlang_ffi" "map_selector"
 
-// TODO: document
-// TODO: changelog
+/// Merge one selector into another, producing a selector that contains the
+/// message handlers of both.
+///
+/// If a subject is handled by both selectors the handler function of the
+/// second selector is used.
+///
 pub external fn merge_selector(Selector(a), Selector(a)) -> Selector(a) =
   "gleam_erlang_ffi" "merge_selector"
 
