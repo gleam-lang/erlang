@@ -401,3 +401,22 @@ pub fn map_selector_test() {
   assert Some("1") = process.select_forever(selector)
   assert Some("2.0") = process.select_forever(selector)
 }
+
+pub fn merge_selector_test() {
+  let subject1 = process.new_subject()
+  let subject2 = process.new_subject()
+  process.send(subject1, 1)
+  process.send(subject2, 2)
+
+  let selector =
+    process.new_selector()
+    |> process.selecting(subject1, fn(a) { #("a", a) })
+    |> process.selecting(subject2, fn(a) { #("a", a) })
+    |> process.merge_selector(
+      process.new_selector()
+      |> process.selecting(subject2, fn(a) { #("b", a) }),
+    )
+
+  assert #("a", 1) = process.select_forever(selector)
+  assert #("b", 2) = process.select_forever(selector)
+}
