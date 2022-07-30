@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.12.0 - Unreleased
+## v0.13.0 - 2022-07-30
 
 - The `gleam/erlang/process` module gains the `map_selector` and
   `merge_selector` functions.
