@@ -379,7 +379,7 @@ pub fn select_forever_test() {
   let subject = process.new_subject()
   process.send(subject, 1)
 
-  assert Ok(1) =
+  assert 1 =
     process.new_selector()
     |> process.selecting(subject, function.identity)
     |> process.select_forever

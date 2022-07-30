@@ -154,7 +154,8 @@ insert_selector_handler({selector, Handlers}, Tag, Fn) ->
     {selector, Handlers#{Tag => Fn}}.
 
 select(Selector) ->
-    select(Selector, infinity).
+    {ok, Message} = select(Selector, infinity),
+    Message.
 
 select({selector, Handlers}, Timeout) ->
     receive

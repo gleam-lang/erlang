@@ -185,7 +185,7 @@ pub external fn select(
 /// Similar to the `select` function but will wait forever for a message to
 /// arrive rather than timing out after a specified amount of time.
 ///
-pub external fn select_forever(from: Selector(payload)) -> Result(payload, Nil) =
+pub external fn select_forever(from: Selector(payload)) -> payload =
   "gleam_erlang_ffi" "select"
 
 /// Add a new `Subject` to the `Selector` to that it's messages can be received.

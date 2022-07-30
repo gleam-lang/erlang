@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.12.0 - 2022-07-30
+
+- The `gleam/erlang/process.select_forever` function no longer returns a result.
+
 ## v0.11.0 - 2022-07-30
 
 - The `gleam/erlang/process` module gains the `send_after`, `cancel_timer`,
