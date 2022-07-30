@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.11.0 - unreleased
+## v0.11.0 - 2022-07-30
 
 - The `gleam/erlang/process` module gains the `send_after`, `cancel_timer`,
   `send_exit`, `send_abnormal_exit`, `kill`, `trap_exits`, `link`, and `unlink`
