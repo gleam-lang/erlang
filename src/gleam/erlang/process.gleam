@@ -188,6 +188,12 @@ pub external fn select(
 pub external fn select_forever(from: Selector(payload)) -> payload =
   "gleam_erlang_ffi" "select"
 
+// TODO: test
+// TODO: document
+// TODO: changelog
+pub external fn map_selector(Selector(a), fn(a) -> b) -> Selector(b) =
+  "gleam_erlang_ffi" "map_selector"
+
 /// Add a new `Subject` to the `Selector` to that it's messages can be received.
 ///
 /// The `mapping` function provided with the `Subject` can be used to convert

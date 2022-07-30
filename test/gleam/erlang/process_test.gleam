@@ -1,5 +1,6 @@
 import gleam/int
 import gleam/float
+import gleam/option.{Some}
 import gleam/dynamic
 import gleam/function
 import gleam/erlang/process.{ProcessDown}
@@ -383,4 +384,20 @@ pub fn select_forever_test() {
     process.new_selector()
     |> process.selecting(subject, function.identity)
     |> process.select_forever
+}
+
+pub fn map_selector_test() {
+  let subject1 = process.new_subject()
+  let subject2 = process.new_subject()
+  process.send(subject1, 1)
+  process.send(subject2, 2.0)
+
+  let selector =
+    process.new_selector()
+    |> process.selecting(subject1, int.to_string)
+    |> process.selecting(subject2, float.to_string)
+    |> process.map_selector(Some)
+
+  assert Some("1") = process.select_forever(selector)
+  assert Some("2.0") = process.select_forever(selector)
 }
