@@ -1,3 +1,4 @@
+import gleam/io
 import gleam/int
 import gleam/float
 import gleam/option.{Some}
@@ -419,4 +420,19 @@ pub fn merge_selector_test() {
 
   assert #("a", 1) = process.select_forever(selector)
   assert #("b", 2) = process.select_forever(selector)
+}
+
+pub fn selecting_trapped_exits_test() {
+  process.flush_messages()
+
+  process.trap_exits(True)
+  let pid = process.start(linked: True, running: fn() { process.sleep(100) })
+  process.kill(pid)
+
+  assert Ok(process.ExitMessage(exited, process.Killed)) =
+    process.new_selector()
+    |> process.selecting_trapped_exits(function.identity)
+    |> process.select(10)
+
+  assert True = pid == exited
 }

@@ -6,7 +6,7 @@
     get_env/1, set_env/2, unset_env/1, delete_directory/1, recursive_delete/1,
     list_directory/1, demonitor/1, make_directory/1, new_selector/0, link/1, 
     insert_selector_handler/3, select/1, select/2, trap_exits/1, map_selector/2,
-    merge_selector/2
+    merge_selector/2, flush_messages/0
 ]).
 
 -define(is_posix_error(Error),
@@ -196,3 +196,8 @@ link(Pid) ->
 trap_exits(ShouldTrap) ->
     erlang:process_flag(trap_exit, ShouldTrap),
     nil.
+
+flush_messages() ->
+    receive _Message -> flush_messages()
+    after 0 -> nil
+    end.

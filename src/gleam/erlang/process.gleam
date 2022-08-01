@@ -1,5 +1,7 @@
-import gleam/erlang.{Reference}
+import gleam/string
 import gleam/dynamic.{Dynamic}
+import gleam/erlang.{Reference}
+import gleam/erlang/atom.{Atom}
 
 /// A `Pid` (or Process identifier) is a reference to an Erlang process. Each
 /// process has a `Pid` and it is one of the lowest level building blocks of
@@ -205,6 +207,46 @@ pub external fn map_selector(Selector(a), fn(a) -> b) -> Selector(b) =
 ///
 pub external fn merge_selector(Selector(a), Selector(a)) -> Selector(a) =
   "gleam_erlang_ffi" "merge_selector"
+
+pub type ExitMessage {
+  ExitMessage(pid: Pid, reason: ExitReason)
+}
+
+pub type ExitReason {
+  Normal
+  Killed
+  Abnormal(reason: String)
+}
+
+// TODO: test
+// TODO: document
+// TODO: changelog
+pub fn selecting_trapped_exits(
+  selector: Selector(a),
+  handler: fn(ExitMessage) -> a,
+) -> Selector(a) {
+  let tag = atom.create_from_string("EXIT")
+  let handler = fn(message: #(Atom, Pid, Dynamic)) -> a {
+    let reason = message.2
+    let normal = dynamic.from(Normal)
+    let killed = dynamic.from(Killed)
+    let reason = case dynamic.string(reason) {
+      _ if reason == normal -> Normal
+      _ if reason == killed -> Killed
+      Ok(reason) -> Abnormal(reason)
+      Error(_) -> Abnormal(string.inspect(reason))
+    }
+    handler(ExitMessage(message.1, reason))
+  }
+  insert_selector_handler(selector, #(tag, 3), handler)
+}
+
+// TODO: test
+// TODO: document
+// TODO: changelog
+// TODO: implement in Gleam
+pub external fn flush_messages() -> Nil =
+  "gleam_erlang_ffi" "flush_messages"
 
 /// Add a new `Subject` to the `Selector` to that it's messages can be received.
 ///
@@ -479,11 +521,6 @@ external fn erlang_kill(to: Pid, because: KillFlag) -> Bool =
 pub fn kill(pid: Pid) -> Nil {
   erlang_kill(pid, Kill)
   Nil
-}
-
-pub type ExitReason {
-  Normal
-  Abnormal(reason: String)
 }
 
 external fn erlang_send_exit(to: Pid, because: whatever) -> Bool =
