@@ -218,9 +218,11 @@ pub type ExitReason {
   Abnormal(reason: String)
 }
 
-// TODO: test
-// TODO: document
 // TODO: changelog
+/// Add a handler for trapped exit messages. In order for these messages to be
+/// sent to the process when a linked process exits the process must call the
+/// `trap_exit` beforehand.
+///
 pub fn selecting_trapped_exits(
   selector: Selector(a),
   handler: fn(ExitMessage) -> a,
@@ -241,10 +243,14 @@ pub fn selecting_trapped_exits(
   insert_selector_handler(selector, #(tag, 3), handler)
 }
 
-// TODO: test
-// TODO: document
 // TODO: changelog
 // TODO: implement in Gleam
+/// Discard all messages in the current process' mailbox.
+///
+/// Warning: This function may cause other processes to crash if they sent a
+/// message to the current process and are waiting for a response, so use with
+/// caution.
+///
 pub external fn flush_messages() -> Nil =
   "gleam_erlang_ffi" "flush_messages"
 
@@ -556,7 +562,8 @@ pub fn send_abnormal_exit(to pid: Pid, reason: String) -> Nil {
 /// This is the normal behaviour before this function is called.
 ///
 /// When trapping exits (after this function is called) if a linked process
-/// crashes an exit message is sent to the process instead.
+/// crashes an exit message is sent to the process instead. These messages can
+/// be handled with the `selecting_trapped_exits` function.
 ///
 pub external fn trap_exits(Bool) -> Nil =
   "gleam_erlang_ffi" "trap_exits"

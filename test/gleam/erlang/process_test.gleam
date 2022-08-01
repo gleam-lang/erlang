@@ -1,4 +1,3 @@
-import gleam/io
 import gleam/int
 import gleam/float
 import gleam/option.{Some}
@@ -435,4 +434,13 @@ pub fn selecting_trapped_exits_test() {
     |> process.select(10)
 
   assert True = pid == exited
+}
+
+pub fn flush_messages_test() {
+  let subject = process.new_subject()
+  process.send(subject, 1)
+  process.send(subject, 2)
+  process.send(subject, 3)
+  process.flush_messages()
+  assert Error(Nil) = process.receive(subject, 0)
 }
