@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.14.0 - unreleased
+## v0.14.0 - 2022-08-01
 
 - The `gleam/erlang/process` module gains the `flush_messages` and
   `selecting_trapped_exits` functions.
