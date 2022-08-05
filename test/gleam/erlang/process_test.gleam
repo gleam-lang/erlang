@@ -309,7 +309,7 @@ pub fn send_after_test() {
 
   // 0 is received immediately, though asynchronously
   process.send_after(subject, 0, "a")
-  assert Ok("a") = process.receive(subject, 5)
+  assert Ok("a") = process.receive(subject, 10)
 
   // With a delay it is sent later
   process.send_after(subject, 5, "b")

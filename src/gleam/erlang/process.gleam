@@ -272,6 +272,13 @@ pub fn selecting(
 // TODO: document
 // TODO: test
 // TODO: changelog
+/// Add a handler to a selector for 2 element tuple messages with a given tag
+/// element in the first position.
+///
+/// Typically you want to use the `selecting` function with a `Subject` instead,
+/// but this function may be useful if you need to receive messages sent from
+/// other BEAM languages that do not use the `Subject` type.
+///
 pub fn selecting_record2(
   selector: Selector(payload),
   tag: tag,
@@ -281,9 +288,15 @@ pub fn selecting_record2(
   insert_selector_handler(selector, #(tag, 2), handler)
 }
 
-// TODO: document
-// TODO: test
 // TODO: changelog
+// TODO: test
+/// Add a handler to a selector for 3 element tuple messages with a given tag
+/// element in the first position.
+///
+/// Typically you want to use the `selecting` function with a `Subject` instead,
+/// but this function may be useful if you need to receive messages sent from
+/// other BEAM languages that do not use the `Subject` type.
+///
 pub fn selecting_record3(
   selector: Selector(payload),
   tag: tag,
@@ -295,9 +308,15 @@ pub fn selecting_record3(
   insert_selector_handler(selector, #(tag, 3), handler)
 }
 
-// TODO: document
 // TODO: test
 // TODO: changelog
+/// Add a handler to a selector for 4 element tuple messages with a given tag
+/// element in the first position.
+///
+/// Typically you want to use the `selecting` function with a `Subject` instead,
+/// but this function may be useful if you need to receive messages sent from
+/// other BEAM languages that do not use the `Subject` type.
+///
 pub fn selecting_record4(
   selector: Selector(payload),
   tag: tag,
