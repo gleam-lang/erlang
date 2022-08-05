@@ -218,7 +218,6 @@ pub type ExitReason {
   Abnormal(reason: String)
 }
 
-// TODO: changelog
 /// Add a handler for trapped exit messages. In order for these messages to be
 /// sent to the process when a linked process exits the process must call the
 /// `trap_exit` beforehand.
@@ -243,7 +242,6 @@ pub fn selecting_trapped_exits(
   insert_selector_handler(selector, #(tag, 3), handler)
 }
 
-// TODO: changelog
 // TODO: implement in Gleam
 /// Discard all messages in the current process' mailbox.
 ///
@@ -269,6 +267,46 @@ pub fn selecting(
 ) -> Selector(payload) {
   let handler = fn(message: #(Reference, message)) { transform(message.1) }
   insert_selector_handler(selector, #(subject.tag, 2), handler)
+}
+
+// TODO: document
+// TODO: test
+// TODO: changelog
+pub fn selecting_record2(
+  selector: Selector(payload),
+  tag: tag,
+  mapping transform: fn(Dynamic) -> payload,
+) -> Selector(payload) {
+  let handler = fn(message: #(tag, Dynamic)) { transform(message.1) }
+  insert_selector_handler(selector, #(tag, 2), handler)
+}
+
+// TODO: document
+// TODO: test
+// TODO: changelog
+pub fn selecting_record3(
+  selector: Selector(payload),
+  tag: tag,
+  mapping transform: fn(Dynamic, Dynamic) -> payload,
+) -> Selector(payload) {
+  let handler = fn(message: #(tag, Dynamic, Dynamic)) {
+    transform(message.1, message.2)
+  }
+  insert_selector_handler(selector, #(tag, 3), handler)
+}
+
+// TODO: document
+// TODO: test
+// TODO: changelog
+pub fn selecting_record4(
+  selector: Selector(payload),
+  tag: tag,
+  mapping transform: fn(Dynamic, Dynamic, Dynamic) -> payload,
+) -> Selector(payload) {
+  let handler = fn(message: #(tag, Dynamic, Dynamic, Dynamic)) {
+    transform(message.1, message.2, message.3)
+  }
+  insert_selector_handler(selector, #(tag, 4), handler)
 }
 
 /// Configure a `Selector` to receive tuple messages that have the specified
