@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.15.0 - Unreleased
+
+- The `gleam/erlang/process` module's `selecting_subjectless_record` function
+  has been replaced by the `selecting_record2`, `selecting_record3`, and
+  `selecting_record4` functions.
+
 ## v0.14.0 - 2022-08-01
 
 - The `gleam/erlang/process` module gains the `flush_messages` and
