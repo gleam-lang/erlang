@@ -285,6 +285,22 @@ pub fn selecting_record_test() {
     |> process.select(0)
 }
 
+pub fn selecting_anything_test() {
+  process.flush_messages()
+  send(process.self(), 1)
+  send(process.self(), 2.0)
+
+  let selector =
+    process.new_selector()
+    |> process.selecting_anything(dynamic.int)
+
+  assert Ok(Ok(1)) = process.select(selector, 0)
+  assert Ok(Error([
+    dynamic.DecodeError(expected: "Int", found: "Float", path: []),
+  ])) = process.select(selector, 0)
+  assert Error(Nil) = process.select(selector, 0)
+}
+
 pub fn linking_self_test() {
   assert True = process.link(process.self())
 }

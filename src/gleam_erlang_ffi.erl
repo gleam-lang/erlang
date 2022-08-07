@@ -168,6 +168,7 @@ select(Selector) ->
     Message.
 
 select({selector, Handlers}, Timeout) ->
+    AnythingHandler = maps:get(anything, Handlers, undefined),
     receive
         % Monitored process down messages.
         % This is special cased so we can selectively receive based on the
@@ -178,7 +179,10 @@ select({selector, Handlers}, Timeout) ->
 
         Msg when is_map_key({element(1, Msg), tuple_size(Msg)}, Handlers) ->
             Fn = maps:get({element(1, Msg), tuple_size(Msg)}, Handlers),
-            {ok, Fn(Msg)}
+            {ok, Fn(Msg)};
+        
+        Msg when AnythingHandler =/= undefined ->
+            {ok, AnythingHandler(Msg)}
     after Timeout ->
         {error, nil}
     end.

@@ -321,6 +321,24 @@ pub fn selecting_record4(
   insert_selector_handler(selector, #(tag, 4), handler)
 }
 
+type AnythingSelectorTag {
+  Anything
+}
+
+/// Add a catch-all handler to a selector that will be used when no other
+/// handler in a selector is suitable for a given message.
+///
+/// This may be useful for when you want to ensure that any message in the inbox
+/// is handled, or when you need to handle messages from other BEAM languages
+/// which do not use subjects or record format messages.
+///
+pub fn selecting_anything(
+  selector: Selector(payload),
+  mapping handler: fn(Dynamic) -> payload,
+) -> Selector(payload) {
+  insert_selector_handler(selector, Anything, handler)
+}
+
 external fn insert_selector_handler(
   Selector(payload),
   for: tag,
