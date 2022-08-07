@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.15.0 - Unreleased
+## v0.15.0 - 2022-08-07
 
 - The `gleam/erlang/process` module's `selecting_subjectless_record` function
   has been replaced by the `selecting_record2`, `selecting_record3`, and
