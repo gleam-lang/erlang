@@ -5,7 +5,7 @@
 - The `gleam/erlang/process` module's `selecting_subjectless_record` function
   has been replaced by the `selecting_record2`, `selecting_record3`, and
   `selecting_record4` functions.
-- The `gleam/erlang/process` module gains the `select_anything` function.
+- The `gleam/erlang/process` module gains the `selecting_anything` function.
 
 ## v0.14.0 - 2022-08-01
 
