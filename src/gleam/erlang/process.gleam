@@ -328,30 +328,6 @@ pub fn selecting_record4(
   insert_selector_handler(selector, #(tag, 4), handler)
 }
 
-/// Configure a `Selector` to receive tuple messages that have the specified
-/// size and given first element.
-///
-/// This function may be useful when interacting with Erlang code that sends
-/// messages for you to receive but does not use `Subject`s.
-///
-/// For example, if a process has been sent the message `#("name", "Lucy")` it could
-/// be receive like so:
-///
-/// ```gleam
-/// new_selector()
-/// |> selecting_subjectless_record("name", 2, fn(x) { x })
-/// |> select(0)
-/// ```
-///
-pub fn selecting_subjectless_record(
-  selector: Selector(payload),
-  tag: anything,
-  size: Int,
-  mapping transform: fn(Dynamic) -> payload,
-) -> Selector(payload) {
-  insert_selector_handler(selector, #(tag, size), transform)
-}
-
 external fn insert_selector_handler(
   Selector(payload),
   for: tag,
