@@ -230,30 +230,59 @@ pub fn call_test() {
 external fn send(process.Pid, anything) -> Nil =
   "erlang" "send"
 
-fn subjectless_receive(tag, size) {
-  process.new_selector()
-  |> process.selecting_subjectless_record(tag, size, dynamic.unsafe_coerce)
-  |> process.select(0)
-}
-
-pub fn selecting_subjectless_record_test() {
+pub fn selecting_record_test() {
   send(process.self(), #("a", 1))
   send(process.self(), #("b", 2, 3))
   send(process.self(), #("c", 4, 5, 6))
   send(process.self(), "d")
 
-  assert Error(Nil) = subjectless_receive("a", 0)
-  assert Error(Nil) = subjectless_receive("d", 0)
-  assert Error(Nil) = subjectless_receive("d", 1)
+  assert Error(Nil) =
+    process.new_selector()
+    |> process.selecting_record2("d", dynamic.unsafe_coerce)
+    |> process.select(0)
 
-  assert Error(Nil) = subjectless_receive("c", 1)
-  assert Error(Nil) = subjectless_receive("c", 2)
-  assert Error(Nil) = subjectless_receive("c", 3)
-  assert Ok(#("c", 4, 5, 6)) = subjectless_receive("c", 4)
+  assert Error(Nil) =
+    process.new_selector()
+    |> process.selecting_record2("c", dynamic.unsafe_coerce)
+    |> process.select(0)
+  assert Error(Nil) =
+    process.new_selector()
+    |> process.selecting_record2("c", dynamic.unsafe_coerce)
+    |> process.select(0)
+  assert Error(Nil) =
+    process.new_selector()
+    |> process.selecting_record3(
+      "c",
+      fn(a, b) { #(dynamic.unsafe_coerce(a), dynamic.unsafe_coerce(b)) },
+    )
+    |> process.select(0)
 
-  assert Ok(#("b", 2, 3)) = subjectless_receive("b", 3)
+  assert Ok(#(4, 5, 6)) =
+    process.new_selector()
+    |> process.selecting_record4(
+      "c",
+      fn(a, b, c) {
+        #(
+          dynamic.unsafe_coerce(a),
+          dynamic.unsafe_coerce(b),
+          dynamic.unsafe_coerce(c),
+        )
+      },
+    )
+    |> process.select(0)
 
-  assert Ok(#("a", 1)) = subjectless_receive("a", 2)
+  assert Ok(#(2, 3)) =
+    process.new_selector()
+    |> process.selecting_record3(
+      "b",
+      fn(a, b) { #(dynamic.unsafe_coerce(a), dynamic.unsafe_coerce(b)) },
+    )
+    |> process.select(0)
+
+  assert Ok(1) =
+    process.new_selector()
+    |> process.selecting_record2("a", dynamic.unsafe_coerce)
+    |> process.select(0)
 }
 
 pub fn linking_self_test() {
