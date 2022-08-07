@@ -269,9 +269,6 @@ pub fn selecting(
   insert_selector_handler(selector, #(subject.tag, 2), handler)
 }
 
-// TODO: document
-// TODO: test
-// TODO: changelog
 /// Add a handler to a selector for 2 element tuple messages with a given tag
 /// element in the first position.
 ///
@@ -288,8 +285,6 @@ pub fn selecting_record2(
   insert_selector_handler(selector, #(tag, 2), handler)
 }
 
-// TODO: changelog
-// TODO: test
 /// Add a handler to a selector for 3 element tuple messages with a given tag
 /// element in the first position.
 ///
@@ -308,8 +303,6 @@ pub fn selecting_record3(
   insert_selector_handler(selector, #(tag, 3), handler)
 }
 
-// TODO: test
-// TODO: changelog
 /// Add a handler to a selector for 4 element tuple messages with a given tag
 /// element in the first position.
 ///
