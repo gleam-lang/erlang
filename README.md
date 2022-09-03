@@ -28,3 +28,5 @@ pub fn main() {
   io.println(contents)
 }
 ```
+
+Documentation can be found at <https://hexdocs.pm/gleam_erlang/>.
