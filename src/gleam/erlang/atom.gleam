@@ -49,7 +49,7 @@ pub external fn from_string(String) -> Result(Atom, FromStringError) =
 /// virtual machine to crash!
 ///
 pub external fn create_from_string(String) -> Atom =
-  "gleam_erlang_ffi" "atom_create_from_string"
+  "erlang" "binary_to_atom"
 
 /// Retuns a `String` corresponding to the text representation of the given
 /// `Atom`.

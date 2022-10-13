@@ -30,7 +30,7 @@
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, atom_not_loaded}.
 atom_from_string(S) ->
-    try {ok, binary_to_existing_atom(S, utf8)}
+    try {ok, binary_to_existing_atom(S)}
     catch error:badarg -> {error, atom_not_loaded}
     end.
 
@@ -40,7 +40,7 @@ atom_create_from_string(S) ->
 
 -spec atom_to_string(atom()) -> binary().
 atom_to_string(S) ->
-    atom_to_binary(S, utf8).
+    atom_to_binary(S).
 
 atom_from_dynamic(Data) when is_atom(Data) ->
     {ok, Data};

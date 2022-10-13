@@ -2,7 +2,10 @@ import gleam/erlang/atom
 import gleam/dynamic.{DecodeError}
 
 pub fn from_string_test() {
-  atom.create_from_string("this is an existing atom")
+  // Create a new atom
+  let x = atom.create_from_string("this is an existing atom")
+  // We turn the atom into a string to prevent the Erlang compiler optimising it away
+  let _ = atom.to_string(x)
 
   assert Ok(_) = atom.from_string("this is an existing atom")
 
