@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- This library now requires OTP 23.0 or higher.
+- `atom.create_from_string` calls the `erlang:binary_to_atom` built-in function
+  directly, enabling the compilers to optimise the call to an atom literal when
+  the argument is a string literal.
+
 ## v0.15.0 - 2022-08-07
 
 - The `gleam/erlang/process` module's `selecting_subjectless_record` function

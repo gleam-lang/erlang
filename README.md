@@ -30,3 +30,5 @@ pub fn main() {
 ```
 
 Documentation can be found at <https://hexdocs.pm/gleam_erlang/>.
+
+This library requires OTP 23.0 or higher.
