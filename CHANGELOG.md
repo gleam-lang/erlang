@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.16.0 - 2022-10-13
 
 - This library now requires OTP 23.0 or higher.
 - `atom.create_from_string` calls the `erlang:binary_to_atom` built-in function
