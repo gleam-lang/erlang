@@ -61,7 +61,7 @@ pub external fn create_from_string(String) -> Atom =
 ///    "ok"
 ///
 pub external fn to_string(Atom) -> String =
-  "gleam_erlang_ffi" "atom_to_string"
+  "erlang" "atom_to_binary"
 
 /// Checks to see whether a `Dynamic` value is an atom, and return the atom if
 /// it is.
