@@ -6,6 +6,9 @@
 - `atom.create_from_string` calls the `erlang:binary_to_atom` built-in function
   directly, enabling the compilers to optimise the call to an atom literal when
   the argument is a string literal.
+- `atom.to_string` calls the `erlang:atom_to_binary` built-in function directly,
+  enabling the compilers to optimise the call to a string literal when the
+  argument is an atom literal.
 
 ## v0.15.0 - 2022-08-07
 
