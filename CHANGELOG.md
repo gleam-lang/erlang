@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.17.0 - 2022-10-20
+
+- The `gleam/file` module gains the `append` and `append_bits` functions.
+
 ## v0.16.0 - 2022-10-13
 
 - This library now requires OTP 23.0 or higher.
