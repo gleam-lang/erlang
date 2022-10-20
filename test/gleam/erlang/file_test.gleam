@@ -85,6 +85,7 @@ fn tmp_path(filename: String) {
 fn make_tmp_directory() {
   delete_tmp_directory()
   assert Ok(Nil) = file.make_directory(tmp_directory)
+  Nil
 }
 
 fn delete_tmp_directory() {
@@ -92,4 +93,43 @@ fn delete_tmp_directory() {
     Error(file.Enoent) -> Ok(Nil)
     other -> other
   }
+  Nil
+}
+
+pub fn append_test() {
+  make_tmp_directory()
+  let path = tmp_path("success.txt")
+  assert Error(file.Enoent) = file.read(path)
+
+  assert Ok(Nil) = file.append("one", path)
+  assert Ok("one") = file.read(path)
+
+  assert Ok(Nil) = file.append("two", path)
+  assert Ok("onetwo") = file.read(path)
+
+  assert Ok(Nil) = file.append("three", path)
+  assert Ok("onetwothree") = file.read(path)
+
+  assert Ok(Nil) = file.delete(path)
+  assert Error(file.Enoent) = file.read(path)
+  delete_tmp_directory()
+}
+
+pub fn append_bits_test() {
+  make_tmp_directory()
+  let path = tmp_path("cat.jpeg")
+  assert Error(file.Enoent) = file.read_bits(path)
+
+  assert Ok(Nil) = file.append_bits(<<1>>, path)
+  assert Ok(<<1>>) = file.read_bits(path)
+
+  assert Ok(Nil) = file.append_bits(<<2>>, path)
+  assert Ok(<<1, 2>>) = file.read_bits(path)
+
+  assert Ok(Nil) = file.append_bits(<<3>>, path)
+  assert Ok(<<1, 2, 3>>) = file.read_bits(path)
+
+  assert Ok(Nil) = file.delete(path)
+  assert Error(file.Enoent) = file.read_bits(path)
+  delete_tmp_directory()
 }

@@ -310,6 +310,57 @@ external fn do_write_bits(
 ) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "write_file"
 
+/// Append the given String contents to a file of the given name.
+///
+/// Returns a Result with Nil if the operation was successful or a Reason
+/// otherwise.
+///
+/// ## Examples
+///
+///    > append("Hello, World!", "file.txt")
+///    Ok(Nil)
+///
+///    > append(to: "file.txt", contents: "Hello, World!")
+///    Ok(Nil)
+///
+///    > append("Hello, World!", "does_not_exist/file.txt")
+///    Error(Enoent)
+///
+pub fn append(contents contents: String, to path: String) -> Result(Nil, Reason) {
+  contents
+  |> bit_string.from_string
+  |> do_append_bits(path)
+}
+
+/// Append the given BitString contents to a file of the given name.
+///
+/// Returns a Result with Nil if the operation was successful or a Reason
+/// otherwise.
+///
+/// ## Examples
+///
+///    > append_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "cat.gif")
+///    Ok(Nil)
+///
+///    > append_bits(to: "cat.gif", contents: <<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
+///    Ok(Nil)
+///
+///    > append_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "does_not_exist/cat.gif")
+///    Error(Enoent)
+///
+pub fn append_bits(
+  contents contents: BitString,
+  to path: String,
+) -> Result(Nil, Reason) {
+  do_append_bits(contents, path)
+}
+
+external fn do_append_bits(
+  contents: BitString,
+  path: String,
+) -> Result(Nil, Reason) =
+  "gleam_erlang_ffi" "append_file"
+
 /// Delete the given file.
 ///
 /// Returns a Result with Nil if the operation was successful or a Reason
