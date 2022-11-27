@@ -10,9 +10,11 @@
 pub external type Charlist
 
 /// Transform a charlist to a string
+/// Note: Erlang default encoding is utf8, so we're good
 pub external fn to_string(Charlist) -> String =
-  "erlang" "list_to_binary"
+  "unicode" "characters_to_binary"
 
 /// Transform a string to a charlist
+/// Note: Erlang default encoding is utf8, so we're good
 pub external fn from_string(String) -> Charlist =
-  "erlang" "binary_to_list"
+  "unicode" "characters_to_list"
