@@ -17,7 +17,6 @@ pub external fn to_string(Charlist) -> String =
 // See <https://www.erlang.org/doc/man/unicode.html#characters_to_binary-1>
 
 /// Transform a string to a charlist
-/// Note: Erlang default encoding is utf8, so we're good
 pub external fn from_string(String) -> Charlist =
   "unicode" "characters_to_list"
 // Calls `unicode:characters_to_list(Data, unicode)`
