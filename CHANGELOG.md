@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Fixed a bug where the `to_string` and `from_string` functions in the
+  `charlist` module would handle some unicode characters incorrectly.
+
 ## v0.17.0 - 2022-10-20
 
 - The `gleam/file` module gains the `append` and `append_bits` functions.
