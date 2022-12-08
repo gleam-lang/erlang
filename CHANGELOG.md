@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.17.1 - 2022-12-08
 
 - Fixed a bug where the `to_string` and `from_string` functions in the
   `charlist` module would handle some unicode characters incorrectly.
