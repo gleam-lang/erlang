@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.18.0 - 2023-02-03
+
+- The `process.send_abnormal_exit` function no longer has labels.
+
 ## v0.17.1 - 2022-12-08
 
 - Fixed a bug where the `to_string` and `from_string` functions in the
