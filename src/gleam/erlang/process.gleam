@@ -594,7 +594,7 @@ pub fn send_exit(to pid: Pid) -> Nil {
 /// See the [Erlang documentation][erl] for more information.
 /// [erl]: http://erlang.org/doc/man/erlang.html#exit-2
 ///
-pub fn send_abnormal_exit(to pid: Pid, reason: String) -> Nil {
+pub fn send_abnormal_exit(pid: Pid, reason: String) -> Nil {
   erlang_send_exit(pid, Abnormal(reason))
   Nil
 }
