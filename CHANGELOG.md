@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- The `is_file` function has been renamed to `exists` to more accurately reflect
+  its behaviour.
+- The `gleam/file` module gains the `is_regular` function.
+
 ## v0.18.1 - 2023-03-02
 
 - Updated for Gleam 0.27.0.
