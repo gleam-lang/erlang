@@ -64,12 +64,14 @@ pub fn dir_test() {
   let path = tmp_path("missing_dir/foo")
   let assert Error(file.Enoent) = file.make_directory(path: path)
   let assert False = file.is_directory(path: path)
-  let assert False = file.is_file(path: path)
+  let assert False = file.is_regular(path: path)
+  let assert False = file.exists(path: path)
 
   let path = tmp_path("bar")
   let assert Ok(Nil) = file.make_directory(path: path)
   let assert True = file.is_directory(path: path)
-  let assert True = file.is_file(path: path)
+  let assert False = file.is_regular(path: path)
+  let assert True = file.exists(path: path)
 
   let nested_path = tmp_path("bar/baz")
   let assert Ok(Nil) = file.make_directory(path: nested_path)

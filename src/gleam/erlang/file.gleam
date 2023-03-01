@@ -123,19 +123,32 @@ pub type Reason {
 pub external fn is_directory(path: String) -> Bool =
   "filelib" "is_dir"
 
-/// Returns true if path refers to a file, otherwise false.
+/// Returns true if path refers to a regular file, otherwise false.
 ///
 /// ## Examples
 ///
-///    > is_file("resume.pdf")
+///    > is_regular("resume.pdf")
 ///    True
 ///
-///    > is_file("/tmp")
-///    True
-///
-///    > is_file("/does_not_exist")
+///    > is_regular("/tmp")
 ///    False
-pub external fn is_file(path: String) -> Bool =
+pub external fn is_regular(path: String) -> Bool =
+  "filelib" "is_regular"
+
+/// Returns true if path refers to an existing file or directory, otherwise
+/// false.
+///
+/// ## Examples
+///
+///    > exists("resume.pdf")
+///    True
+///
+///    > exists("/tmp")
+///    True
+///
+///    > exists("/does_not_exist")
+///    False
+pub external fn exists(path: String) -> Bool =
   "filelib" "is_file"
 
 /// Tries to create a directory. Missing parent directories are not created.
