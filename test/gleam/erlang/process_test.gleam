@@ -9,12 +9,12 @@ pub fn self_test() {
   let subject = process.new_subject()
   let pid = process.self()
 
-  assert True = pid == process.self()
-  assert False = pid == process.start(fn() { Nil }, linked: True)
+  let assert True = pid == process.self()
+  let assert False = pid == process.start(fn() { Nil }, linked: True)
 
   process.start(fn() { process.send(subject, process.self()) }, linked: True)
-  assert Ok(child_pid) = process.receive(subject, 5)
-  assert True = child_pid != process.self()
+  let assert Ok(child_pid) = process.receive(subject, 5)
+  let assert True = child_pid != process.self()
 }
 
 pub fn sleep_test() {
@@ -24,7 +24,7 @@ pub fn sleep_test() {
 
 pub fn subject_owner_test() {
   let subject = process.new_subject()
-  assert True = process.subject_owner(subject) == process.self()
+  let assert True = process.subject_owner(subject) == process.self()
 }
 
 pub fn receive_test() {
@@ -43,22 +43,22 @@ pub fn receive_test() {
   )
 
   // Assert all the messages arrived
-  assert Ok(0) = process.receive(subject, 0)
-  assert Ok(1) = process.receive(subject, 50)
-  assert Ok(2) = process.receive(subject, 0)
-  assert Error(Nil) = process.receive(subject, 0)
+  let assert Ok(0) = process.receive(subject, 0)
+  let assert Ok(1) = process.receive(subject, 50)
+  let assert Ok(2) = process.receive(subject, 0)
+  let assert Error(Nil) = process.receive(subject, 0)
 }
 
 pub fn is_alive_test() {
   let pid = process.start(fn() { Nil }, False)
   process.sleep(5)
-  assert False = process.is_alive(pid)
+  let assert False = process.is_alive(pid)
 }
 
 pub fn sleep_forever_test() {
   let pid = process.start(process.sleep_forever, False)
   process.sleep(5)
-  assert True = process.is_alive(pid)
+  let assert True = process.is_alive(pid)
 }
 
 pub fn selector_test() {
@@ -77,9 +77,9 @@ pub fn selector_test() {
 
   // We can selectively receive messages for subjects 2 and 3, skipping the one
   // from subject 1 even though it is first in the mailbox.
-  assert Ok("2") = process.select(selector, 0)
-  assert Ok("3.0") = process.select(selector, 0)
-  assert Error(Nil) = process.select(selector, 0)
+  let assert Ok("2") = process.select(selector, 0)
+  let assert Ok("3.0") = process.select(selector, 0)
+  let assert Error(Nil) = process.select(selector, 0)
 
   // More messages for subjects 2 and 3
   process.send(subject2, 2)
@@ -89,10 +89,10 @@ pub fn selector_test() {
   let selector = process.selecting(selector, subject1, fn(x) { x })
 
   // Now we get the message for subject 1 first as it is first in the mailbox
-  assert Ok("1") = process.select(selector, 0)
-  assert Ok("2") = process.select(selector, 0)
-  assert Ok("3.0") = process.select(selector, 0)
-  assert Error(Nil) = process.select(selector, 0)
+  let assert Ok("1") = process.select(selector, 0)
+  let assert Ok("2") = process.select(selector, 0)
+  let assert Ok("3.0") = process.select(selector, 0)
+  let assert Error(Nil) = process.select(selector, 0)
 }
 
 pub fn monitor_test() {
@@ -116,16 +116,16 @@ pub fn monitor_test() {
     |> process.selecting_process_down(monitor, fn(x) { x })
 
   // There is no monitor message while the child is alive
-  assert Error(Nil) = process.select(selector, 0)
+  let assert Error(Nil) = process.select(selector, 0)
 
   // Shutdown child to trigger monitor
-  assert Ok(child_subject) = process.receive(parent_subject, 50)
+  let assert Ok(child_subject) = process.receive(parent_subject, 50)
   process.send(child_subject, Nil)
 
   // We get a process down message!
-  assert Ok(ProcessDown(downed_pid, _reason)) = process.select(selector, 50)
+  let assert Ok(ProcessDown(downed_pid, _reason)) = process.select(selector, 50)
 
-  assert True = downed_pid == pid
+  let assert True = downed_pid == pid
 }
 
 pub fn demonitor_test() {
@@ -149,14 +149,14 @@ pub fn demonitor_test() {
     |> process.selecting_process_down(monitor, fn(x) { x })
 
   // Shutdown child to trigger monitor
-  assert Ok(child_subject) = process.receive(parent_subject, 50)
+  let assert Ok(child_subject) = process.receive(parent_subject, 50)
   process.send(child_subject, Nil)
 
   // Demonitor the child
   process.demonitor_process(monitor)
 
   // There is no down message
-  assert Error(Nil) = process.select(selector, 5)
+  let assert Error(Nil) = process.select(selector, 5)
 }
 
 pub fn try_call_test() {
@@ -169,16 +169,16 @@ pub fn try_call_test() {
       let child_subject = process.new_subject()
       process.send(parent_subject, child_subject)
       // Wait for the subject to be messaged
-      assert Ok(#(x, reply)) = process.receive(child_subject, 50)
+      let assert Ok(#(x, reply)) = process.receive(child_subject, 50)
       // Reply
       process.send(reply, x + 1)
     },
   )
 
-  assert Ok(call_subject) = process.receive(parent_subject, 50)
+  let assert Ok(call_subject) = process.receive(parent_subject, 50)
 
   // Call the child process and get a response.
-  assert Ok(2) =
+  let assert Ok(2) =
     process.try_call(call_subject, fn(subject) { #(1, subject) }, 50)
 }
 
@@ -192,16 +192,16 @@ pub fn try_call_timeout_test() {
       let child_subject = process.new_subject()
       process.send(parent_subject, child_subject)
       // Wait for the subject to be called
-      assert Ok(_) = process.receive(child_subject, 50)
+      let assert Ok(_) = process.receive(child_subject, 50)
       // Never reply
       process.sleep(100)
     },
   )
 
-  assert Ok(call_subject) = process.receive(parent_subject, 50)
+  let assert Ok(call_subject) = process.receive(parent_subject, 50)
 
   // Call the child process over the subject
-  assert Error(process.CallTimeout) =
+  let assert Error(process.CallTimeout) =
     process.try_call(call_subject, fn(x) { x }, 10)
 }
 
@@ -215,16 +215,16 @@ pub fn call_test() {
       let child_subject = process.new_subject()
       process.send(parent_subject, child_subject)
       // Wait for the subject to be messaged
-      assert Ok(#(x, reply)) = process.receive(child_subject, 50)
+      let assert Ok(#(x, reply)) = process.receive(child_subject, 50)
       // Reply
       process.send(reply, x + 1)
     },
   )
 
-  assert Ok(call_subject) = process.receive(parent_subject, 50)
+  let assert Ok(call_subject) = process.receive(parent_subject, 50)
 
   // Call the child process and get a response.
-  assert 2 = process.call(call_subject, fn(subject) { #(1, subject) }, 50)
+  let assert 2 = process.call(call_subject, fn(subject) { #(1, subject) }, 50)
 }
 
 external fn send(process.Pid, anything) -> Nil =
@@ -236,20 +236,20 @@ pub fn selecting_record_test() {
   send(process.self(), #("c", 4, 5, 6))
   send(process.self(), "d")
 
-  assert Error(Nil) =
+  let assert Error(Nil) =
     process.new_selector()
     |> process.selecting_record2("d", dynamic.unsafe_coerce)
     |> process.select(0)
 
-  assert Error(Nil) =
+  let assert Error(Nil) =
     process.new_selector()
     |> process.selecting_record2("c", dynamic.unsafe_coerce)
     |> process.select(0)
-  assert Error(Nil) =
+  let assert Error(Nil) =
     process.new_selector()
     |> process.selecting_record2("c", dynamic.unsafe_coerce)
     |> process.select(0)
-  assert Error(Nil) =
+  let assert Error(Nil) =
     process.new_selector()
     |> process.selecting_record3(
       "c",
@@ -257,7 +257,7 @@ pub fn selecting_record_test() {
     )
     |> process.select(0)
 
-  assert Ok(#(4, 5, 6)) =
+  let assert Ok(#(4, 5, 6)) =
     process.new_selector()
     |> process.selecting_record4(
       "c",
@@ -271,7 +271,7 @@ pub fn selecting_record_test() {
     )
     |> process.select(0)
 
-  assert Ok(#(2, 3)) =
+  let assert Ok(#(2, 3)) =
     process.new_selector()
     |> process.selecting_record3(
       "b",
@@ -279,7 +279,7 @@ pub fn selecting_record_test() {
     )
     |> process.select(0)
 
-  assert Ok(1) =
+  let assert Ok(1) =
     process.new_selector()
     |> process.selecting_record2("a", dynamic.unsafe_coerce)
     |> process.select(0)
@@ -294,19 +294,19 @@ pub fn selecting_anything_test() {
     process.new_selector()
     |> process.selecting_anything(dynamic.int)
 
-  assert Ok(Ok(1)) = process.select(selector, 0)
-  assert Ok(Error([
+  let assert Ok(Ok(1)) = process.select(selector, 0)
+  let assert Ok(Error([
     dynamic.DecodeError(expected: "Int", found: "Float", path: []),
   ])) = process.select(selector, 0)
-  assert Error(Nil) = process.select(selector, 0)
+  let assert Error(Nil) = process.select(selector, 0)
 }
 
 pub fn linking_self_test() {
-  assert True = process.link(process.self())
+  let assert True = process.link(process.self())
 }
 
 pub fn linking_new_test() {
-  assert True =
+  let assert True =
     process.link(process.start(
       linked: False,
       running: fn() { process.sleep(100) },
@@ -314,7 +314,7 @@ pub fn linking_new_test() {
 }
 
 pub fn relinking_test() {
-  assert True =
+  let assert True =
     process.link(process.start(
       linked: True,
       running: fn() { process.sleep(100) },
@@ -324,11 +324,11 @@ pub fn relinking_test() {
 pub fn linking_dead_test() {
   let pid = process.start(linked: True, running: fn() { Nil })
   process.sleep(20)
-  assert False = process.link(pid)
+  let assert False = process.link(pid)
 }
 
 pub fn unlink_unlinked_test() {
-  assert Nil =
+  let assert Nil =
     process.unlink(process.start(
       linked: False,
       running: fn() { process.sleep(100) },
@@ -336,7 +336,7 @@ pub fn unlink_unlinked_test() {
 }
 
 pub fn unlink_linked_test() {
-  assert Nil =
+  let assert Nil =
     process.unlink(process.start(
       linked: True,
       running: fn() { process.sleep(100) },
@@ -346,7 +346,7 @@ pub fn unlink_linked_test() {
 pub fn unlink_dead_test() {
   let pid = process.start(linked: True, running: fn() { Nil })
   process.sleep(10)
-  assert Nil = process.unlink(pid)
+  let assert Nil = process.unlink(pid)
 }
 
 pub fn send_after_test() {
@@ -354,68 +354,68 @@ pub fn send_after_test() {
 
   // 0 is received immediately, though asynchronously
   process.send_after(subject, 0, "a")
-  assert Ok("a") = process.receive(subject, 10)
+  let assert Ok("a") = process.receive(subject, 10)
 
   // With a delay it is sent later
   process.send_after(subject, 5, "b")
-  assert Error(Nil) = process.receive(subject, 0)
-  assert Ok("b") = process.receive(subject, 10)
+  let assert Error(Nil) = process.receive(subject, 0)
+  let assert Ok("b") = process.receive(subject, 10)
 }
 
 pub fn cancel_timer_test() {
   let subject = process.new_subject()
   let timer = process.send_after(subject, 5, "a")
-  assert process.Cancelled(_) = process.cancel_timer(timer)
-  assert Error(Nil) = process.receive(subject, 5)
+  let assert process.Cancelled(_) = process.cancel_timer(timer)
+  let assert Error(Nil) = process.receive(subject, 5)
 }
 
 pub fn cancel_already_fired_timer_test() {
   let subject = process.new_subject()
   let timer = process.send_after(subject, 0, "a")
-  assert Ok(_) = process.receive(subject, 5)
-  assert process.TimerNotFound = process.cancel_timer(timer)
+  let assert Ok(_) = process.receive(subject, 5)
+  let assert process.TimerNotFound = process.cancel_timer(timer)
 }
 
 pub fn kill_test() {
   let pid = process.start(linked: False, running: fn() { process.sleep(100) })
-  assert True = process.is_alive(pid)
-  assert Nil = process.kill(pid)
-  assert False = process.is_alive(pid)
+  let assert True = process.is_alive(pid)
+  let assert Nil = process.kill(pid)
+  let assert False = process.is_alive(pid)
 }
 
 pub fn kill_already_dead_test() {
   let pid = process.start(linked: True, running: fn() { Nil })
   process.sleep(10)
-  assert False = process.is_alive(pid)
-  assert Nil = process.kill(pid)
+  let assert False = process.is_alive(pid)
+  let assert Nil = process.kill(pid)
 }
 
 pub fn send_exit_test() {
   let pid = process.start(linked: False, running: fn() { process.sleep(100) })
-  assert Nil = process.send_exit(pid)
+  let assert Nil = process.send_exit(pid)
 }
 
 pub fn send_exit_already_dead_test() {
   let pid = process.start(linked: True, running: fn() { Nil })
   process.sleep(10)
-  assert False = process.is_alive(pid)
-  assert Nil = process.send_exit(pid)
+  let assert False = process.is_alive(pid)
+  let assert Nil = process.send_exit(pid)
 }
 
 pub fn send_abnormal_exit_test() {
   let pid = process.start(linked: False, running: fn() { process.sleep(100) })
-  assert Nil = process.send_abnormal_exit(pid, "Bye")
+  let assert Nil = process.send_abnormal_exit(pid, "Bye")
 }
 
 pub fn send_abnormal_exit_already_dead_test() {
   let pid = process.start(linked: True, running: fn() { Nil })
   process.sleep(10)
-  assert False = process.is_alive(pid)
-  assert Nil = process.send_abnormal_exit(pid, "Bye")
+  let assert False = process.is_alive(pid)
+  let assert Nil = process.send_abnormal_exit(pid, "Bye")
 }
 
 pub fn trap_exit_test() {
-  assert Nil = process.trap_exits(True)
+  let assert Nil = process.trap_exits(True)
   let pid = process.start(linked: True, running: fn() { process.sleep(100) })
   // This would cause an error if we were not trapping exits
   process.kill(pid)
@@ -425,7 +425,7 @@ pub fn select_forever_test() {
   let subject = process.new_subject()
   process.send(subject, 1)
 
-  assert 1 =
+  let assert 1 =
     process.new_selector()
     |> process.selecting(subject, function.identity)
     |> process.select_forever
@@ -443,8 +443,8 @@ pub fn map_selector_test() {
     |> process.selecting(subject2, float.to_string)
     |> process.map_selector(Some)
 
-  assert Some("1") = process.select_forever(selector)
-  assert Some("2.0") = process.select_forever(selector)
+  let assert Some("1") = process.select_forever(selector)
+  let assert Some("2.0") = process.select_forever(selector)
 }
 
 pub fn merge_selector_test() {
@@ -462,8 +462,8 @@ pub fn merge_selector_test() {
       |> process.selecting(subject2, fn(a) { #("b", a) }),
     )
 
-  assert #("a", 1) = process.select_forever(selector)
-  assert #("b", 2) = process.select_forever(selector)
+  let assert #("a", 1) = process.select_forever(selector)
+  let assert #("b", 2) = process.select_forever(selector)
 }
 
 pub fn selecting_trapped_exits_test() {
@@ -473,12 +473,12 @@ pub fn selecting_trapped_exits_test() {
   let pid = process.start(linked: True, running: fn() { process.sleep(100) })
   process.kill(pid)
 
-  assert Ok(process.ExitMessage(exited, process.Killed)) =
+  let assert Ok(process.ExitMessage(exited, process.Killed)) =
     process.new_selector()
     |> process.selecting_trapped_exits(function.identity)
     |> process.select(10)
 
-  assert True = pid == exited
+  let assert True = pid == exited
 }
 
 pub fn flush_messages_test() {
@@ -487,5 +487,5 @@ pub fn flush_messages_test() {
   process.send(subject, 2)
   process.send(subject, 3)
   process.flush_messages()
-  assert Error(Nil) = process.receive(subject, 0)
+  let assert Error(Nil) = process.receive(subject, 0)
 }

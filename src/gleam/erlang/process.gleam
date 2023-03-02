@@ -487,7 +487,7 @@ pub fn call(
   make_request: fn(Subject(response)) -> request,
   within timeout: Int,
 ) -> response {
-  assert Ok(resp) = try_call(subject, make_request, timeout)
+  let assert Ok(resp) = try_call(subject, make_request, timeout)
   resp
 }
 
