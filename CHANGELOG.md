@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.18.1 - 2023-03-02
+
+- Updated for Gleam 0.27.0.
+
 ## v0.18.0 - 2023-02-03
 
 - The `process.send_abnormal_exit` function no longer has labels.
