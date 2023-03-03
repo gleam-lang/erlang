@@ -111,45 +111,146 @@ pub type Reason {
   NotUtf8
 }
 
+/// TODO
+///
+pub type FileType {
+  Device
+  Directory
+  Other
+  Regular
+  Symlink
+}
+
+/// TODO
+///
+pub type Access {
+  NoAccess
+  Read
+  ReadWrite
+  Write
+}
+
+/// TODO
+///
+pub type FileInfo {
+  FileInfo(
+    size: Int,
+    file_type: FileType,
+    access: Access,
+    atime: Int,
+    mtime: Int,
+    ctime: Int,
+    mode: Int,
+    links: Int,
+    major_device: Int,
+    minor_device: Int,
+    inode: Int,
+    user_id: Int,
+    group_id: Int,
+  )
+}
+
+/// TODO
+///
+/// ## Examples
+///
+/// ```gleam
+/// ```
+///
+pub external fn read_file_info(path: String) -> Result(FileInfo, Reason) =
+  "gleam_erlang_ffi" "read_file_info"
+
+/// TODO
+///
+/// ## Examples
+///
+/// ```gleam
+/// ```
+///
+pub external fn read_link_info(path: String) -> Result(FileInfo, Reason) =
+  "gleam_erlang_ffi" "read_link_info"
+
+/// TODO
+///
 /// Returns true if path refers to a directory, otherwise false.
 ///
 /// ## Examples
 ///
-///    > is_directory("/tmp")
-///    True
+/// ```gleam
+/// > is_directory("/tmp")
+/// Ok(True)
 ///
-///    > is_directory("resume.pdf")
-///    False
-pub external fn is_directory(path: String) -> Bool =
-  "filelib" "is_dir"
+/// > is_directory("resume.pdf")
+/// Ok(False)
+///
+/// > is_directory("/does_not_exist")
+/// Error(Enoent)
+/// ```
+///
+pub fn is_directory(path path: String) -> Result(Bool, Reason) {
+  use FileInfo(file_type: file_type, ..) <- result.map(over: read_file_info(
+    path,
+  ))
+  file_type == Directory
+}
 
+/// TODO
+///
 /// Returns true if path refers to a regular file, otherwise false.
 ///
 /// ## Examples
 ///
-///    > is_regular("resume.pdf")
-///    True
+/// ```gleam
+/// > is_regular("resume.pdf")
+/// Ok(True)
 ///
-///    > is_regular("/tmp")
-///    False
-pub external fn is_regular(path: String) -> Bool =
-  "filelib" "is_regular"
+/// > is_regular("/tmp")
+/// Ok(False)
+///
+/// > is_regular("/does_not_exist.txt")
+/// Error(Enoent)
+/// ```
+///
+pub fn is_regular(path path: String) -> Result(Bool, Reason) {
+  use FileInfo(file_type: file_type, ..) <- result.map(over: read_file_info(
+    path,
+  ))
+  file_type == Regular
+}
 
+/// TODO
+///
 /// Returns true if path refers to an existing file or directory, otherwise
 /// false.
 ///
+/// A "regular" file is one that isn't a "directory, socket, symbolic link, named pipe, or device file."
+///
 /// ## Examples
 ///
-///    > exists("resume.pdf")
-///    True
+/// ```gleam
+/// > exists("resume.pdf")
+/// Ok(True)
 ///
-///    > exists("/tmp")
-///    True
+/// > exists("/tmp")
+/// Ok(True)
 ///
-///    > exists("/does_not_exist")
-///    False
-pub external fn exists(path: String) -> Bool =
-  "filelib" "is_file"
+/// > exists("/does_not_exist")
+/// Ok(False)
+///
+/// > exists("/root/.private/data")
+/// Error(Eacces)
+/// ```
+///
+pub fn exists(path path: String) -> Result(Bool, Reason) {
+  let result =
+    path
+    |> read_file_info
+    |> result.replace(True)
+  case result {
+    Error(Enoent) -> Ok(False)
+    _ -> result
+  }
+}
 
 /// Tries to create a directory. Missing parent directories are not created.
 ///
@@ -158,14 +259,17 @@ pub external fn exists(path: String) -> Bool =
 ///
 /// ## Examples
 ///
-///    > make_directory("/tmp/foo")
-///    Ok(Nil)
+/// ```gleam
+/// > make_directory("/tmp/foo")
+/// Ok(Nil)
 ///
-///    > make_directory("relative_directory")
-///    Ok(Nil)
+/// > make_directory("relative_directory")
+/// Ok(Nil)
 ///
-///    > make_directory("/tmp/missing_intermediate_directory/foo")
-///    Error(Enoent)
+/// > make_directory("/tmp/missing_intermediate_directory/foo")
+/// Error(Enoent)
+/// ```
+///
 pub external fn make_directory(path: String) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "make_directory"
 
@@ -177,11 +281,14 @@ pub external fn make_directory(path: String) -> Result(Nil, Reason) =
 ///
 /// ## Examples
 ///
-///    > list_directory("/tmp")
-///    Ok(["FB01293B-8597-4359-80D5-130140A0C0DE","AlTest2.out"])
+/// ```gleam
+/// > list_directory("/tmp")
+/// Ok(["FB01293B-8597-4359-80D5-130140A0C0DE","AlTest2.out"])
 ///
-///    > list_directory("resume.docx")
-///    Error(Enotdir)
+/// > list_directory("resume.docx")
+/// Error(Enotdir)
+/// ```
+///
 pub external fn list_directory(path: String) -> Result(List(String), Reason) =
   "gleam_erlang_ffi" "list_directory"
 
@@ -192,11 +299,14 @@ pub external fn list_directory(path: String) -> Result(List(String), Reason) =
 ///
 /// ## Examples
 ///
-///    > delete_directory("foo")
-///    Ok(Nil)
+/// ```gleam
+/// > delete_directory("foo")
+/// Ok(Nil)
 ///
-///    > delete_directory("does_not_exist/")
-///    Error(Enoent)
+/// > delete_directory("does_not_exist/")
+/// Error(Enoent)
+/// ```
+///
 pub external fn delete_directory(path: String) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "delete_directory"
 
@@ -206,14 +316,17 @@ pub external fn delete_directory(path: String) -> Result(Nil, Reason) =
 ///
 /// ## Examples
 ///
-///    > recursive_delete("foo")
-///    Ok(Nil)
+/// ```gleam
+/// > recursive_delete("foo")
+/// Ok(Nil)
 ///
-///    > recursive_delete("/bar")
-///    Ok(Nil)
+/// > recursive_delete("/bar")
+/// Ok(Nil)
 ///
-///    > recursive_delete("does_not_exist/")
-///    Error(Enoent)
+/// > recursive_delete("does_not_exist/")
+/// Error(Enoent)
+/// ```
+///
 pub external fn recursive_delete(path: String) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "recursive_delete"
 
@@ -226,17 +339,19 @@ pub external fn recursive_delete(path: String) -> Result(Nil, Reason) =
 ///
 /// ## Examples
 ///
-///    > read("example.txt")
-///    Ok("Hello, World!")
+/// ```gleam
+/// > read("example.txt")
+/// Ok("Hello, World!")
 ///
-///    > read(from: "example.txt")
-///    Ok("Hello, World!")
+/// > read(from: "example.txt")
+/// Ok("Hello, World!")
 ///
-///    > read("does_not_exist.txt")
-///    Error(Enoent)
+/// > read("does_not_exist.txt")
+/// Error(Enoent)
 ///
-///    > read("cat.gif")
-///    Error(NotUTF8)
+/// > read("cat.gif")
+/// Error(NotUTF8)
+/// ```
 ///
 pub fn read(from path: String) -> Result(String, Reason) {
   path
@@ -256,14 +371,16 @@ pub fn read(from path: String) -> Result(String, Reason) {
 ///
 /// ## Examples
 ///
-///    > read_bits("example.txt")
-///    Ok(<<"Hello, World!">>)
+/// ```gleam
+/// > read_bits("example.txt")
+/// Ok(<<"Hello, World!">>)
 ///
-///    > read_bits(from: "cat.gif")
-///    Ok(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
+/// > read_bits(from: "cat.gif")
+/// Ok(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
 ///
-///    > read_bits("does_not_exist.txt")
-///    Error(Enoent)
+/// > read_bits("does_not_exist.txt")
+/// Error(Enoent)
+/// ```
 ///
 pub fn read_bits(from path: String) -> Result(BitString, Reason) {
   do_read_bits(path)
@@ -279,14 +396,16 @@ external fn do_read_bits(path) -> Result(BitString, Reason) =
 ///
 /// ## Examples
 ///
-///    > write("Hello, World!", "file.txt")
-///    Ok(Nil)
+/// ```gleam
+/// > write("Hello, World!", "file.txt")
+/// Ok(Nil)
 ///
-///    > write(to: "file.txt", contents: "Hello, World!")
-///    Ok(Nil)
+/// > write(to: "file.txt", contents: "Hello, World!")
+/// Ok(Nil)
 ///
-///    > write("Hello, World!", "does_not_exist/file.txt")
-///    Error(Enoent)
+/// > write("Hello, World!", "does_not_exist/file.txt")
+/// Error(Enoent)
+/// ```
 ///
 pub fn write(contents contents: String, to path: String) -> Result(Nil, Reason) {
   contents
@@ -301,14 +420,16 @@ pub fn write(contents contents: String, to path: String) -> Result(Nil, Reason) 
 ///
 /// ## Examples
 ///
-///    > write_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "cat.gif")
-///    Ok(Nil)
+/// ```gleam
+/// > write_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "cat.gif")
+/// Ok(Nil)
 ///
-///    > write_bits(to: "cat.gif", contents: <<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
-///    Ok(Nil)
+/// > write_bits(to: "cat.gif", contents: <<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
+/// Ok(Nil)
 ///
-///    > write_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "does_not_exist/cat.gif")
-///    Error(Enoent)
+/// > write_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "does_not_exist/cat.gif")
+/// Error(Enoent)
+/// ```
 ///
 pub fn write_bits(
   contents contents: BitString,
@@ -330,14 +451,16 @@ external fn do_write_bits(
 ///
 /// ## Examples
 ///
-///    > append("Hello, World!", "file.txt")
-///    Ok(Nil)
+/// ```gleam
+/// > append("Hello, World!", "file.txt")
+/// Ok(Nil)
 ///
-///    > append(to: "file.txt", contents: "Hello, World!")
-///    Ok(Nil)
+/// > append(to: "file.txt", contents: "Hello, World!")
+/// Ok(Nil)
 ///
-///    > append("Hello, World!", "does_not_exist/file.txt")
-///    Error(Enoent)
+/// > append("Hello, World!", "does_not_exist/file.txt")
+/// Error(Enoent)
+/// ```
 ///
 pub fn append(contents contents: String, to path: String) -> Result(Nil, Reason) {
   contents
@@ -352,14 +475,16 @@ pub fn append(contents contents: String, to path: String) -> Result(Nil, Reason)
 ///
 /// ## Examples
 ///
-///    > append_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "cat.gif")
-///    Ok(Nil)
+/// ```gleam
+/// > append_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "cat.gif")
+/// Ok(Nil)
 ///
-///    > append_bits(to: "cat.gif", contents: <<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
-///    Ok(Nil)
+/// > append_bits(to: "cat.gif", contents: <<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>)
+/// Ok(Nil)
 ///
-///    > append_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "does_not_exist/cat.gif")
-///    Error(Enoent)
+/// > append_bits(<<71,73,70,56,57,97,1,0,1,0,0,0,0,59>>, "does_not_exist/cat.gif")
+/// Error(Enoent)
+/// ```
 ///
 pub fn append_bits(
   contents contents: BitString,
@@ -381,11 +506,13 @@ external fn do_append_bits(
 ///
 /// ## Examples
 ///
-///    > delete("file.txt")
-///    Ok(Nil)
+/// ```gleam
+/// > delete("file.txt")
+/// Ok(Nil)
 ///
-///    > delete("does_not_exist.txt")
-///    Error(Enoent)
+/// > delete("does_not_exist.txt")
+/// Error(Enoent)
+/// ```
 ///
 pub external fn delete(String) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "delete_file"
