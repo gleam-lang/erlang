@@ -6,7 +6,7 @@
     set_env/2, unset_env/1, delete_directory/1, recursive_delete/1,
     list_directory/1, demonitor/1, make_directory/1, new_selector/0, link/1,
     insert_selector_handler/3, select/1, select/2, trap_exits/1, map_selector/2,
-    merge_selector/2, flush_messages/0
+    merge_selector/2, flush_messages/0, read_file_info/1, read_link_info/1
 ]).
 
 -define(is_posix_error(Error),
@@ -71,6 +71,22 @@ sleep(Microseconds) ->
 sleep_forever() ->
     timer:sleep(infinity),
     nil.
+
+file_info_result(Result) ->
+    case Result of
+        {ok, {file_info, Size, Type, Access, Atime, Mtime, Ctime, Mode, Links, MajorDevice, MinorDevice, Inode, Uid, Gid}} when Access =:= none ->
+            {ok, {file_info, Size, Type, no_access, Atime, Mtime, Ctime, Mode, Links, MajorDevice, MinorDevice, Inode, Uid, Gid}};
+        {ok, _} ->
+            Result;
+        {error, Reason} when ?is_posix_error(Reason) ->
+            Result
+    end.
+
+read_file_info(Filename) ->
+    file_info_result(file:read_file_info(Filename, [{time, posix}])).
+
+read_link_info(Filename) ->
+    file_info_result(file:read_link_info(Filename, [{time, posix}])).
 
 posix_result(Result) ->
     case Result of
