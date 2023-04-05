@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-- The `is_file` function has been renamed to `exists` to more accurately reflect
-  its behaviour.
-- The `gleam/file` module gains the `is_regular` function.
+- The `file` module loses the `is_file` function; gains the `FileType`,
+  `Access`, and `FileInfo` types; and gains the `is_regular`, `file_info`,
+  `link_info`, `file_exists`, and `link_exists` functions.
 
 ## v0.18.1 - 2023-03-02
 

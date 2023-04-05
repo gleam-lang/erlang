@@ -65,13 +65,15 @@ pub fn dir_test() {
   let assert Error(file.Enoent) = file.make_directory(path: path)
   let assert Error(file.Enoent) = file.is_directory(path: path)
   let assert Error(file.Enoent) = file.is_regular(path: path)
-  let assert Ok(False) = file.exists(path: path)
+  let assert Ok(False) = file.file_exists(path: path)
+  let assert Ok(False) = file.link_exists(path: path)
 
   let path = tmp_path("bar")
   let assert Ok(Nil) = file.make_directory(path: path)
   let assert Ok(True) = file.is_directory(path: path)
   let assert Ok(False) = file.is_regular(path: path)
-  let assert Ok(True) = file.exists(path: path)
+  let assert Ok(True) = file.file_exists(path: path)
+  let assert Ok(True) = file.link_exists(path: path)
 
   let nested_path = tmp_path("bar/baz")
   let assert Ok(Nil) = file.make_directory(path: nested_path)

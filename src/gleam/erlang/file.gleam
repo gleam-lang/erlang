@@ -111,7 +111,7 @@ pub type Reason {
   NotUtf8
 }
 
-/// TODO
+/// The type of file found by `file_info` or `link_info`.
 ///
 pub type FileType {
   Device
@@ -121,7 +121,7 @@ pub type FileType {
   Symlink
 }
 
-/// TODO
+/// The read/write permissions a user can have for a file.
 ///
 pub type Access {
   NoAccess
@@ -130,49 +130,218 @@ pub type Access {
   Write
 }
 
-/// TODO
+/// Meta information for a file.
+///
+/// Timestamps are in seconds before or after the Unix time epoch,
+/// `1970-01-01 00:00:00 UTC`.
 ///
 pub type FileInfo {
   FileInfo(
+    /// File size in bytes.
+    ///
     size: Int,
+    /// `Regular`, `Directory`, `Symlink`, `Device`, or `Other`.
+    ///
     file_type: FileType,
+    /// `ReadWrite`, `Read`, `Write`, or `NoAccess`.
+    ///
     access: Access,
+    /// Timestamp of most recent access.
+    ///
     atime: Int,
+    /// Timestamp of most recent modification.
+    ///
     mtime: Int,
+    /// Timestamp of most recent change (or file creation, depending on
+    /// operating system).
+    ///
     ctime: Int,
+    /// File permissions encoded as a sum of bit values, including but not
+    /// limited to:
+    ///
+    /// Owner read, write, execute.
+    ///
+    /// `0o400`, `0o200`, `0o100`
+    ///
+    /// Group read, write, execute.
+    ///
+    /// `0o40`, `0o20`, `0o10`
+    ///
+    /// Other read, write, execute.
+    ///
+    /// `0o4`, `0o2`, `0o1`
+    ///
+    /// Set user ID, group ID on execution.
+    ///
+    /// `0x800`, `0x400`
+    ///
     mode: Int,
+    /// Total links to a file (always `1` for file systems without links).
+    ///
     links: Int,
+    /// The file system where a file is located (`0` for drive `A:` on Windows,
+    /// `1` for `B:`, etc.).
+    ///
     major_device: Int,
+    /// Character device (or `0` on non-Unix systems).
+    ///
     minor_device: Int,
+    /// The `inode` number for a file (always `0` on non-Unix file systems).
+    ///
     inode: Int,
+    /// The owner of a file (always `0` on non-Unix file systems).
+    ///
     user_id: Int,
+    /// The group id of a file (always `0` on non-Unix file systems).
+    ///
     group_id: Int,
   )
 }
 
-/// TODO
+/// Results in `FileInfo` about the given `path` on success, otherwise a
+/// `Reason` for failure.
+///
+/// When `path` refers to a symlink, the result pertains to the link's target.
+/// To get `FileInfo` about a symlink itself, use `link_info`.
 ///
 /// ## Examples
 ///
 /// ```gleam
+/// > file_info("gleam.toml")
+/// Ok(FileInfo(
+///   size: 430,
+///   file_type: Regular,
+///   access: ReadWrite,
+///   atime: 1680580321,
+///   mtime: 1680580272,
+///   ctime: 1680580272,
+///   mode: 33188,
+///   links: 1,
+///   major_device: 64,
+///   minor_device: 0,
+///   inode: 469028,
+///   user_id: 1000,
+///   group_id: 1000,
+/// ))
+///
+/// > file_info("/root")
+/// Ok(FileInfo(
+///   size: 16,
+///   file_type: Directory,
+///   access: Read,
+///   atime: 1677789967,
+///   mtime: 1664561240,
+///   ctime: 1664561240,
+///   mode: 16877,
+///   links: 11,
+///   major_device: 54,
+///   minor_device: 0,
+///   inode: 34,
+///   user_id: 0,
+///   group_id: 0,
+/// ))
+///
+/// > file_info("./build/dev/erlang/rad/priv")
+/// Ok(FileInfo(
+///   size: 140,
+///   file_type: Directory,
+///   access: ReadWrite,
+///   atime: 1680580321,
+///   mtime: 1680580272,
+///   ctime: 1680580272,
+///   mode: 33188,
+///   links: 1,
+///   major_device: 64,
+///   minor_device: 0,
+///   inode: 469028,
+///   user_id: 1000,
+///   group_id: 1000,
+/// ))
+///
+/// > file_info("/does_not_exist")
+/// Error(Enoent)
+///
+/// > file_info("/root/.local/maybe_exists")
+/// Error(Eacces)
 /// ```
 ///
-pub external fn read_file_info(path: String) -> Result(FileInfo, Reason) =
-  "gleam_erlang_ffi" "read_file_info"
+pub external fn file_info(path: String) -> Result(FileInfo, Reason) =
+  "gleam_erlang_ffi" "file_info"
 
-/// TODO
+/// Results in `FileInfo` about the given `path` on success, otherwise a
+/// `Reason` for failure.
+///
+/// When `path` refers to a symlink, the result pertains to the link itself.
+/// To get `FileInfo` about a symlink's target, use `file_info`.
 ///
 /// ## Examples
 ///
 /// ```gleam
+/// > link_info("gleam.toml")
+/// Ok(FileInfo(
+///   size: 430,
+///   file_type: Regular,
+///   access: ReadWrite,
+///   atime: 1680580321,
+///   mtime: 1680580272,
+///   ctime: 1680580272,
+///   mode: 33188,
+///   links: 1,
+///   major_device: 64,
+///   minor_device: 0,
+///   inode: 469028,
+///   user_id: 1000,
+///   group_id: 1000,
+/// ))
+///
+/// > link_info("/root")
+/// Ok(FileInfo(
+///   size: 16,
+///   file_type: Directory,
+///   access: Read,
+///   atime: 1677789967,
+///   mtime: 1664561240,
+///   ctime: 1664561240,
+///   mode: 16877,
+///   links: 11,
+///   major_device: 54,
+///   minor_device: 0,
+///   inode: 34,
+///   user_id: 0,
+///   group_id: 0,
+/// ))
+///
+/// > link_info("./build/dev/erlang/rad/priv")
+/// Ok(FileInfo(
+///   size: 41,
+///   file_type: Symlink,
+///   access: ReadWrite,
+///   atime: 1680581150,
+///   mtime: 1680581150,
+///   ctime: 1680581150,
+///   mode: 41471,
+///   links: 1,
+///   major_device: 64,
+///   minor_device: 0,
+///   inode: 471587,
+///   user_id: 1000,
+///   group_id: 1000,
+/// ))
+///
+/// > link_info("/does_not_exist")
+/// Error(Enoent)
+///
+/// > link_info("/root/.local/maybe_exists")
+/// Error(Eacces)
 /// ```
 ///
-pub external fn read_link_info(path: String) -> Result(FileInfo, Reason) =
-  "gleam_erlang_ffi" "read_link_info"
+pub external fn link_info(path: String) -> Result(FileInfo, Reason) =
+  "gleam_erlang_ffi" "link_info"
 
-/// TODO
+/// Results in a `Bool` on success that indicates whether the given `path` has
+/// a `Directory` `FileType`, otherwise a `Reason` for failure.
 ///
-/// Returns true if path refers to a directory, otherwise false.
+/// When `path` refers to a symlink, the result pertains to the link's target.
 ///
 /// ## Examples
 ///
@@ -188,15 +357,14 @@ pub external fn read_link_info(path: String) -> Result(FileInfo, Reason) =
 /// ```
 ///
 pub fn is_directory(path path: String) -> Result(Bool, Reason) {
-  use FileInfo(file_type: file_type, ..) <- result.map(over: read_file_info(
-    path,
-  ))
+  use FileInfo(file_type: file_type, ..) <- result.map(over: file_info(path))
   file_type == Directory
 }
 
-/// TODO
+/// Results in a `Bool` on success that indicates whether the given `path` has
+/// a `Regular` `FileType`, otherwise a `Reason` for failure.
 ///
-/// Returns true if path refers to a regular file, otherwise false.
+/// When `path` refers to a symlink, the result pertains to the link's target.
 ///
 /// ## Examples
 ///
@@ -212,39 +380,69 @@ pub fn is_directory(path path: String) -> Result(Bool, Reason) {
 /// ```
 ///
 pub fn is_regular(path path: String) -> Result(Bool, Reason) {
-  use FileInfo(file_type: file_type, ..) <- result.map(over: read_file_info(
-    path,
-  ))
+  use FileInfo(file_type: file_type, ..) <- result.map(over: file_info(path))
   file_type == Regular
 }
 
-/// TODO
+/// Results in a `Bool` on success that indicates whether the given `path`
+/// exists, otherwise a `Reason` for failure.
 ///
-/// Returns true if path refers to an existing file or directory, otherwise
-/// false.
-///
-/// A "regular" file is one that isn't a "directory, socket, symbolic link, named pipe, or device file."
+/// When `path` refers to a symlink, the result pertains to the link's target.
+/// To find whether a symlink itself exists, use `link_exists`.
 ///
 /// ## Examples
 ///
 /// ```gleam
-/// > exists("resume.pdf")
+/// > file_exists("resume.pdf")
 /// Ok(True)
 ///
-/// > exists("/tmp")
+/// > file_exists("/tmp")
 /// Ok(True)
 ///
-/// > exists("/does_not_exist")
+/// > file_exists("/does_not_exist")
 /// Ok(False)
 ///
-/// > exists("/root/.private/data")
+/// > file_exists("/root/.local/maybe_exists")
 /// Error(Eacces)
 /// ```
 ///
-pub fn exists(path path: String) -> Result(Bool, Reason) {
+pub fn file_exists(path path: String) -> Result(Bool, Reason) {
   let result =
     path
-    |> read_file_info
+    |> file_info
+    |> result.replace(True)
+  case result {
+    Error(Enoent) -> Ok(False)
+    _ -> result
+  }
+}
+
+/// Results in a `Bool` on success that indicates whether the given `path`
+/// exists, otherwise a `Reason` for failure.
+///
+/// When `path` refers to a symlink, the result pertains to the link itself.
+/// To find whether a symlink's target exists, use `file_exists`.
+///
+/// ## Examples
+///
+/// ```gleam
+/// > link_exists("resume.pdf")
+/// Ok(True)
+///
+/// > link_exists("/tmp")
+/// Ok(True)
+///
+/// > link_exists("/does_not_exist")
+/// Ok(False)
+///
+/// > link_exists("/root/.local/maybe_exists")
+/// Error(Eacces)
+/// ```
+///
+pub fn link_exists(path path: String) -> Result(Bool, Reason) {
+  let result =
+    path
+    |> link_info
     |> result.replace(True)
   case result {
     Error(Enoent) -> Ok(False)
