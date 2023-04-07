@@ -265,7 +265,7 @@ pub type FileInfo {
 /// Error(Eacces)
 /// ```
 ///
-pub external fn file_info(path: String) -> Result(FileInfo, Reason) =
+pub external fn file_info(String) -> Result(FileInfo, Reason) =
   "gleam_erlang_ffi" "file_info"
 
 /// Results in `FileInfo` about the given `path` on success, otherwise a
@@ -335,7 +335,7 @@ pub external fn file_info(path: String) -> Result(FileInfo, Reason) =
 /// Error(Eacces)
 /// ```
 ///
-pub external fn link_info(path: String) -> Result(FileInfo, Reason) =
+pub external fn link_info(String) -> Result(FileInfo, Reason) =
   "gleam_erlang_ffi" "link_info"
 
 /// Results in a `Bool` on success that indicates whether the given `path` has
@@ -356,7 +356,7 @@ pub external fn link_info(path: String) -> Result(FileInfo, Reason) =
 /// Error(Enoent)
 /// ```
 ///
-pub fn is_directory(path path: String) -> Result(Bool, Reason) {
+pub fn is_directory(path: String) -> Result(Bool, Reason) {
   use FileInfo(file_type: file_type, ..) <- result.map(over: file_info(path))
   file_type == Directory
 }
@@ -379,7 +379,7 @@ pub fn is_directory(path path: String) -> Result(Bool, Reason) {
 /// Error(Enoent)
 /// ```
 ///
-pub fn is_regular(path path: String) -> Result(Bool, Reason) {
+pub fn is_regular(path: String) -> Result(Bool, Reason) {
   use FileInfo(file_type: file_type, ..) <- result.map(over: file_info(path))
   file_type == Regular
 }
@@ -406,7 +406,7 @@ pub fn is_regular(path path: String) -> Result(Bool, Reason) {
 /// Error(Eacces)
 /// ```
 ///
-pub fn file_exists(path path: String) -> Result(Bool, Reason) {
+pub fn file_exists(path: String) -> Result(Bool, Reason) {
   let result =
     path
     |> file_info
@@ -439,7 +439,7 @@ pub fn file_exists(path path: String) -> Result(Bool, Reason) {
 /// Error(Eacces)
 /// ```
 ///
-pub fn link_exists(path path: String) -> Result(Bool, Reason) {
+pub fn link_exists(path: String) -> Result(Bool, Reason) {
   let result =
     path
     |> link_info
@@ -468,7 +468,7 @@ pub fn link_exists(path path: String) -> Result(Bool, Reason) {
 /// Error(Enoent)
 /// ```
 ///
-pub external fn make_directory(path: String) -> Result(Nil, Reason) =
+pub external fn make_directory(String) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "make_directory"
 
 /// Lists all files in a directory, except files with
@@ -487,7 +487,7 @@ pub external fn make_directory(path: String) -> Result(Nil, Reason) =
 /// Error(Enotdir)
 /// ```
 ///
-pub external fn list_directory(path: String) -> Result(List(String), Reason) =
+pub external fn list_directory(String) -> Result(List(String), Reason) =
   "gleam_erlang_ffi" "list_directory"
 
 /// Deletes a directory.
@@ -505,7 +505,7 @@ pub external fn list_directory(path: String) -> Result(List(String), Reason) =
 /// Error(Enoent)
 /// ```
 ///
-pub external fn delete_directory(path: String) -> Result(Nil, Reason) =
+pub external fn delete_directory(String) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "delete_directory"
 
 /// Deletes a file or directory recursively.
@@ -525,7 +525,7 @@ pub external fn delete_directory(path: String) -> Result(Nil, Reason) =
 /// Error(Enoent)
 /// ```
 ///
-pub external fn recursive_delete(path: String) -> Result(Nil, Reason) =
+pub external fn recursive_delete(String) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "recursive_delete"
 
 /// Read the contents of the given file as a String
@@ -636,10 +636,7 @@ pub fn write_bits(
   do_write_bits(contents, path)
 }
 
-external fn do_write_bits(
-  contents: BitString,
-  path: String,
-) -> Result(Nil, Reason) =
+external fn do_write_bits(BitString, String) -> Result(Nil, Reason) =
   "gleam_erlang_ffi" "write_file"
 
 /// Append the given String contents to a file of the given name.
