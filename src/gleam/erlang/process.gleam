@@ -321,6 +321,109 @@ pub fn selecting_record4(
   insert_selector_handler(selector, #(tag, 4), handler)
 }
 
+/// Add a handler to a selector for 5 element tuple messages with a given tag
+/// element in the first position.
+///
+/// Typically you want to use the `selecting` function with a `Subject` instead,
+/// but this function may be useful if you need to receive messages sent from
+/// other BEAM languages that do not use the `Subject` type.
+///
+pub fn selecting_record5(
+  selector: Selector(payload),
+  tag: tag,
+  mapping transform: fn(Dynamic, Dynamic, Dynamic, Dynamic) -> payload,
+) -> Selector(payload) {
+  let handler = fn(message: #(tag, Dynamic, Dynamic, Dynamic, Dynamic)) {
+    transform(message.1, message.2, message.3, message.4)
+  }
+  insert_selector_handler(selector, #(tag, 5), handler)
+}
+
+/// Add a handler to a selector for 6 element tuple messages with a given tag
+/// element in the first position.
+///
+/// Typically you want to use the `selecting` function with a `Subject` instead,
+/// but this function may be useful if you need to receive messages sent from
+/// other BEAM languages that do not use the `Subject` type.
+///
+pub fn selecting_record6(
+  selector: Selector(payload),
+  tag: tag,
+  mapping transform: fn(Dynamic, Dynamic, Dynamic, Dynamic, Dynamic) -> payload,
+) -> Selector(payload) {
+  let handler = fn(message: #(tag, Dynamic, Dynamic, Dynamic, Dynamic, Dynamic)) {
+    transform(message.1, message.2, message.3, message.4, message.5)
+  }
+  insert_selector_handler(selector, #(tag, 6), handler)
+}
+
+/// Add a handler to a selector for 7 element tuple messages with a given tag
+/// element in the first position.
+///
+/// Typically you want to use the `selecting` function with a `Subject` instead,
+/// but this function may be useful if you need to receive messages sent from
+/// other BEAM languages that do not use the `Subject` type.
+///
+pub fn selecting_record7(
+  selector: Selector(payload),
+  tag: tag,
+  mapping transform: fn(Dynamic, Dynamic, Dynamic, Dynamic, Dynamic, Dynamic) ->
+    payload,
+) -> Selector(payload) {
+  let handler = fn(
+    message: #(tag, Dynamic, Dynamic, Dynamic, Dynamic, Dynamic, Dynamic),
+  ) {
+    transform(message.1, message.2, message.3, message.4, message.5, message.6)
+  }
+  insert_selector_handler(selector, #(tag, 7), handler)
+}
+
+/// Add a handler to a selector for 8 element tuple messages with a given tag
+/// element in the first position.
+///
+/// Typically you want to use the `selecting` function with a `Subject` instead,
+/// but this function may be useful if you need to receive messages sent from
+/// other BEAM languages that do not use the `Subject` type.
+///
+pub fn selecting_record8(
+  selector: Selector(payload),
+  tag: tag,
+  mapping transform: fn(
+    Dynamic,
+    Dynamic,
+    Dynamic,
+    Dynamic,
+    Dynamic,
+    Dynamic,
+    Dynamic,
+  ) ->
+    payload,
+) -> Selector(payload) {
+  let handler = fn(
+    message: #(
+      tag,
+      Dynamic,
+      Dynamic,
+      Dynamic,
+      Dynamic,
+      Dynamic,
+      Dynamic,
+      Dynamic,
+    ),
+  ) {
+    transform(
+      message.1,
+      message.2,
+      message.3,
+      message.4,
+      message.5,
+      message.6,
+      message.7,
+    )
+  }
+  insert_selector_handler(selector, #(tag, 8), handler)
+}
+
 type AnythingSelectorTag {
   Anything
 }
