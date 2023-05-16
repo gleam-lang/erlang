@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- The `gleam/erlang/process` module gains functions `selecting_record5`
+  through to `selecting_record8`.
 - The `file` module loses the `is_file` function; gains the `FileType`,
   `Access`, and `FileInfo` types; and gains the `is_regular`, `file_info`,
   `link_info`, `file_exists`, and `link_exists` functions.

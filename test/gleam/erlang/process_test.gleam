@@ -234,11 +234,15 @@ pub fn selecting_record_test() {
   send(process.self(), #("a", 1))
   send(process.self(), #("b", 2, 3))
   send(process.self(), #("c", 4, 5, 6))
-  send(process.self(), "d")
+  send(process.self(), #("d", 7, 8, 9, 10))
+  send(process.self(), #("e", 11, 12, 13, 14, 15))
+  send(process.self(), #("f", 16, 17, 18, 19, 20, 21))
+  send(process.self(), #("g", 22, 23, 24, 25, 26, 27, 28))
+  send(process.self(), "h")
 
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record2("d", dynamic.unsafe_coerce)
+    |> process.selecting_record2("h", dynamic.unsafe_coerce)
     |> process.select(0)
 
   let assert Error(Nil) =
@@ -254,6 +258,72 @@ pub fn selecting_record_test() {
     |> process.selecting_record3(
       "c",
       fn(a, b) { #(dynamic.unsafe_coerce(a), dynamic.unsafe_coerce(b)) },
+    )
+    |> process.select(0)
+
+  let assert Ok(#(22, 23, 24, 25, 26, 27, 28)) =
+    process.new_selector()
+    |> process.selecting_record8(
+      "g",
+      fn(a, b, c, d, e, f, g) {
+        #(
+          dynamic.unsafe_coerce(a),
+          dynamic.unsafe_coerce(b),
+          dynamic.unsafe_coerce(c),
+          dynamic.unsafe_coerce(d),
+          dynamic.unsafe_coerce(e),
+          dynamic.unsafe_coerce(f),
+          dynamic.unsafe_coerce(g),
+        )
+      },
+    )
+    |> process.select(0)
+
+  let assert Ok(#(16, 17, 18, 19, 20, 21)) =
+    process.new_selector()
+    |> process.selecting_record7(
+      "f",
+      fn(a, b, c, d, e, f) {
+        #(
+          dynamic.unsafe_coerce(a),
+          dynamic.unsafe_coerce(b),
+          dynamic.unsafe_coerce(c),
+          dynamic.unsafe_coerce(d),
+          dynamic.unsafe_coerce(e),
+          dynamic.unsafe_coerce(f),
+        )
+      },
+    )
+    |> process.select(0)
+
+  let assert Ok(#(11, 12, 13, 14, 15)) =
+    process.new_selector()
+    |> process.selecting_record6(
+      "e",
+      fn(a, b, c, d, e) {
+        #(
+          dynamic.unsafe_coerce(a),
+          dynamic.unsafe_coerce(b),
+          dynamic.unsafe_coerce(c),
+          dynamic.unsafe_coerce(d),
+          dynamic.unsafe_coerce(e),
+        )
+      },
+    )
+    |> process.select(0)
+
+  let assert Ok(#(7, 8, 9, 10)) =
+    process.new_selector()
+    |> process.selecting_record5(
+      "d",
+      fn(a, b, c, d) {
+        #(
+          dynamic.unsafe_coerce(a),
+          dynamic.unsafe_coerce(b),
+          dynamic.unsafe_coerce(c),
+          dynamic.unsafe_coerce(d),
+        )
+      },
     )
     |> process.select(0)
 
