@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.19.0 - 2023-05-17
 
 - The `gleam/erlang/process` module gains functions `selecting_record5`
   through to `selecting_record8`.
