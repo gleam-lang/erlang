@@ -489,7 +489,7 @@ pub type ProcessDown {
 }
 
 /// Start monitoring a process so that when the monitored process exits a
-/// message is to the monitoring process.
+/// message is sent to the monitoring process.
 ///
 /// The message is only sent once, when the target process exits. If the
 /// process was not alive when this function is called the message will never
