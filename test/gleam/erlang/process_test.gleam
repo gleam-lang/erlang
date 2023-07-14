@@ -227,8 +227,8 @@ pub fn call_test() {
   let assert 2 = process.call(call_subject, fn(subject) { #(1, subject) }, 50)
 }
 
-external fn send(process.Pid, anything) -> Nil =
-  "erlang" "send"
+@external(erlang, "erlang", "send")
+fn send(a: process.Pid, b: anything) -> Nil
 
 pub fn selecting_record_test() {
   send(process.self(), #("a", 1))

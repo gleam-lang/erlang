@@ -15,7 +15,7 @@ import gleam/dynamic.{DecodeErrors, Dynamic}
 /// user input into atoms) we may hit the max limit of atoms and cause the
 /// virtual machine to crash.
 ///
-pub external type Atom
+pub type Atom
 
 /// An error returned when no atom is found in the virtual machine's atom table
 /// for a given string when calling the [`from_string`](#from_string) function.
@@ -36,8 +36,8 @@ pub type FromStringError {
 ///    > from_string("some_new_atom")
 ///    Error(AtomNotLoaded)
 ///
-pub external fn from_string(String) -> Result(Atom, FromStringError) =
-  "gleam_erlang_ffi" "atom_from_string"
+@external(erlang, "gleam_erlang_ffi", "atom_from_string")
+pub fn from_string(a: String) -> Result(Atom, FromStringError)
 
 /// Creates an atom from a string, inserting a new value into the virtual
 /// machine's atom table if an atom does not already exist for the given
@@ -48,8 +48,8 @@ pub external fn from_string(String) -> Result(Atom, FromStringError) =
 /// convert user input into atoms as filling the atom table will cause the
 /// virtual machine to crash!
 ///
-pub external fn create_from_string(String) -> Atom =
-  "erlang" "binary_to_atom"
+@external(erlang, "erlang", "binary_to_atom")
+pub fn create_from_string(a: String) -> Atom
 
 /// Retuns a `String` corresponding to the text representation of the given
 /// `Atom`.
@@ -60,8 +60,8 @@ pub external fn create_from_string(String) -> Atom =
 ///    > to_string(ok_atom)
 ///    "ok"
 ///
-pub external fn to_string(Atom) -> String =
-  "erlang" "atom_to_binary"
+@external(erlang, "erlang", "atom_to_binary")
+pub fn to_string(a: Atom) -> String
 
 /// Checks to see whether a `Dynamic` value is an atom, and return the atom if
 /// it is.
@@ -75,5 +75,5 @@ pub external fn to_string(Atom) -> String =
 ///    > from_dynamic(dynamic.from(123))
 ///    Error([DecodeError(expected: "Atom", found: "Int", path: [])])
 ///
-pub external fn from_dynamic(from: Dynamic) -> Result(Atom, DecodeErrors) =
-  "gleam_erlang_ffi" "atom_from_dynamic"
+@external(erlang, "gleam_erlang_ffi", "atom_from_dynamic")
+pub fn from_dynamic(from from: Dynamic) -> Result(Atom, DecodeErrors)

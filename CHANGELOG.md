@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.19.1 - 2023-07-14
+
+- Updated for Gleam 0.30.0.
+
 ## v0.19.0 - 2023-05-17
 
 - The `gleam/erlang/process` module gains functions `selecting_record5`

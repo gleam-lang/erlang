@@ -7,11 +7,11 @@ import gleam/erlang/atom.{Atom}
 /// process has a `Pid` and it is one of the lowest level building blocks of
 /// inter-process communication in the Erlang and Gleam OTP frameworks.
 ///
-pub external type Pid
+pub type Pid
 
 /// Get the `Pid` for the current process.
-pub external fn self() -> Pid =
-  "erlang" "self"
+@external(erlang, "erlang", "self")
+pub fn self() -> Pid
 
 /// Create a new Erlang process that runs concurrently to the creator. In other
 /// languages this might be called a fibre, a green thread, or a coroutine.
@@ -32,11 +32,11 @@ pub fn start(running implementation: fn() -> anything, linked link: Bool) -> Pid
   }
 }
 
-external fn spawn(fn() -> anything) -> Pid =
-  "erlang" "spawn"
+@external(erlang, "erlang", "spawn")
+fn spawn(a: fn() -> anything) -> Pid
 
-external fn spawn_link(fn() -> anything) -> Pid =
-  "erlang" "spawn_link"
+@external(erlang, "erlang", "spawn_link")
+fn spawn_link(a: fn() -> anything) -> Pid
 
 /// A `Subject` is a value that processes can use to send and receive messages
 /// to and from each other in a well typed way.
@@ -78,10 +78,10 @@ pub fn subject_owner(subject: Subject(message)) -> Pid {
   subject.owner
 }
 
-external type DoNotLeak
+type DoNotLeak
 
-external fn raw_send(Pid, message) -> DoNotLeak =
-  "erlang" "send"
+@external(erlang, "erlang", "send")
+fn raw_send(a: Pid, b: message) -> DoNotLeak
 
 /// Send a message to a process using a `Subject`. The message must be of the
 /// type that the `Subject` accepts.
@@ -155,13 +155,13 @@ pub fn receive(
 /// Ok("1")
 /// ```
 ///
-pub external type Selector(payload)
+pub type Selector(payload)
 
 /// Create a new `Selector` which can be used to receive messages on multiple
 /// `Subject`s at once.
 ///
-pub external fn new_selector() -> Selector(payload) =
-  "gleam_erlang_ffi" "new_selector"
+@external(erlang, "gleam_erlang_ffi", "new_selector")
+pub fn new_selector() -> Selector(payload)
 
 /// Receive a message that has been sent to current process using any of the
 /// `Subject`s that have been added to the `Selector` with the `selecting`
@@ -178,17 +178,17 @@ pub external fn new_selector() -> Selector(payload) =
 /// To wait forever for the next message rather than for a limited amount of
 /// time see the `select_forever` function.
 ///
-pub external fn select(
-  from: Selector(payload),
-  within: Int,
-) -> Result(payload, Nil) =
-  "gleam_erlang_ffi" "select"
+@external(erlang, "gleam_erlang_ffi", "select")
+pub fn select(from from: Selector(payload), within within: Int) -> Result(
+  payload,
+  Nil,
+)
 
 /// Similar to the `select` function but will wait forever for a message to
 /// arrive rather than timing out after a specified amount of time.
 ///
-pub external fn select_forever(from: Selector(payload)) -> payload =
-  "gleam_erlang_ffi" "select"
+@external(erlang, "gleam_erlang_ffi", "select")
+pub fn select_forever(from from: Selector(payload)) -> payload
 
 /// Add a transformation function to a selector. When a message is received
 /// using this selector the tranformation function is applied to the message.
@@ -196,8 +196,8 @@ pub external fn select_forever(from: Selector(payload)) -> payload =
 /// This function can be used to change the type of messages received and may
 /// be useful when combined with the `merge_selector` function.
 ///
-pub external fn map_selector(Selector(a), fn(a) -> b) -> Selector(b) =
-  "gleam_erlang_ffi" "map_selector"
+@external(erlang, "gleam_erlang_ffi", "map_selector")
+pub fn map_selector(a: Selector(a), b: fn(a) -> b) -> Selector(b)
 
 /// Merge one selector into another, producing a selector that contains the
 /// message handlers of both.
@@ -205,8 +205,8 @@ pub external fn map_selector(Selector(a), fn(a) -> b) -> Selector(b) =
 /// If a subject is handled by both selectors the handler function of the
 /// second selector is used.
 ///
-pub external fn merge_selector(Selector(a), Selector(a)) -> Selector(a) =
-  "gleam_erlang_ffi" "merge_selector"
+@external(erlang, "gleam_erlang_ffi", "merge_selector")
+pub fn merge_selector(a: Selector(a), b: Selector(a)) -> Selector(a)
 
 pub type ExitMessage {
   ExitMessage(pid: Pid, reason: ExitReason)
@@ -249,8 +249,8 @@ pub fn selecting_trapped_exits(
 /// message to the current process and are waiting for a response, so use with
 /// caution.
 ///
-pub external fn flush_messages() -> Nil =
-  "gleam_erlang_ffi" "flush_messages"
+@external(erlang, "gleam_erlang_ffi", "flush_messages")
+pub fn flush_messages() -> Nil
 
 /// Add a new `Subject` to the `Selector` to that it's messages can be received.
 ///
@@ -442,25 +442,24 @@ pub fn selecting_anything(
   insert_selector_handler(selector, Anything, handler)
 }
 
-external fn insert_selector_handler(
-  Selector(payload),
-  for: tag,
-  mapping: fn(message) -> payload,
-) -> Selector(payload) =
-  "gleam_erlang_ffi" "insert_selector_handler"
+@external(erlang, "gleam_erlang_ffi", "insert_selector_handler")
+fn insert_selector_handler(a: Selector(payload), for for: tag, mapping mapping: fn(
+    message,
+  ) ->
+    payload) -> Selector(payload)
 
 /// Suspends the process calling this function for the specified number of
 /// milliseconds.
 ///
-pub external fn sleep(Int) -> Nil =
-  "gleam_erlang_ffi" "sleep"
+@external(erlang, "gleam_erlang_ffi", "sleep")
+pub fn sleep(a: Int) -> Nil
 
 /// Suspends the process forever! This may be useful for suspending the main
 /// process in a Gleam program when it has no more work to do but we want other
 /// processes to continue to work.
 ///
-pub external fn sleep_forever() -> Nil =
-  "gleam_erlang_ffi" "sleep_forever"
+@external(erlang, "gleam_erlang_ffi", "sleep_forever")
+pub fn sleep_forever() -> Nil
 
 /// Check to see whether the process for a given `Pid` is alive.
 ///
@@ -468,15 +467,15 @@ pub external fn sleep_forever() -> Nil =
 ///
 /// [1]: http://erlang.org/doc/man/erlang.html#is_process_alive-1
 ///
-pub external fn is_alive(Pid) -> Bool =
-  "erlang" "is_process_alive"
+@external(erlang, "erlang", "is_process_alive")
+pub fn is_alive(a: Pid) -> Bool
 
 type ProcessMonitorFlag {
   Process
 }
 
-external fn erlang_monitor_process(ProcessMonitorFlag, Pid) -> Reference =
-  "erlang" "monitor"
+@external(erlang, "erlang", "monitor")
+fn erlang_monitor_process(a: ProcessMonitorFlag, b: Pid) -> Reference
 
 pub opaque type ProcessMonitor {
   ProcessMonitor(tag: Reference)
@@ -523,8 +522,8 @@ pub fn selecting_process_down(
 /// If the message has already been sent it is removed from the monitoring
 /// process' mailbox.
 ///
-pub external fn demonitor_process(monitor: ProcessMonitor) -> Nil =
-  "gleam_erlang_ffi" "demonitor"
+@external(erlang, "gleam_erlang_ffi", "demonitor")
+pub fn demonitor_process(monitor monitor: ProcessMonitor) -> Nil
 
 /// An error returned when making a call to a process.
 ///
@@ -603,11 +602,11 @@ pub fn call(
 /// Returns `True` if the link was created successfully, returns `False` if the
 /// process was not alive and as such could not be linked.
 ///
-pub external fn link(pid: Pid) -> Bool =
-  "gleam_erlang_ffi" "link"
+@external(erlang, "gleam_erlang_ffi", "link")
+pub fn link(pid pid: Pid) -> Bool
 
-external fn erlang_unlink(pid: Pid) -> Bool =
-  "erlang" "unlink"
+@external(erlang, "erlang", "unlink")
+fn erlang_unlink(pid pid: Pid) -> Bool
 
 /// Removes any existing link between the caller process and the target process.
 ///
@@ -616,10 +615,10 @@ pub fn unlink(pid: Pid) -> Nil {
   Nil
 }
 
-pub external type Timer
+pub type Timer
 
-external fn erlang_send_after(Int, Pid, msg) -> Timer =
-  "erlang" "send_after"
+@external(erlang, "erlang", "send_after")
+fn erlang_send_after(a: Int, b: Pid, c: msg) -> Timer
 
 /// Send a message over a channel after a specified number of milliseconds.
 ///
@@ -627,8 +626,8 @@ pub fn send_after(subject: Subject(msg), delay: Int, message: msg) -> Timer {
   erlang_send_after(delay, subject.owner, #(subject.tag, message))
 }
 
-external fn erlang_cancel_timer(Timer) -> Dynamic =
-  "erlang" "cancel_timer"
+@external(erlang, "erlang", "cancel_timer")
+fn erlang_cancel_timer(a: Timer) -> Dynamic
 
 /// Values returned when a timer is cancelled.
 ///
@@ -658,8 +657,8 @@ type KillFlag {
   Kill
 }
 
-external fn erlang_kill(to: Pid, because: KillFlag) -> Bool =
-  "erlang" "exit"
+@external(erlang, "erlang", "exit")
+fn erlang_kill(to to: Pid, because because: KillFlag) -> Bool
 
 // Go, my pretties. Kill! Kill!
 // - Bart Simpson
@@ -676,8 +675,8 @@ pub fn kill(pid: Pid) -> Nil {
   Nil
 }
 
-external fn erlang_send_exit(to: Pid, because: whatever) -> Bool =
-  "erlang" "exit"
+@external(erlang, "erlang", "exit")
+fn erlang_send_exit(to to: Pid, because because: whatever) -> Bool
 
 // TODO: test
 /// Sends an exit signal to a process, indicating that the process is to shut
@@ -712,5 +711,5 @@ pub fn send_abnormal_exit(pid: Pid, reason: String) -> Nil {
 /// crashes an exit message is sent to the process instead. These messages can
 /// be handled with the `selecting_trapped_exits` function.
 ///
-pub external fn trap_exits(Bool) -> Nil =
-  "gleam_erlang_ffi" "trap_exits"
+@external(erlang, "gleam_erlang_ffi", "trap_exits")
+pub fn trap_exits(a: Bool) -> Nil
