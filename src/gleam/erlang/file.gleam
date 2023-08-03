@@ -265,8 +265,8 @@ pub type FileInfo {
 /// Error(Eacces)
 /// ```
 ///
-pub external fn file_info(String) -> Result(FileInfo, Reason) =
-  "gleam_erlang_ffi" "file_info"
+@external(erlang, "gleam_erlang_ffi", "file_info")
+pub fn file_info(a: String) -> Result(FileInfo, Reason)
 
 /// Results in `FileInfo` about the given `path` on success, otherwise a
 /// `Reason` for failure.
@@ -335,8 +335,8 @@ pub external fn file_info(String) -> Result(FileInfo, Reason) =
 /// Error(Eacces)
 /// ```
 ///
-pub external fn link_info(String) -> Result(FileInfo, Reason) =
-  "gleam_erlang_ffi" "link_info"
+@external(erlang, "gleam_erlang_ffi", "link_info")
+pub fn link_info(a: String) -> Result(FileInfo, Reason)
 
 /// Results in a `Bool` on success that indicates whether the given `path` has
 /// a `Directory` `FileType`, otherwise a `Reason` for failure.
@@ -468,8 +468,8 @@ pub fn link_exists(path: String) -> Result(Bool, Reason) {
 /// Error(Enoent)
 /// ```
 ///
-pub external fn make_directory(String) -> Result(Nil, Reason) =
-  "gleam_erlang_ffi" "make_directory"
+@external(erlang, "gleam_erlang_ffi", "make_directory")
+pub fn make_directory(a: String) -> Result(Nil, Reason)
 
 /// Lists all files in a directory, except files with
 /// [raw filenames](https://www.erlang.org/doc/apps/stdlib/unicode_usage.html#notes-about-raw-filenames).
@@ -487,8 +487,8 @@ pub external fn make_directory(String) -> Result(Nil, Reason) =
 /// Error(Enotdir)
 /// ```
 ///
-pub external fn list_directory(String) -> Result(List(String), Reason) =
-  "gleam_erlang_ffi" "list_directory"
+@external(erlang, "gleam_erlang_ffi", "list_directory")
+pub fn list_directory(a: String) -> Result(List(String), Reason)
 
 /// Deletes a directory.
 ///
@@ -505,8 +505,8 @@ pub external fn list_directory(String) -> Result(List(String), Reason) =
 /// Error(Enoent)
 /// ```
 ///
-pub external fn delete_directory(String) -> Result(Nil, Reason) =
-  "gleam_erlang_ffi" "delete_directory"
+@external(erlang, "gleam_erlang_ffi", "delete_directory")
+pub fn delete_directory(a: String) -> Result(Nil, Reason)
 
 /// Deletes a file or directory recursively.
 ///
@@ -525,8 +525,8 @@ pub external fn delete_directory(String) -> Result(Nil, Reason) =
 /// Error(Enoent)
 /// ```
 ///
-pub external fn recursive_delete(String) -> Result(Nil, Reason) =
-  "gleam_erlang_ffi" "recursive_delete"
+@external(erlang, "gleam_erlang_ffi", "recursive_delete")
+pub fn recursive_delete(a: String) -> Result(Nil, Reason)
 
 /// Read the contents of the given file as a String
 ///
@@ -584,8 +584,8 @@ pub fn read_bits(from path: String) -> Result(BitString, Reason) {
   do_read_bits(path)
 }
 
-external fn do_read_bits(path) -> Result(BitString, Reason) =
-  "gleam_erlang_ffi" "read_file"
+@external(erlang, "gleam_erlang_ffi", "read_file")
+fn do_read_bits(a: path) -> Result(BitString, Reason)
 
 /// Write the given String contents to a file of the given name.
 ///
@@ -636,8 +636,8 @@ pub fn write_bits(
   do_write_bits(contents, path)
 }
 
-external fn do_write_bits(BitString, String) -> Result(Nil, Reason) =
-  "gleam_erlang_ffi" "write_file"
+@external(erlang, "gleam_erlang_ffi", "write_file")
+fn do_write_bits(a: BitString, b: String) -> Result(Nil, Reason)
 
 /// Append the given String contents to a file of the given name.
 ///
@@ -688,11 +688,11 @@ pub fn append_bits(
   do_append_bits(contents, path)
 }
 
-external fn do_append_bits(
-  contents: BitString,
-  path: String,
-) -> Result(Nil, Reason) =
-  "gleam_erlang_ffi" "append_file"
+@external(erlang, "gleam_erlang_ffi", "append_file")
+fn do_append_bits(
+  contents contents: BitString,
+  path path: String,
+) -> Result(Nil, Reason)
 
 /// Delete the given file.
 ///
@@ -709,5 +709,5 @@ external fn do_append_bits(
 /// Error(Enoent)
 /// ```
 ///
-pub external fn delete(String) -> Result(Nil, Reason) =
-  "gleam_erlang_ffi" "delete_file"
+@external(erlang, "gleam_erlang_ffi", "delete_file")
+pub fn delete(a: String) -> Result(Nil, Reason)

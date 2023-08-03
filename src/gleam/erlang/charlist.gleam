@@ -7,19 +7,19 @@
 
 /// A list of characters represented as ints. Commonly used by older Erlang
 /// modules.
-pub external type Charlist
+pub type Charlist
 
 /// Transform a charlist to a string
-pub external fn to_string(Charlist) -> String =
-  "unicode" "characters_to_binary"
+@external(erlang, "unicode", "characters_to_binary")
+pub fn to_string(a: Charlist) -> String
 
 // Calls `unicode:characters_to_binary(Data, unicode, unicode)`
 // Note: `unicode is an alias for utf8`
 // See <https://www.erlang.org/doc/man/unicode.html#characters_to_binary-1>
 
 /// Transform a string to a charlist
-pub external fn from_string(String) -> Charlist =
-  "unicode" "characters_to_list"
+@external(erlang, "unicode", "characters_to_list")
+pub fn from_string(a: String) -> Charlist
 // Calls `unicode:characters_to_list(Data, unicode)`
 // Note: `unicode is an alias for utf8`
 // See <https://www.erlang.org/doc/man/unicode.html#characters_to_list-1>

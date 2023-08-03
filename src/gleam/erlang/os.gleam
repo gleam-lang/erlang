@@ -14,8 +14,8 @@ import gleam/map.{Map}
 ///      ...
 ///    ])
 ///
-pub external fn get_all_env() -> Map(String, String) =
-  "gleam_erlang_ffi" "get_all_env"
+@external(erlang, "gleam_erlang_ffi", "get_all_env")
+pub fn get_all_env() -> Map(String, String)
 
 /// Returns the value associated with the given environment variable name.
 ///
@@ -27,8 +27,8 @@ pub external fn get_all_env() -> Map(String, String) =
 ///    > get_env(name: "PWD")
 ///    "/home/j3rn"
 ///
-pub external fn get_env(name: String) -> Result(String, Nil) =
-  "gleam_erlang_ffi" "get_env"
+@external(erlang, "gleam_erlang_ffi", "get_env")
+pub fn get_env(name name: String) -> Result(String, Nil)
 
 /// Associates the given value with the given environment variable name.
 ///
@@ -42,8 +42,8 @@ pub external fn get_env(name: String) -> Result(String, Nil) =
 ///    > set_env(value: "MYVALUE", name: "MYVAR")
 ///    Nil
 ///
-pub external fn set_env(name: String, value: String) -> Nil =
-  "gleam_erlang_ffi" "set_env"
+@external(erlang, "gleam_erlang_ffi", "set_env")
+pub fn set_env(name name: String, value value: String) -> Nil
 
 /// Removes the environment variable with the given name.
 ///
@@ -61,8 +61,8 @@ pub external fn set_env(name: String, value: String) -> Nil =
 ///    > unset_env(name: "MYVAR")
 ///    Nil
 ///
-pub external fn unset_env(name: String) -> Nil =
-  "gleam_erlang_ffi" "unset_env"
+@external(erlang, "gleam_erlang_ffi", "unset_env")
+pub fn unset_env(name name: String) -> Nil
 
 /// Represents operating system kernels
 pub type OsFamily {
@@ -91,5 +91,5 @@ pub type OsFamily {
 ///    > family()
 ///    Other("sunos")
 ///
-pub external fn family() -> OsFamily =
-  "gleam_erlang_ffi" "os_family"
+@external(erlang, "gleam_erlang_ffi", "os_family")
+pub fn family() -> OsFamily
