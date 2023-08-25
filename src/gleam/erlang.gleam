@@ -142,8 +142,10 @@ pub type Reference
 @external(erlang, "erlang", "make_ref")
 pub fn make_reference() -> Reference
 
-/// Returns the path of an application's `priv` directory, where extra non-Gleam
+/// Returns the path of a package's `priv` directory, where extra non-Gleam
 /// or Erlang files are typically kept.
+///
+/// Returns an error if no package was found with the given name.
 ///
 /// # Example
 ///
