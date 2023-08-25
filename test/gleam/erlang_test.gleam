@@ -1,3 +1,4 @@
+import gleam/string
 import gleam/dynamic
 import gleam/iterator
 import gleam/erlang.{UnknownApplication}
@@ -46,4 +47,14 @@ pub fn make_reference_test() {
     let assert True = reference != erlang.make_reference()
   })
   |> iterator.run
+}
+
+pub fn priv_directory_test() {
+  let assert Error(Nil) = erlang.priv_directory("unknown_application")
+
+  let assert Ok(dir) = erlang.priv_directory("gleam_erlang")
+  let assert True = string.ends_with(dir, "/gleam_erlang/priv")
+
+  let assert Ok(dir) = erlang.priv_directory("gleam_stdlib")
+  let assert True = string.ends_with(dir, "/gleam_stdlib/priv")
 }

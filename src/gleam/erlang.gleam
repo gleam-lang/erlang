@@ -141,3 +141,16 @@ pub type Reference
 ///
 @external(erlang, "erlang", "make_ref")
 pub fn make_reference() -> Reference
+
+/// Returns the path of an application's `priv` directory, where extra non-Gleam
+/// or Erlang files are typically kept.
+///
+/// # Example
+///
+/// ```gleam
+/// > erlang.priv_directory("my_app")
+/// // -> Ok("/some/location/my_app/priv")
+/// ```
+/// 
+@external(erlang, "gleam_erlang_ffi", "priv_directory")
+pub fn priv_directory(name: String) -> Result(String, Nil)
