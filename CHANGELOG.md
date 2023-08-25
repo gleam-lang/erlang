@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.21.0 - 2023-08-25
 
 - The `gleam/erlang` module gains the `priv_directory` function.
 
