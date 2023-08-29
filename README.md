@@ -8,6 +8,9 @@ A library for making use of Erlang specific code!
 - Erlang binary format (de)serialisation.
 - Functions for working with Erlang's charlists.
 - Reading, writing, and deletion of files.
+- Basic distributed Erlang support and working with nodes.
+- Reading and writing of environment variables.
+- Functions for working with atoms.
 
 ## Usage
 
