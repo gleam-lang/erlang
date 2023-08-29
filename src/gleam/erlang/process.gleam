@@ -714,3 +714,13 @@ pub fn send_abnormal_exit(pid: Pid, reason: String) -> Nil {
 ///
 @external(erlang, "gleam_erlang_ffi", "trap_exits")
 pub fn trap_exits(a: Bool) -> Nil
+
+// TODO: test
+// TODO: document
+@external(erlang, "gleam_otp_external", "register_process")
+pub fn register(pid: Pid, name: Atom) -> Result(Nil, Nil)
+
+// TODO: test
+// TODO: document
+@external(erlang, "gleam_otp_external", "unregister_process")
+pub fn unregister(name: Atom) -> Result(Nil, Nil)
