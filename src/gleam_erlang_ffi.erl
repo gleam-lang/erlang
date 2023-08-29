@@ -7,7 +7,7 @@
     list_directory/1, demonitor/1, make_directory/1, new_selector/0, link/1,
     insert_selector_handler/3, select/1, select/2, trap_exits/1, map_selector/2,
     merge_selector/2, flush_messages/0, file_info/1, link_info/1,
-    priv_directory/1
+    priv_directory/1, connect_node/1, register_process/2, unregister_process/1
 ]).
 
 -define(is_posix_error(Error),
@@ -225,6 +225,29 @@ priv_directory(Name) ->
                 {error, _} -> {error, nil};
                 Path -> {ok, unicode:characters_to_binary(Path)}
             end
+    catch
+        error:badarg -> {error, nil}
+    end.
+
+connect_node(Node) ->
+    case net_kernel:connect_node(Node) of
+        true -> {ok, Node};
+        false -> {error, failed_to_connect};
+        ignored -> {error, local_node_is_not_online}
+    end.
+
+register_process(Pid, Name) ->
+    try 
+        true = erlang:register(Name, Pid),
+        {ok, nil}
+    catch
+        error:badarg -> {error, nil}
+    end.
+
+unregister_process(Name) ->
+    try
+        true = erlang:unregister(Name),
+        {ok, nil}
     catch
         error:badarg -> {error, nil}
     end.
