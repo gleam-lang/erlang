@@ -717,10 +717,15 @@ pub fn trap_exits(a: Bool) -> Nil
 
 // TODO: test
 // TODO: document
-@external(erlang, "gleam_otp_external", "register_process")
+@external(erlang, "gleam_erlang_ffi", "register_process")
 pub fn register(pid: Pid, name: Atom) -> Result(Nil, Nil)
 
 // TODO: test
 // TODO: document
-@external(erlang, "gleam_otp_external", "unregister_process")
+@external(erlang, "gleam_erlang_ffi", "unregister_process")
 pub fn unregister(name: Atom) -> Result(Nil, Nil)
+
+// TODO: test
+// TODO: document
+@external(erlang, "gleam_erlang_ffi", "process_named")
+pub fn named(name: Atom) -> Result(Pid, Nil)

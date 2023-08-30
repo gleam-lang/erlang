@@ -4,6 +4,7 @@ import gleam/option.{Some}
 import gleam/dynamic
 import gleam/function
 import gleam/erlang/process.{ProcessDown}
+import gleam/erlang/atom
 
 pub fn self_test() {
   let subject = process.new_subject()
@@ -558,4 +559,32 @@ pub fn flush_messages_test() {
   process.send(subject, 3)
   process.flush_messages()
   let assert Error(Nil) = process.receive(subject, 0)
+}
+
+pub fn register_name_taken_test() {
+  let taken_name = atom.create_from_string("code_server")
+  let assert Ok(a) = process.named(taken_name)
+  let assert Error(Nil) = process.register(process.self(), taken_name)
+  let assert Ok(b) = process.named(taken_name)
+  let assert True = a == b
+}
+
+pub fn register_name_test() {
+  let name = atom.create_from_string("register_name_test_name")
+  let _ = process.unregister(name)
+  let assert Error(Nil) = process.named(name)
+  let assert Ok(Nil) = process.register(process.self(), name)
+  let assert Ok(pid) = process.named(name)
+  let assert True = pid == process.self()
+  let _ = process.unregister(name)
+}
+
+pub fn unregister_name_test() {
+  let name = atom.create_from_string("unregister_name_test_name")
+  let _ = process.unregister(name)
+  let assert Ok(Nil) = process.register(process.self(), name)
+  let assert Ok(_) = process.named(name)
+  let assert Ok(Nil) = process.unregister(name)
+  let assert Error(Nil) = process.named(name)
+  let _ = process.unregister(name)
 }

@@ -24,7 +24,7 @@ pub type ConnectError {
 
 // TODO: test
 // TODO: document
-@external(erlang, "gleam_otp_external", "connect_node")
+@external(erlang, "gleam_erlang_ffi", "connect_node")
 pub fn connect(node: Atom) -> Result(Node, ConnectError)
 
 // TODO: test
@@ -36,3 +36,8 @@ pub fn send(node: Node, name: Atom, message: message) -> Nil {
 
 @external(erlang, "erlang", "send")
 fn raw_send(receiver: #(Atom, Node), message: message) -> DoNotLeak
+
+// TODO: test
+// TODO: document
+@external(erlang, "gleam_erlang_ffi", "identity")
+pub fn to_atom(node: Node) -> Atom
