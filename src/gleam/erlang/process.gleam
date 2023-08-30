@@ -715,17 +715,30 @@ pub fn send_abnormal_exit(pid: Pid, reason: String) -> Nil {
 @external(erlang, "gleam_erlang_ffi", "trap_exits")
 pub fn trap_exits(a: Bool) -> Nil
 
-// TODO: test
-// TODO: document
+/// Register a process under a given name, allowing it to be looked up using
+/// the `named` function.
+///
+/// This function will return an error under the following conditions:
+/// - The process for the pid no longer exists.
+/// - The name has already been registered.
+/// - The process already has a name.
+/// - The name is the atom `undefined`, which is reserved by Erlang. 
+///
 @external(erlang, "gleam_erlang_ffi", "register_process")
 pub fn register(pid: Pid, name: Atom) -> Result(Nil, Nil)
 
-// TODO: test
-// TODO: document
+/// Un-register a process name, after which the process can no longer be looked
+/// up by that name, and both the name and the process can be re-used in other
+/// registrations.
+///
+/// It is possible to un-register process that are not from your application,
+/// including those from Erlang/OTP itself. This is not recommended and will
+/// likely result in undesirable behaviour and crashes.
+///
 @external(erlang, "gleam_erlang_ffi", "unregister_process")
 pub fn unregister(name: Atom) -> Result(Nil, Nil)
 
-// TODO: test
-// TODO: document
+/// Look up a process by name, returning the pid if it exists.
+///
 @external(erlang, "gleam_erlang_ffi", "process_named")
 pub fn named(name: Atom) -> Result(Pid, Nil)
