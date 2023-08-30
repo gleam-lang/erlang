@@ -8,7 +8,7 @@
     insert_selector_handler/3, select/1, select/2, trap_exits/1, map_selector/2,
     merge_selector/2, flush_messages/0, file_info/1, link_info/1,
     priv_directory/1, connect_node/1, register_process/2, unregister_process/1,
-    process_named/1
+    process_named/1, identity/1
 ]).
 
 -define(is_posix_error(Error),
@@ -234,7 +234,7 @@ connect_node(Node) ->
     case net_kernel:connect_node(Node) of
         true -> {ok, Node};
         false -> {error, failed_to_connect};
-        ignored -> {error, local_node_is_not_online}
+        ignored -> {error, local_node_is_not_alive}
     end.
 
 register_process(Pid, Name) ->
@@ -258,3 +258,6 @@ process_named(Name) ->
         Pid when is_pid(Pid) -> {ok, Pid};
         _ -> {error, nil}
     end.
+
+identity(X) ->
+    X.
