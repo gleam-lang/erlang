@@ -7,7 +7,8 @@
     list_directory/1, demonitor/1, make_directory/1, new_selector/0, link/1,
     insert_selector_handler/3, select/1, select/2, trap_exits/1, map_selector/2,
     merge_selector/2, flush_messages/0, file_info/1, link_info/1,
-    priv_directory/1, connect_node/1, register_process/2, unregister_process/1
+    priv_directory/1, connect_node/1, register_process/2, unregister_process/1,
+    process_named/1
 ]).
 
 -define(is_posix_error(Error),
@@ -250,4 +251,10 @@ unregister_process(Name) ->
         {ok, nil}
     catch
         error:badarg -> {error, nil}
+    end.
+
+process_named(Name) ->
+    case erlang:whereis(Name) of
+        Pid when is_pid(Pid) -> {ok, Pid};
+        _ -> {error, nil}
     end.
