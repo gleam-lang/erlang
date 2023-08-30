@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.22.0 - Unreleased
+## v0.22.0 - 2023-08-30
 
 - The `gleam/erlang/process` module gains the `register`, `unregister`, and
   `named` functions.
