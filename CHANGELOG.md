@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.22.0 - Unreleased
+
+- The `gleam/erlang/process` module gains the `register`, `unregister`, and
+  `named` functions.
+- The `gleam/erlang/node` module has been created with the `Node` and
+  `ConnectError` types, and the `self`, `visible`, `connect`, `send`, and
+  `to_atom` functions.
+
 ## v0.21.0 - 2023-08-25
 
 - The `gleam/erlang` module gains the `priv_directory` function.
