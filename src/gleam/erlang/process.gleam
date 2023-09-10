@@ -151,7 +151,7 @@ pub fn receive(
 /// >   |> selecting(int_subject, int.to_string)
 /// >   |> selecting(float_subject, float.to_string)
 /// >
-/// > select(selector)
+/// > select(selector, 10)
 /// Ok("1")
 /// ```
 ///
