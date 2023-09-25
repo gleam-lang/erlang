@@ -32,7 +32,7 @@ pub fn unset_test() {
   let assert Error(Nil) = os.get_env(name: "MYVAR")
 }
 
-pub fn get_non_existant_test() {
+pub fn get_non_existent_test() {
   // Just to make sure
   os.unset_env("I_DONT_EXIST")
 
