@@ -51,7 +51,7 @@ pub fn from_string(a: String) -> Result(Atom, FromStringError)
 @external(erlang, "erlang", "binary_to_atom")
 pub fn create_from_string(a: String) -> Atom
 
-/// Retuns a `String` corresponding to the text representation of the given
+/// Returns a `String` corresponding to the text representation of the given
 /// `Atom`.
 ///
 /// ## Examples

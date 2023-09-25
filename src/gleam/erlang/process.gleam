@@ -92,7 +92,7 @@ fn raw_send(a: Pid, b: message) -> DoNotLeak
 ///
 /// # Ordering
 ///
-/// If process P1 sends two messages to process P2 it is guarenteed that process
+/// If process P1 sends two messages to process P2 it is guaranteed that process
 /// P1 will receive the messages in the order they were sent.
 ///
 /// If you wish to receive the messages in a different order you can send them
@@ -191,7 +191,7 @@ pub fn select(
 pub fn select_forever(from from: Selector(payload)) -> payload
 
 /// Add a transformation function to a selector. When a message is received
-/// using this selector the tranformation function is applied to the message.
+/// using this selector the transformation function is applied to the message.
 ///
 /// This function can be used to change the type of messages received and may
 /// be useful when combined with the `merge_selector` function.
