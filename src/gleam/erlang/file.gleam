@@ -265,6 +265,7 @@ pub type FileInfo {
 /// Error(Eacces)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 @external(erlang, "gleam_erlang_ffi", "file_info")
 pub fn file_info(a: String) -> Result(FileInfo, Reason)
 
@@ -335,6 +336,7 @@ pub fn file_info(a: String) -> Result(FileInfo, Reason)
 /// Error(Eacces)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 @external(erlang, "gleam_erlang_ffi", "link_info")
 pub fn link_info(a: String) -> Result(FileInfo, Reason)
 
@@ -356,6 +358,7 @@ pub fn link_info(a: String) -> Result(FileInfo, Reason)
 /// Error(Enoent)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 pub fn is_directory(path: String) -> Result(Bool, Reason) {
   use FileInfo(file_type: file_type, ..) <- result.map(over: file_info(path))
   file_type == Directory
@@ -379,6 +382,7 @@ pub fn is_directory(path: String) -> Result(Bool, Reason) {
 /// Error(Enoent)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 pub fn is_regular(path: String) -> Result(Bool, Reason) {
   use FileInfo(file_type: file_type, ..) <- result.map(over: file_info(path))
   file_type == Regular
@@ -406,6 +410,7 @@ pub fn is_regular(path: String) -> Result(Bool, Reason) {
 /// Error(Eacces)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 pub fn file_exists(path: String) -> Result(Bool, Reason) {
   let result =
     path
@@ -439,6 +444,7 @@ pub fn file_exists(path: String) -> Result(Bool, Reason) {
 /// Error(Eacces)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 pub fn link_exists(path: String) -> Result(Bool, Reason) {
   let result =
     path
@@ -468,6 +474,7 @@ pub fn link_exists(path: String) -> Result(Bool, Reason) {
 /// Error(Enoent)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 @external(erlang, "gleam_erlang_ffi", "make_directory")
 pub fn make_directory(a: String) -> Result(Nil, Reason)
 
@@ -487,6 +494,7 @@ pub fn make_directory(a: String) -> Result(Nil, Reason)
 /// Error(Enotdir)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 @external(erlang, "gleam_erlang_ffi", "list_directory")
 pub fn list_directory(a: String) -> Result(List(String), Reason)
 
@@ -505,6 +513,7 @@ pub fn list_directory(a: String) -> Result(List(String), Reason)
 /// Error(Enoent)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 @external(erlang, "gleam_erlang_ffi", "delete_directory")
 pub fn delete_directory(a: String) -> Result(Nil, Reason)
 
@@ -525,6 +534,7 @@ pub fn delete_directory(a: String) -> Result(Nil, Reason)
 /// Error(Enoent)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 @external(erlang, "gleam_erlang_ffi", "recursive_delete")
 pub fn recursive_delete(a: String) -> Result(Nil, Reason)
 
@@ -551,6 +561,7 @@ pub fn recursive_delete(a: String) -> Result(Nil, Reason)
 /// Error(NotUTF8)
 /// ```
 ///
+@deprecated("Use the simplifile package instead?")
 pub fn read(from path: String) -> Result(String, Reason) {
   path
   |> do_read_bits()
@@ -580,6 +591,7 @@ pub fn read(from path: String) -> Result(String, Reason) {
 /// Error(Enoent)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 pub fn read_bits(from path: String) -> Result(BitString, Reason) {
   do_read_bits(path)
 }
@@ -605,6 +617,7 @@ fn do_read_bits(a: path) -> Result(BitString, Reason)
 /// Error(Enoent)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 pub fn write(contents contents: String, to path: String) -> Result(Nil, Reason) {
   contents
   |> bit_string.from_string
@@ -629,6 +642,7 @@ pub fn write(contents contents: String, to path: String) -> Result(Nil, Reason) 
 /// Error(Enoent)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 pub fn write_bits(
   contents contents: BitString,
   to path: String,
@@ -657,6 +671,7 @@ fn do_write_bits(a: BitString, b: String) -> Result(Nil, Reason)
 /// Error(Enoent)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 pub fn append(contents contents: String, to path: String) -> Result(Nil, Reason) {
   contents
   |> bit_string.from_string
@@ -709,5 +724,6 @@ fn do_append_bits(
 /// Error(Enoent)
 /// ```
 ///
+@deprecated("Use the simplifile package instead")
 @external(erlang, "gleam_erlang_ffi", "delete_file")
 pub fn delete(a: String) -> Result(Nil, Reason)
