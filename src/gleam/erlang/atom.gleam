@@ -1,4 +1,4 @@
-import gleam/dynamic.{DecodeErrors, Dynamic}
+import gleam/dynamic.{type DecodeErrors, type Dynamic}
 
 /// Atom is a special string-like data-type that is most commonly used for
 /// interfacing with code written in other BEAM languages such as Erlang and

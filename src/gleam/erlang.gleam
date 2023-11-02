@@ -1,7 +1,7 @@
-import gleam/dynamic.{Dynamic}
+import gleam/dynamic.{type Dynamic}
 import gleam/list
-import gleam/erlang/atom.{Atom}
-import gleam/erlang/charlist.{Charlist}
+import gleam/erlang/atom.{type Atom}
+import gleam/erlang/charlist.{type Charlist}
 
 @external(erlang, "io_lib", "format")
 fn erl_format(a: String, b: List(a)) -> Charlist
@@ -12,23 +12,23 @@ pub fn format(term: any) -> String {
 }
 
 @external(erlang, "erlang", "term_to_binary")
-pub fn term_to_binary(a: a) -> BitString
+pub fn term_to_binary(a: a) -> BitArray
 
 type Safe {
   Safe
 }
 
 @external(erlang, "erlang", "binary_to_term")
-fn erl_binary_to_term(a: BitString, b: List(Safe)) -> Dynamic
+fn erl_binary_to_term(a: BitArray, b: List(Safe)) -> Dynamic
 
-pub fn binary_to_term(binary: BitString) -> Result(Dynamic, Nil) {
+pub fn binary_to_term(binary: BitArray) -> Result(Dynamic, Nil) {
   case rescue(fn() { erl_binary_to_term(binary, [Safe]) }) {
     Ok(term) -> Ok(term)
     Error(_) -> Error(Nil)
   }
 }
 
-pub fn unsafe_binary_to_term(binary: BitString) -> Result(Dynamic, Nil) {
+pub fn unsafe_binary_to_term(binary: BitArray) -> Result(Dynamic, Nil) {
   case rescue(fn() { erl_binary_to_term(binary, []) }) {
     Ok(term) -> Ok(term)
     Error(_) -> Error(Nil)

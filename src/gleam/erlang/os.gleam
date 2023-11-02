@@ -1,6 +1,6 @@
 //// Access to the shell's environment variables
 
-import gleam/map.{Map}
+import gleam/map.{type Map}
 
 /// Returns the list of all available environment variables as a list of key,
 /// tuples.
