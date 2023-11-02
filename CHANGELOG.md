@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.23.0 - Unreleased
+
+- The `gleam/erlang/file` module has been deprecated.
+
 ## v0.22.0 - 2023-08-30
 
 - The `gleam/erlang/process` module gains the `register`, `unregister`, and
