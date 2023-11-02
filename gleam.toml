@@ -12,7 +12,7 @@ links = [
 gleam = ">= 0.32.0"
 
 [dependencies]
-gleam_stdlib = "~> 0.27"
+gleam_stdlib = "~> 0.32"
 
 [dev-dependencies]
 gleeunit = "~> 0.6"

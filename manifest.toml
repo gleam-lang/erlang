@@ -7,5 +7,5 @@ packages = [
 ]
 
 [requirements]
-gleam_stdlib = { version = "~> 0.27" }
+gleam_stdlib = { version = "~> 0.32" }
 gleeunit = { version = "~> 0.6" }
