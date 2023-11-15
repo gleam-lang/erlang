@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.23.1 - 2023-11-15
+
+- Fixed some internal deprecation warnings.
+
 ## v0.23.0 - 2023-11-02
 
 - The `gleam/erlang/file` module has been deprecated.

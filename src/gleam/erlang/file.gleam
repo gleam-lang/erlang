@@ -266,8 +266,12 @@ pub type FileInfo {
 /// ```
 ///
 @deprecated("Use the simplifile package instead")
+pub fn file_info(a: String) -> Result(FileInfo, Reason) {
+  do_file_info(a)
+}
+
 @external(erlang, "gleam_erlang_ffi", "file_info")
-pub fn file_info(a: String) -> Result(FileInfo, Reason)
+fn do_file_info(a: String) -> Result(FileInfo, Reason)
 
 /// Results in `FileInfo` about the given `path` on success, otherwise a
 /// `Reason` for failure.
@@ -337,8 +341,12 @@ pub fn file_info(a: String) -> Result(FileInfo, Reason)
 /// ```
 ///
 @deprecated("Use the simplifile package instead")
+pub fn link_info(a: String) -> Result(FileInfo, Reason) {
+  do_link_info(a)
+}
+
 @external(erlang, "gleam_erlang_ffi", "link_info")
-pub fn link_info(a: String) -> Result(FileInfo, Reason)
+fn do_link_info(a: String) -> Result(FileInfo, Reason)
 
 /// Results in a `Bool` on success that indicates whether the given `path` has
 /// a `Directory` `FileType`, otherwise a `Reason` for failure.
@@ -360,7 +368,7 @@ pub fn link_info(a: String) -> Result(FileInfo, Reason)
 ///
 @deprecated("Use the simplifile package instead")
 pub fn is_directory(path: String) -> Result(Bool, Reason) {
-  use FileInfo(file_type: file_type, ..) <- result.map(over: file_info(path))
+  use FileInfo(file_type: file_type, ..) <- result.map(over: do_file_info(path))
   file_type == Directory
 }
 
@@ -384,7 +392,7 @@ pub fn is_directory(path: String) -> Result(Bool, Reason) {
 ///
 @deprecated("Use the simplifile package instead")
 pub fn is_regular(path: String) -> Result(Bool, Reason) {
-  use FileInfo(file_type: file_type, ..) <- result.map(over: file_info(path))
+  use FileInfo(file_type: file_type, ..) <- result.map(over: do_file_info(path))
   file_type == Regular
 }
 
@@ -414,7 +422,7 @@ pub fn is_regular(path: String) -> Result(Bool, Reason) {
 pub fn file_exists(path: String) -> Result(Bool, Reason) {
   let result =
     path
-    |> file_info
+    |> do_file_info
     |> result.replace(True)
   case result {
     Error(Enoent) -> Ok(False)
@@ -448,7 +456,7 @@ pub fn file_exists(path: String) -> Result(Bool, Reason) {
 pub fn link_exists(path: String) -> Result(Bool, Reason) {
   let result =
     path
-    |> link_info
+    |> do_link_info
     |> result.replace(True)
   case result {
     Error(Enoent) -> Ok(False)
