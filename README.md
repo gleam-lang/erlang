@@ -27,7 +27,7 @@ import gleam/io
 import gleam/erlang/file
 
 pub fn main() {
-  assert Ok(contents) = file.read("pokedex.txt")
+  let assert Ok(contents) = file.read("pokedex.txt")
   io.println(contents)
 }
 ```
