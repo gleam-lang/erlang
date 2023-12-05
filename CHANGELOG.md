@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.24.0 - Unreleased
+
+- Updated for `gleam_stdlib` v0.33.0.
+
 ## v0.23.1 - 2023-11-15
 
 - Fixed some internal deprecation warnings.
