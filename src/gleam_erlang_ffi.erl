@@ -1,34 +1,13 @@
 -module(gleam_erlang_ffi).
 -export([
     atom_from_dynamic/1, rescue/1, atom_from_string/1, get_line/1,
-    ensure_all_started/1, sleep/1, os_family/0, sleep_forever/0, read_file/1,
-    append_file/2, write_file/2, delete_file/1, get_all_env/0, get_env/1,
-    set_env/2, unset_env/1, delete_directory/1, recursive_delete/1,
-    list_directory/1, demonitor/1, make_directory/1, new_selector/0, link/1,
-    insert_selector_handler/3, select/1, select/2, trap_exits/1, map_selector/2,
-    merge_selector/2, flush_messages/0, file_info/1, link_info/1,
+    ensure_all_started/1, sleep/1, os_family/0, sleep_forever/0, 
+    get_all_env/0, get_env/1, set_env/2, unset_env/1, demonitor/1,
+    new_selector/0, link/1, insert_selector_handler/3, select/1, select/2,
+    trap_exits/1, map_selector/2, merge_selector/2, flush_messages/0,
     priv_directory/1, connect_node/1, register_process/2, unregister_process/1,
     process_named/1, identity/1
 ]).
-
--define(is_posix_error(Error),
-    Error =:= eacces orelse Error =:= eagain orelse Error =:= ebadf orelse
-    Error =:= ebadmsg orelse Error =:= ebusy orelse Error =:= edeadlk orelse
-    Error =:= edeadlock orelse Error =:= edquot orelse Error =:= eexist orelse
-    Error =:= efault orelse Error =:= efbig orelse Error =:= eftype orelse
-    Error =:= eintr orelse Error =:= einval orelse Error =:= eio orelse
-    Error =:= eisdir orelse Error =:= eloop orelse Error =:= emfile orelse
-    Error =:= emlink orelse Error =:= emultihop orelse Error =:= enametoolong orelse
-    Error =:= enfile orelse Error =:= enobufs orelse Error =:= enodev orelse
-    Error =:= enolck orelse Error =:= enolink orelse Error =:= enoent orelse
-    Error =:= enomem orelse Error =:= enospc orelse Error =:= enosr orelse
-    Error =:= enostr orelse Error =:= enosys orelse Error =:= enotblk orelse
-    Error =:= enotdir orelse Error =:= enotsup orelse Error =:= enxio orelse
-    Error =:= eopnotsupp orelse Error =:= eoverflow orelse Error =:= eperm orelse
-    Error =:= epipe orelse Error =:= erange orelse Error =:= erofs orelse
-    Error =:= espipe orelse Error =:= esrch orelse Error =:= estale orelse
-    Error =:= etxtbsy orelse Error =:= exdev
-).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, atom_not_loaded}.
 atom_from_string(S) ->
@@ -73,58 +52,6 @@ sleep(Microseconds) ->
 sleep_forever() ->
     timer:sleep(infinity),
     nil.
-
-file_info_result(Result) ->
-    case Result of
-        {ok, {file_info, Size, Type, Access, Atime, Mtime, Ctime, Mode, Links, MajorDevice, MinorDevice, Inode, Uid, Gid}} when Access =:= none ->
-            {ok, {file_info, Size, Type, no_access, Atime, Mtime, Ctime, Mode, Links, MajorDevice, MinorDevice, Inode, Uid, Gid}};
-        {ok, _} ->
-            Result;
-        {error, Reason} when ?is_posix_error(Reason) ->
-            Result
-    end.
-
-file_info(Filename) ->
-    file_info_result(file:read_file_info(Filename, [{time, posix}])).
-
-link_info(Filename) ->
-    file_info_result(file:read_link_info(Filename, [{time, posix}])).
-
-posix_result(Result) ->
-    case Result of
-        ok -> {ok, nil};
-        {ok, Value} -> {ok, Value};
-        {error, Reason} when ?is_posix_error(Reason) -> {error, Reason}
-    end.
-
-read_file(Filename) ->
-    posix_result(file:read_file(Filename)).
-
-write_file(Contents, Filename) ->
-    posix_result(file:write_file(Filename, Contents)).
-
-append_file(Contents, Filename) ->
-    posix_result(file:write_file(Filename, Contents, [append])).
-
-delete_file(Filename) ->
-    posix_result(file:delete(Filename)).
-
-make_directory(Dir) ->
-    posix_result(file:make_dir(Dir)).
-
-list_directory(Dir) ->
-    case file:list_dir(Dir) of
-        {ok, Filenames} ->
-            {ok, [list_to_binary(Filename) || Filename <- Filenames]};
-        {error, Reason} when ?is_posix_error(Reason) ->
-            {error, Reason}
-    end.
-
-delete_directory(Dir) ->
-    posix_result(file:del_dir(Dir)).
-
-recursive_delete(Dir) ->
-    posix_result(file:del_dir_r(Dir)).
 
 get_all_env() ->
     BinVars = lists:map(fun(VarString) ->
