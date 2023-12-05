@@ -1,11 +1,11 @@
 import gleam/erlang/os
-import gleam/map
+import gleam/dict
 
 pub fn get_all_test() {
   os.set_env("MYVAR", "MYVALUE")
 
   let vars = os.get_all_env()
-  let assert Ok("MYVALUE") = map.get(vars, "MYVAR")
+  let assert Ok("MYVALUE") = dict.get(vars, "MYVAR")
 
   os.unset_env("MYVAR")
 }

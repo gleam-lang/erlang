@@ -1,6 +1,6 @@
 //// Access to the shell's environment variables
 
-import gleam/map.{type Map}
+import gleam/dict.{type Dict}
 
 /// Returns the list of all available environment variables as a list of key,
 /// tuples.
@@ -8,14 +8,14 @@ import gleam/map.{type Map}
 /// ## Examples
 ///
 ///    > get_all_env()
-///    map.from_list([
+///    dict.from_list([
 ///      #("SHELL", "/bin/bash"),
 ///      #("PWD", "/home/j3rn"),
 ///      ...
 ///    ])
 ///
 @external(erlang, "gleam_erlang_ffi", "get_all_env")
-pub fn get_all_env() -> Map(String, String)
+pub fn get_all_env() -> Dict(String, String)
 
 /// Returns the value associated with the given environment variable name.
 ///
