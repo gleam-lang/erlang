@@ -3,6 +3,7 @@
 ## v0.24.0 - Unreleased
 
 - Updated for `gleam_stdlib` v0.33.0.
+- The `gleam/erlang/file` module has been removed.
 
 ## v0.23.1 - 2023-11-15
 
