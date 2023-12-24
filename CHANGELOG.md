@@ -4,6 +4,8 @@
 
 - Updated for `gleam_stdlib` v0.33.0.
 - The `gleam/erlang/file` module has been removed.
+- The `start_arguments` function has been deprecated in favour of the `argv`
+  package.
 
 ## v0.23.1 - 2023-11-15
 

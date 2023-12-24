@@ -94,6 +94,7 @@ fn get_start_arguments() -> List(Charlist)
 /// Get the arguments given to the program when it was started.
 ///
 /// This is sometimes called `argv` in other languages.
+@deprecated("Please use the argv package instead")
 pub fn start_arguments() -> List(String) {
   get_start_arguments()
   |> list.map(charlist.to_string)
