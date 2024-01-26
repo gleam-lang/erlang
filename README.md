@@ -24,11 +24,13 @@ And then use it in your code
 
 ```gleam
 import gleam/io
-import gleam/erlang/file
+import gleam/erlang/process
 
 pub fn main() {
-  let assert Ok(contents) = file.read("pokedex.txt")
-  io.println(contents)
+  let fun = fn() { 
+    io.println("Hello from another process running concurrently!")
+  }
+  process.start(fun, True)
 }
 ```
 
