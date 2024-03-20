@@ -1,8 +1,8 @@
-import gleam/string
 import gleam/dynamic
-import gleam/iterator
 import gleam/erlang.{UnknownApplication}
 import gleam/erlang/atom
+import gleam/iterator
+import gleam/string
 
 pub fn term_to_binary_test() {
   let term = dynamic.from(#(1, "2", <<"hello":utf8>>))

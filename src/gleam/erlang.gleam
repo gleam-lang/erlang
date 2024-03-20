@@ -1,7 +1,7 @@
 import gleam/dynamic.{type Dynamic}
-import gleam/list
 import gleam/erlang/atom.{type Atom}
 import gleam/erlang/charlist.{type Charlist}
+import gleam/list
 
 @external(erlang, "io_lib", "format")
 fn erl_format(a: String, b: List(a)) -> Charlist

@@ -1,10 +1,10 @@
-import gleam/int
-import gleam/float
-import gleam/option.{Some}
-import gleam/dynamic
-import gleam/function
-import gleam/erlang/process.{ProcessDown}
+import gleam/dynamic.{DecodeError}
 import gleam/erlang/atom
+import gleam/erlang/process.{ProcessDown}
+import gleam/float
+import gleam/function
+import gleam/int
+import gleam/option.{Some}
 
 pub fn self_test() {
   let subject = process.new_subject()
@@ -100,15 +100,12 @@ pub fn monitor_test() {
   // Spawn child
   let parent_subject = process.new_subject()
   let pid =
-    process.start(
-      linked: False,
-      running: fn() {
-        let subject = process.new_subject()
-        process.send(parent_subject, subject)
-        // Wait for the parent to send a message before exiting
-        process.receive(subject, 150)
-      },
-    )
+    process.start(linked: False, running: fn() {
+      let subject = process.new_subject()
+      process.send(parent_subject, subject)
+      // Wait for the parent to send a message before exiting
+      process.receive(subject, 150)
+    })
 
   // Monitor child
   let monitor = process.monitor_process(pid)
@@ -133,15 +130,12 @@ pub fn demonitor_test() {
   // Spawn child
   let parent_subject = process.new_subject()
   let pid =
-    process.start(
-      linked: False,
-      running: fn() {
-        let subject = process.new_subject()
-        process.send(parent_subject, subject)
-        // Wait for the parent to send a message before exiting
-        process.receive(subject, 150)
-      },
-    )
+    process.start(linked: False, running: fn() {
+      let subject = process.new_subject()
+      process.send(parent_subject, subject)
+      // Wait for the parent to send a message before exiting
+      process.receive(subject, 150)
+    })
 
   // Monitor child
   let monitor = process.monitor_process(pid)
@@ -163,18 +157,15 @@ pub fn demonitor_test() {
 pub fn try_call_test() {
   let parent_subject = process.new_subject()
 
-  process.start(
-    linked: True,
-    running: fn() {
-      // Send the child subject to the parent so it can call the child
-      let child_subject = process.new_subject()
-      process.send(parent_subject, child_subject)
-      // Wait for the subject to be messaged
-      let assert Ok(#(x, reply)) = process.receive(child_subject, 50)
-      // Reply
-      process.send(reply, x + 1)
-    },
-  )
+  process.start(linked: True, running: fn() {
+    // Send the child subject to the parent so it can call the child
+    let child_subject = process.new_subject()
+    process.send(parent_subject, child_subject)
+    // Wait for the subject to be messaged
+    let assert Ok(#(x, reply)) = process.receive(child_subject, 50)
+    // Reply
+    process.send(reply, x + 1)
+  })
 
   let assert Ok(call_subject) = process.receive(parent_subject, 50)
 
@@ -186,18 +177,15 @@ pub fn try_call_test() {
 pub fn try_call_timeout_test() {
   let parent_subject = process.new_subject()
 
-  process.start(
-    linked: True,
-    running: fn() {
-      // Send the call subject to the parent
-      let child_subject = process.new_subject()
-      process.send(parent_subject, child_subject)
-      // Wait for the subject to be called
-      let assert Ok(_) = process.receive(child_subject, 50)
-      // Never reply
-      process.sleep(100)
-    },
-  )
+  process.start(linked: True, running: fn() {
+    // Send the call subject to the parent
+    let child_subject = process.new_subject()
+    process.send(parent_subject, child_subject)
+    // Wait for the subject to be called
+    let assert Ok(_) = process.receive(child_subject, 50)
+    // Never reply
+    process.sleep(100)
+  })
 
   let assert Ok(call_subject) = process.receive(parent_subject, 50)
 
@@ -209,18 +197,15 @@ pub fn try_call_timeout_test() {
 pub fn call_test() {
   let parent_subject = process.new_subject()
 
-  process.start(
-    linked: True,
-    running: fn() {
-      // Send the child subject to the parent so it can call the child
-      let child_subject = process.new_subject()
-      process.send(parent_subject, child_subject)
-      // Wait for the subject to be messaged
-      let assert Ok(#(x, reply)) = process.receive(child_subject, 50)
-      // Reply
-      process.send(reply, x + 1)
-    },
-  )
+  process.start(linked: True, running: fn() {
+    // Send the child subject to the parent so it can call the child
+    let child_subject = process.new_subject()
+    process.send(parent_subject, child_subject)
+    // Wait for the subject to be messaged
+    let assert Ok(#(x, reply)) = process.receive(child_subject, 50)
+    // Reply
+    process.send(reply, x + 1)
+  })
 
   let assert Ok(call_subject) = process.receive(parent_subject, 50)
 
@@ -256,98 +241,81 @@ pub fn selecting_record_test() {
     |> process.select(0)
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record3(
-      "c",
-      fn(a, b) { #(dynamic.unsafe_coerce(a), dynamic.unsafe_coerce(b)) },
-    )
+    |> process.selecting_record3("c", fn(a, b) {
+      #(dynamic.unsafe_coerce(a), dynamic.unsafe_coerce(b))
+    })
     |> process.select(0)
 
   let assert Ok(#(22, 23, 24, 25, 26, 27, 28)) =
     process.new_selector()
-    |> process.selecting_record8(
-      "g",
-      fn(a, b, c, d, e, f, g) {
-        #(
-          dynamic.unsafe_coerce(a),
-          dynamic.unsafe_coerce(b),
-          dynamic.unsafe_coerce(c),
-          dynamic.unsafe_coerce(d),
-          dynamic.unsafe_coerce(e),
-          dynamic.unsafe_coerce(f),
-          dynamic.unsafe_coerce(g),
-        )
-      },
-    )
+    |> process.selecting_record8("g", fn(a, b, c, d, e, f, g) {
+      #(
+        dynamic.unsafe_coerce(a),
+        dynamic.unsafe_coerce(b),
+        dynamic.unsafe_coerce(c),
+        dynamic.unsafe_coerce(d),
+        dynamic.unsafe_coerce(e),
+        dynamic.unsafe_coerce(f),
+        dynamic.unsafe_coerce(g),
+      )
+    })
     |> process.select(0)
 
   let assert Ok(#(16, 17, 18, 19, 20, 21)) =
     process.new_selector()
-    |> process.selecting_record7(
-      "f",
-      fn(a, b, c, d, e, f) {
-        #(
-          dynamic.unsafe_coerce(a),
-          dynamic.unsafe_coerce(b),
-          dynamic.unsafe_coerce(c),
-          dynamic.unsafe_coerce(d),
-          dynamic.unsafe_coerce(e),
-          dynamic.unsafe_coerce(f),
-        )
-      },
-    )
+    |> process.selecting_record7("f", fn(a, b, c, d, e, f) {
+      #(
+        dynamic.unsafe_coerce(a),
+        dynamic.unsafe_coerce(b),
+        dynamic.unsafe_coerce(c),
+        dynamic.unsafe_coerce(d),
+        dynamic.unsafe_coerce(e),
+        dynamic.unsafe_coerce(f),
+      )
+    })
     |> process.select(0)
 
   let assert Ok(#(11, 12, 13, 14, 15)) =
     process.new_selector()
-    |> process.selecting_record6(
-      "e",
-      fn(a, b, c, d, e) {
-        #(
-          dynamic.unsafe_coerce(a),
-          dynamic.unsafe_coerce(b),
-          dynamic.unsafe_coerce(c),
-          dynamic.unsafe_coerce(d),
-          dynamic.unsafe_coerce(e),
-        )
-      },
-    )
+    |> process.selecting_record6("e", fn(a, b, c, d, e) {
+      #(
+        dynamic.unsafe_coerce(a),
+        dynamic.unsafe_coerce(b),
+        dynamic.unsafe_coerce(c),
+        dynamic.unsafe_coerce(d),
+        dynamic.unsafe_coerce(e),
+      )
+    })
     |> process.select(0)
 
   let assert Ok(#(7, 8, 9, 10)) =
     process.new_selector()
-    |> process.selecting_record5(
-      "d",
-      fn(a, b, c, d) {
-        #(
-          dynamic.unsafe_coerce(a),
-          dynamic.unsafe_coerce(b),
-          dynamic.unsafe_coerce(c),
-          dynamic.unsafe_coerce(d),
-        )
-      },
-    )
+    |> process.selecting_record5("d", fn(a, b, c, d) {
+      #(
+        dynamic.unsafe_coerce(a),
+        dynamic.unsafe_coerce(b),
+        dynamic.unsafe_coerce(c),
+        dynamic.unsafe_coerce(d),
+      )
+    })
     |> process.select(0)
 
   let assert Ok(#(4, 5, 6)) =
     process.new_selector()
-    |> process.selecting_record4(
-      "c",
-      fn(a, b, c) {
-        #(
-          dynamic.unsafe_coerce(a),
-          dynamic.unsafe_coerce(b),
-          dynamic.unsafe_coerce(c),
-        )
-      },
-    )
+    |> process.selecting_record4("c", fn(a, b, c) {
+      #(
+        dynamic.unsafe_coerce(a),
+        dynamic.unsafe_coerce(b),
+        dynamic.unsafe_coerce(c),
+      )
+    })
     |> process.select(0)
 
   let assert Ok(#(2, 3)) =
     process.new_selector()
-    |> process.selecting_record3(
-      "b",
-      fn(a, b) { #(dynamic.unsafe_coerce(a), dynamic.unsafe_coerce(b)) },
-    )
+    |> process.selecting_record3("b", fn(a, b) {
+      #(dynamic.unsafe_coerce(a), dynamic.unsafe_coerce(b))
+    })
     |> process.select(0)
 
   let assert Ok(1) =
@@ -378,18 +346,16 @@ pub fn linking_self_test() {
 
 pub fn linking_new_test() {
   let assert True =
-    process.link(process.start(
-      linked: False,
-      running: fn() { process.sleep(100) },
-    ))
+    process.link(
+      process.start(linked: False, running: fn() { process.sleep(100) }),
+    )
 }
 
 pub fn relinking_test() {
   let assert True =
-    process.link(process.start(
-      linked: True,
-      running: fn() { process.sleep(100) },
-    ))
+    process.link(
+      process.start(linked: True, running: fn() { process.sleep(100) }),
+    )
 }
 
 pub fn linking_dead_test() {
@@ -400,18 +366,16 @@ pub fn linking_dead_test() {
 
 pub fn unlink_unlinked_test() {
   let assert Nil =
-    process.unlink(process.start(
-      linked: False,
-      running: fn() { process.sleep(100) },
-    ))
+    process.unlink(
+      process.start(linked: False, running: fn() { process.sleep(100) }),
+    )
 }
 
 pub fn unlink_linked_test() {
   let assert Nil =
-    process.unlink(process.start(
-      linked: True,
-      running: fn() { process.sleep(100) },
-    ))
+    process.unlink(
+      process.start(linked: True, running: fn() { process.sleep(100) }),
+    )
 }
 
 pub fn unlink_dead_test() {
@@ -587,4 +551,22 @@ pub fn unregister_name_test() {
   let assert Ok(Nil) = process.unregister(name)
   let assert Error(Nil) = process.named(name)
   let _ = process.unregister(name)
+}
+
+pub fn pid_from_dynamic_test() {
+  let result =
+    process.self()
+    |> dynamic.from
+    |> process.pid_from_dynamic
+  let assert True = result == Ok(process.self())
+
+  let assert Error([DecodeError(expected: "Pid", found: "Int", path: [])]) =
+    1
+    |> dynamic.from
+    |> process.pid_from_dynamic
+
+  let assert Error([DecodeError(expected: "Pid", found: "List", path: [])]) =
+    []
+    |> dynamic.from
+    |> process.pid_from_dynamic
 }

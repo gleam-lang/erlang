@@ -1,5 +1,5 @@
-import gleam/erlang/node
 import gleam/erlang/atom
+import gleam/erlang/node
 
 // TODO: Improve these tests by spawning a peer node.
 

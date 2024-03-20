@@ -1,5 +1,5 @@
-import gleam/erlang/os
 import gleam/dict
+import gleam/erlang/os
 
 pub fn get_all_test() {
   os.set_env("MYVAR", "MYVALUE")

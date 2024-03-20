@@ -1,7 +1,7 @@
-import gleam/string
-import gleam/dynamic.{type Dynamic}
+import gleam/dynamic.{type DecodeErrors, type Dynamic}
 import gleam/erlang.{type Reference}
 import gleam/erlang/atom.{type Atom}
+import gleam/string
 
 /// A `Pid` (or Process identifier) is a reference to an Erlang process. Each
 /// process has a `Pid` and it is one of the lowest level building blocks of
@@ -563,10 +563,9 @@ pub fn try_call(
   let result =
     new_selector()
     |> selecting(reply_subject, Ok)
-    |> selecting_process_down(
-      monitor,
-      fn(down: ProcessDown) { Error(CalleeDown(reason: down.reason)) },
-    )
+    |> selecting_process_down(monitor, fn(down: ProcessDown) {
+      Error(CalleeDown(reason: down.reason))
+    })
     |> select(timeout)
 
   // Demonitor the process and close the channels as we're done
@@ -744,3 +743,18 @@ pub fn unregister(name: Atom) -> Result(Nil, Nil)
 ///
 @external(erlang, "gleam_erlang_ffi", "process_named")
 pub fn named(name: Atom) -> Result(Pid, Nil)
+
+/// Checks to see whether a `Dynamic` value is a pid, and return the pid if
+/// it is.
+///
+/// ## Examples
+///
+///    > import gleam/dynamic
+///    > from_dynamic(dynamic.from(process.self()))
+///    Ok(process.self())
+///
+///    > from_dynamic(dynamic.from(123))
+///    Error([DecodeError(expected: "Pid", found: "Int", path: [])])
+///
+@external(erlang, "gleam_erlang_ffi", "pid_from_dynamic")
+pub fn pid_from_dynamic(from from: Dynamic) -> Result(Pid, DecodeErrors)

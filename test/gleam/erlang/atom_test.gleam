@@ -1,5 +1,5 @@
-import gleam/erlang/atom
 import gleam/dynamic.{DecodeError}
+import gleam/erlang/atom
 
 pub fn from_string_test() {
   let assert Ok(_) = atom.from_string("ok")
