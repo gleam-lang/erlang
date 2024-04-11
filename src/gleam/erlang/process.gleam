@@ -256,7 +256,7 @@ pub fn flush_messages() -> Nil
 ///
 /// The `mapping` function provided with the `Subject` can be used to convert
 /// the type of messages received using this `Subject`. This is useful for when
-/// you wish to add multiple `Subject`s to a `Seletor` when they have differing
+/// you wish to add multiple `Subject`s to a `Selector` when they have differing
 /// message types. If you do not wish to transform the incoming messages in any
 /// way then the `identity` function can be given.
 ///
