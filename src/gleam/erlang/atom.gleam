@@ -29,12 +29,13 @@ pub type FromStringError {
 /// an error is returned.
 ///
 /// ## Examples
+/// ```gleam
+/// from_string("ok")
+/// // Ok(create_from_string("ok"))
 ///
-///    > from_string("ok")
-///    Ok(create_from_string("ok"))
-///
-///    > from_string("some_new_atom")
-///    Error(AtomNotLoaded)
+/// from_string("some_new_atom")
+/// // Error(AtomNotLoaded)
+/// ```
 ///
 @external(erlang, "gleam_erlang_ffi", "atom_from_string")
 pub fn from_string(a: String) -> Result(Atom, FromStringError)
@@ -55,10 +56,11 @@ pub fn create_from_string(a: String) -> Atom
 /// `Atom`.
 ///
 /// ## Examples
-///
-///    > let ok_atom = create_from_string("ok")
-///    > to_string(ok_atom)
-///    "ok"
+/// ```gleam
+/// let ok_atom = create_from_string("ok")
+/// to_string(ok_atom)
+/// // "ok"
+/// ```
 ///
 @external(erlang, "erlang", "atom_to_binary")
 pub fn to_string(a: Atom) -> String
@@ -67,13 +69,14 @@ pub fn to_string(a: Atom) -> String
 /// it is.
 ///
 /// ## Examples
+/// ```gleam
+/// import gleam/dynamic
+/// from_dynamic(dynamic.from(create_from_string("hello")))
+/// // Ok(create_from_string("hello"))
 ///
-///    > import gleam/dynamic
-///    > from_dynamic(dynamic.from(create_from_string("hello")))
-///    Ok(create_from_string("hello"))
-///
-///    > from_dynamic(dynamic.from(123))
-///    Error([DecodeError(expected: "Atom", found: "Int", path: [])])
+/// from_dynamic(dynamic.from(123))
+/// // Error([DecodeError(expected: "Atom", found: "Int", path: [])])
+/// ```
 ///
 @external(erlang, "gleam_erlang_ffi", "atom_from_dynamic")
 pub fn from_dynamic(from from: Dynamic) -> Result(Atom, DecodeErrors)
