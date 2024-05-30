@@ -125,13 +125,15 @@ pub fn send(subject: Subject(message), message: message) -> Nil {
 /// To wait for messages from multiple `Subject`s at the same time see the
 /// `Selector` type.
 ///
+/// The `within` parameter specifies the timeout duration in milliseconds.
+///
 pub fn receive(
   from subject: Subject(message),
-  within milliseconds: Int,
+  within timeout: Int,
 ) -> Result(message, Nil) {
   new_selector()
   |> selecting(subject, fn(x) { x })
-  |> select(within: milliseconds)
+  |> select(within: timeout)
 }
 
 /// A type that enables a process to wait for messages from multiple `Subject`s
@@ -177,6 +179,8 @@ pub fn new_selector() -> Selector(payload)
 ///
 /// To wait forever for the next message rather than for a limited amount of
 /// time see the `select_forever` function.
+///
+/// The `within` parameter specifies the timeout duration in milliseconds.
 ///
 @external(erlang, "gleam_erlang_ffi", "select")
 pub fn select(
@@ -545,6 +549,8 @@ pub type CallError(msg) {
 /// If the receiving process exits or does not reply within the allowed amount
 /// of time then an error is returned.
 ///
+/// The `within` parameter specifies the timeout duration in milliseconds.
+///
 pub fn try_call(
   subject: Subject(request),
   make_request: fn(Subject(response)) -> request,
@@ -583,6 +589,8 @@ pub fn try_call(
 /// If the receiving process exits or does not reply within the allowed amount
 /// of time the calling process crashes. If you wish an error to be returned
 /// instead see the `try_call` function.
+///
+/// The `within` parameter specifies the timeout duration in milliseconds.
 ///
 pub fn call(
   subject: Subject(request),
