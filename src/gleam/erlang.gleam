@@ -38,11 +38,11 @@ pub fn binary_to_term(binary: BitArray) -> Result(Dynamic, Nil) {
   }
 }
 
-/// Decodes a vaule from a trusted `BitArray` representing an
+/// Decodes a value from a trusted `BitArray` representing an
 /// [Erlang external term][1].
 ///
 /// *Warning*: Do not use this function with untrusted input, this can lead to
-/// Denial-of-Service. More information in the [Erlang documentation].
+/// Denial-of-Service. More information in the [Erlang documentation][2].
 ///
 /// [1]: https://www.erlang.org/doc/apps/erts/erl_ext_dist
 /// [2]: https://www.erlang.org/doc/apps/erts/erlang.html#binary_to_term/1
