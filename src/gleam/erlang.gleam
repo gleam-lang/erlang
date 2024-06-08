@@ -11,6 +11,11 @@ pub fn format(term: any) -> String {
   charlist.to_string(erl_format("~p", [term]))
 }
 
+/// Returns a `BitArray` representing given value as an [Erlang external term][1].
+///
+/// <https://www.erlang.org/doc/apps/erts/erlang.html#term_to_binary/1>
+///
+/// [1]: https://www.erlang.org/doc/apps/erts/erl_ext_dist
 @external(erlang, "erlang", "term_to_binary")
 pub fn term_to_binary(a: a) -> BitArray
 
@@ -21,6 +26,11 @@ type Safe {
 @external(erlang, "erlang", "binary_to_term")
 fn erl_binary_to_term(a: BitArray, b: List(Safe)) -> Dynamic
 
+/// Decodes a value from a `BitArray` representing an [Erlang external term][1].
+///
+/// <https://www.erlang.org/doc/apps/erts/erlang.html#binary_to_term/1>
+///
+/// [1]: https://www.erlang.org/doc/apps/erts/erl_ext_dist
 pub fn binary_to_term(binary: BitArray) -> Result(Dynamic, Nil) {
   case rescue(fn() { erl_binary_to_term(binary, [Safe]) }) {
     Ok(term) -> Ok(term)
@@ -28,6 +38,14 @@ pub fn binary_to_term(binary: BitArray) -> Result(Dynamic, Nil) {
   }
 }
 
+/// Decodes a vaule from a trusted `BitArray` representing an
+/// [Erlang external term][1].
+///
+/// *Warning*: Do not use this function with untrusted input, this can lead to
+/// Denial-of-Service. More information in the [Erlang documentation].
+///
+/// [1]: https://www.erlang.org/doc/apps/erts/erl_ext_dist
+/// [2]: https://www.erlang.org/doc/apps/erts/erlang.html#binary_to_term/1
 pub fn unsafe_binary_to_term(binary: BitArray) -> Result(Dynamic, Nil) {
   case rescue(fn() { erl_binary_to_term(binary, []) }) {
     Ok(term) -> Ok(term)
@@ -68,7 +86,7 @@ pub fn system_time(a: TimeUnit) -> Int
 
 /// Returns the current OS system time as a tuple of Ints
 ///
-/// http://erlang.org/doc/man/os.html#timestamp-0
+/// <http://erlang.org/doc/man/os.html#timestamp-0>
 @external(erlang, "os", "timestamp")
 pub fn erlang_timestamp() -> #(Int, Int, Int)
 
