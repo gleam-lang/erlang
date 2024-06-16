@@ -1,6 +1,26 @@
+import gleam/dict
+import gleam/dynamic.{type Dynamic}
 import gleam/erlang/atom.{type Atom}
+import gleam/erlang/process.{type Pid}
 
 pub type Node
+
+pub type StartOptions {
+  StartOptions(
+    name_domain: NameDomain,
+    net_ticktime: Int,
+    net_tickintensity: Int,
+    dist_listen: Bool,
+    hidden: Bool,
+  )
+}
+
+pub type NameDomain {
+  Shortnames
+  Longnames
+}
+
+pub type NodeStartFailureReason
 
 type DoNotLeak
 
@@ -60,3 +80,39 @@ fn raw_send(receiver: #(Atom, Node), message: message) -> DoNotLeak
 ///
 @external(erlang, "gleam_erlang_ffi", "identity")
 pub fn to_atom(node: Node) -> Atom
+
+@external(erlang, "net_kernel", "start")
+fn net_kernel_start(
+  name: Atom,
+  options: dict.Dict(Atom, Dynamic),
+) -> Result(Pid, NodeStartFailureReason)
+
+pub fn start(
+  name: String,
+  start_options: StartOptions,
+) -> Result(Pid, NodeStartFailureReason) {
+  let start_options_dict: dict.Dict(Atom, Dynamic) =
+    dict.new()
+    |> dict.insert(
+      atom.create_from_string("name_domain"),
+      dynamic.from(start_options.name_domain),
+    )
+    |> dict.insert(
+      atom.create_from_string("net_ticktime"),
+      dynamic.from(start_options.net_ticktime),
+    )
+    |> dict.insert(
+      atom.create_from_string("net_tickintensity"),
+      dynamic.from(start_options.net_tickintensity),
+    )
+    |> dict.insert(
+      atom.create_from_string("dist_listen"),
+      dynamic.from(start_options.dist_listen),
+    )
+    |> dict.insert(
+      atom.create_from_string("hidden"),
+      dynamic.from(start_options.hidden),
+    )
+
+  net_kernel_start(atom.create_from_string(name), start_options_dict)
+}

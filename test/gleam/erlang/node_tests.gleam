@@ -21,3 +21,11 @@ pub fn connect_not_alive_test() {
 pub fn to_atom_test() {
   let assert "nonode@nohost" = atom.to_string(node.to_atom(node.self()))
 }
+
+pub fn start_test() {
+  let a = node.self()
+  let _ =
+    node.start("node1", node.StartOptions(node.Shortnames, 60, 4, True, False))
+  let b = node.self()
+  let assert True = a != b
+}
