@@ -365,14 +365,14 @@ pub fn linking_dead_test() {
 }
 
 pub fn unlink_unlinked_test() {
-  let assert Nil =
+  let Nil =
     process.unlink(
       process.start(linked: False, running: fn() { process.sleep(100) }),
     )
 }
 
 pub fn unlink_linked_test() {
-  let assert Nil =
+  let Nil =
     process.unlink(
       process.start(linked: True, running: fn() { process.sleep(100) }),
     )
@@ -381,7 +381,7 @@ pub fn unlink_linked_test() {
 pub fn unlink_dead_test() {
   let pid = process.start(linked: True, running: fn() { Nil })
   process.sleep(10)
-  let assert Nil = process.unlink(pid)
+  let Nil = process.unlink(pid)
 }
 
 pub fn send_after_test() {
@@ -414,7 +414,7 @@ pub fn cancel_already_fired_timer_test() {
 pub fn kill_test() {
   let pid = process.start(linked: False, running: fn() { process.sleep(100) })
   let assert True = process.is_alive(pid)
-  let assert Nil = process.kill(pid)
+  let Nil = process.kill(pid)
   let assert False = process.is_alive(pid)
 }
 
@@ -422,35 +422,35 @@ pub fn kill_already_dead_test() {
   let pid = process.start(linked: True, running: fn() { Nil })
   process.sleep(10)
   let assert False = process.is_alive(pid)
-  let assert Nil = process.kill(pid)
+  let Nil = process.kill(pid)
 }
 
 pub fn send_exit_test() {
   let pid = process.start(linked: False, running: fn() { process.sleep(100) })
-  let assert Nil = process.send_exit(pid)
+  let Nil = process.send_exit(pid)
 }
 
 pub fn send_exit_already_dead_test() {
   let pid = process.start(linked: True, running: fn() { Nil })
   process.sleep(10)
   let assert False = process.is_alive(pid)
-  let assert Nil = process.send_exit(pid)
+  let Nil = process.send_exit(pid)
 }
 
 pub fn send_abnormal_exit_test() {
   let pid = process.start(linked: False, running: fn() { process.sleep(100) })
-  let assert Nil = process.send_abnormal_exit(pid, "Bye")
+  let Nil = process.send_abnormal_exit(pid, "Bye")
 }
 
 pub fn send_abnormal_exit_already_dead_test() {
   let pid = process.start(linked: True, running: fn() { Nil })
   process.sleep(10)
   let assert False = process.is_alive(pid)
-  let assert Nil = process.send_abnormal_exit(pid, "Bye")
+  let Nil = process.send_abnormal_exit(pid, "Bye")
 }
 
 pub fn trap_exit_test() {
-  let assert Nil = process.trap_exits(True)
+  let Nil = process.trap_exits(True)
   let pid = process.start(linked: True, running: fn() { process.sleep(100) })
   // This would cause an error if we were not trapping exits
   process.kill(pid)
