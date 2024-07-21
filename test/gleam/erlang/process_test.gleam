@@ -50,6 +50,27 @@ pub fn receive_test() {
   let assert Error(Nil) = process.receive(subject, 0)
 }
 
+pub fn receive_forever_test() {
+  let subject = process.new_subject()
+
+  // Send message from self
+  process.send(subject, 0)
+
+  // Send message from another process
+  process.start(
+    fn() {
+      process.send(subject, 1)
+      process.send(subject, 2)
+    },
+    linked: True,
+  )
+
+  // Assert all the messages arrived
+  let assert 0 = process.receive_forever(subject)
+  let assert 1 = process.receive_forever(subject)
+  let assert 2 = process.receive_forever(subject)
+}
+
 pub fn is_alive_test() {
   let pid = process.start(fn() { Nil }, False)
   process.sleep(5)
