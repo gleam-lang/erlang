@@ -136,6 +136,15 @@ pub fn receive(
   |> select(within: timeout)
 }
 
+/// Similar to the `receive` function but will wait forever for a message to
+/// arrive rather than timing out after a specified amount of time.
+///
+pub fn receive_forever(from subject: Subject(message)) -> message {
+  new_selector()
+  |> selecting(subject, fn(x) { x })
+  |> select_forever
+}
+
 /// A type that enables a process to wait for messages from multiple `Subject`s
 /// at the same time, returning whichever message arrives first.
 ///
