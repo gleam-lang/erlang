@@ -7,12 +7,14 @@ import gleam/dict.{type Dict}
 ///
 /// ## Examples
 ///
-///    > get_all_env()
-///    dict.from_list([
-///      #("SHELL", "/bin/bash"),
-///      #("PWD", "/home/j3rn"),
-///      ...
-///    ])
+/// ```gleam
+/// get_all_env()
+/// // -> dict.from_list([
+/// //  #("SHELL", "/bin/bash"),
+/// //  #("PWD", "/home/j3rn"),
+/// //  ...
+/// // ])
+/// ```
 ///
 @external(erlang, "gleam_erlang_ffi", "get_all_env")
 pub fn get_all_env() -> Dict(String, String)
@@ -20,12 +22,14 @@ pub fn get_all_env() -> Dict(String, String)
 /// Returns the value associated with the given environment variable name.
 ///
 /// ## Examples
-///
-///    > get_env("SHELL")
-///    "/bin/bash"
-///
-///    > get_env(name: "PWD")
-///    "/home/j3rn"
+/// ```gleam
+/// get_env("SHELL")
+/// // -> "/bin/bash"
+/// ```
+/// ```gleam
+/// get_env(name: "PWD")
+/// // -> "/home/j3rn"
+/// ```
 ///
 @external(erlang, "gleam_erlang_ffi", "get_env")
 pub fn get_env(name name: String) -> Result(String, Nil)
@@ -34,33 +38,43 @@ pub fn get_env(name name: String) -> Result(String, Nil)
 ///
 /// ## Examples
 ///
-///    > set_env("MYVAR", "MYVALUE")
-///    Nil
-///    > get_env("MYVAR")
-///    "MYVALUE"
-///
-///    > set_env(value: "MYVALUE", name: "MYVAR")
-///    Nil
+/// ```gleam
+/// set_env("MYVAR", "MYVALUE")
+/// // -> Nil
+/// get_env("MYVAR")
+/// // -> "MYVALUE"
+/// ```
+/// ```gleam
+/// set_env(value: "MYVALUE", name: "MYVAR")
+/// // -> Nil
+/// get_env("MYVAR")
+/// // -> "MYVALUE"
+/// ```
 ///
 @external(erlang, "gleam_erlang_ffi", "set_env")
 pub fn set_env(name name: String, value value: String) -> Nil
 
+// -> Error(Nil)
 /// Removes the environment variable with the given name.
 ///
 /// Returns Nil regardless of whether the variable ever existed.
 ///
 /// ## Examples
 ///
-///    > get_env("MYVAR")
-///    Ok("MYVALUE")
-///    > unset_env("MYVAR")
-///    Nil
-///    > get_env("MYVAR")
-///    Error(Nil)
-///
-///    > unset_env(name: "MYVAR")
-///    Nil
-///
+/// ```gleam
+/// get_env("MYVAR")
+/// // -> Ok("MYVALUE")
+/// unset_env("MYVAR")
+/// // -> Nil
+/// get_env("MYVAR")
+/// // -> Error(Nil)
+/// ```
+/// ```gleam
+/// unset_env(name: "MYVAR")
+/// // ->  Nil
+/// get_env("MYVAR")
+/// // -> Error(Nil)
+/// ```
 @external(erlang, "gleam_erlang_ffi", "unset_env")
 pub fn unset_env(name name: String) -> Nil
 
@@ -83,13 +97,18 @@ pub type OsFamily {
 /// Unknown kernels are reported as `Other(String)`; e.g. `Other("sunos")`.
 ///
 /// ## Examples
-///
-///    > family()
-///    Linux
-///    > family()
-///    Darwin
-///    > family()
-///    Other("sunos")
+/// ```gleam
+/// family()
+/// // -> Linux
+/// ```
+/// ```gleam
+/// family()
+/// // -> Darwin
+/// ```
+/// ```gleam
+/// family()
+/// // -> Other("sunos")
+/// ```
 ///
 @external(erlang, "gleam_erlang_ffi", "os_family")
 pub fn family() -> OsFamily

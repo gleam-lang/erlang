@@ -144,17 +144,17 @@ pub fn receive(
 /// # Examples
 ///
 /// ```gleam
-/// > let int_subject = new_subject()
-/// > let float_subject = new_subject()
-/// > send(int_subject, 1)
-/// >
-/// > let selector =
-/// >   new_selector()
-/// >   |> selecting(int_subject, int.to_string)
-/// >   |> selecting(float_subject, float.to_string)
-/// >
-/// > select(selector, 10)
-/// Ok("1")
+/// let int_subject = new_subject()
+/// let float_subject = new_subject()
+/// send(int_subject, 1)
+/// 
+/// let selector =
+///   new_selector()
+///   |> selecting(int_subject, int.to_string)
+///   |> selecting(float_subject, float.to_string)
+/// 
+/// select(selector, 10)
+/// // -> Ok("1")
 /// ```
 ///
 pub type Selector(payload)
@@ -756,13 +756,16 @@ pub fn named(name: Atom) -> Result(Pid, Nil)
 /// it is.
 ///
 /// ## Examples
-///
-///    > import gleam/dynamic
-///    > from_dynamic(dynamic.from(process.self()))
-///    Ok(process.self())
-///
-///    > from_dynamic(dynamic.from(123))
-///    Error([DecodeError(expected: "Pid", found: "Int", path: [])])
-///
+/// 
+/// ```gleam
+/// import gleam/dynamic
+/// from_dynamic(dynamic.from(process.self()))
+/// // -> Ok(process.self())
+/// ```
+/// 
+/// ```gleam
+/// from_dynamic(dynamic.from(123))
+/// // -> Error([DecodeError(expected: "Pid", found: "Int", path: [])])
+/// ```
 @external(erlang, "gleam_erlang_ffi", "pid_from_dynamic")
 pub fn pid_from_dynamic(from from: Dynamic) -> Result(Pid, DecodeErrors)

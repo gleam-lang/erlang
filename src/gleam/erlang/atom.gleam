@@ -31,10 +31,11 @@ pub type FromStringError {
 /// ## Examples
 /// ```gleam
 /// from_string("ok")
-/// // Ok(create_from_string("ok"))
-///
+/// // -> Ok(create_from_string("ok"))
+/// ```
+/// ```gleam
 /// from_string("some_new_atom")
-/// // Error(AtomNotLoaded)
+/// // -> Error(AtomNotLoaded)
 /// ```
 ///
 @external(erlang, "gleam_erlang_ffi", "atom_from_string")
@@ -59,7 +60,7 @@ pub fn create_from_string(a: String) -> Atom
 /// ```gleam
 /// let ok_atom = create_from_string("ok")
 /// to_string(ok_atom)
-/// // "ok"
+/// // -> "ok"
 /// ```
 ///
 @external(erlang, "erlang", "atom_to_binary")
@@ -72,10 +73,11 @@ pub fn to_string(a: Atom) -> String
 /// ```gleam
 /// import gleam/dynamic
 /// from_dynamic(dynamic.from(create_from_string("hello")))
-/// // Ok(create_from_string("hello"))
-///
+/// // -> Ok(create_from_string("hello"))
+/// ```
+/// ```gleam
 /// from_dynamic(dynamic.from(123))
-/// // Error([DecodeError(expected: "Atom", found: "Int", path: [])])
+/// // -> Error([DecodeError(expected: "Atom", found: "Int", path: [])])
 /// ```
 ///
 @external(erlang, "gleam_erlang_ffi", "atom_from_dynamic")
