@@ -64,10 +64,11 @@ pub type GetLineError {
 ///
 /// # Example
 ///
-///    > get_line("Language: ")
-///    // -> Language: <- gleam
-///    Ok("gleam\n")
-///
+/// ```gleam
+/// get_line("Language: ")
+/// // > Language: <- Gleam
+/// // -> Ok("Gleam\n")
+/// ```
 @external(erlang, "gleam_erlang_ffi", "get_line")
 pub fn get_line(prompt prompt: String) -> Result(String, GetLineError)
 
@@ -169,7 +170,7 @@ pub fn make_reference() -> Reference
 /// # Example
 ///
 /// ```gleam
-/// > erlang.priv_directory("my_app")
+/// erlang.priv_directory("my_app")
 /// // -> Ok("/some/location/my_app/priv")
 /// ```
 /// 
