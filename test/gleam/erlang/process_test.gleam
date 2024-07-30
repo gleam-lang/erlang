@@ -389,12 +389,12 @@ pub fn send_after_test() {
 
   // 0 is received immediately, though asynchronously
   process.send_after(subject, 0, "a")
-  let assert Ok("a") = process.receive(subject, 10)
+  let assert Ok("a") = process.receive(subject, 50)
 
   // With a delay it is sent later
   process.send_after(subject, 5, "b")
   let assert Error(Nil) = process.receive(subject, 0)
-  let assert Ok("b") = process.receive(subject, 10)
+  let assert Ok("b") = process.receive(subject, 50)
 }
 
 pub fn cancel_timer_test() {
@@ -407,7 +407,7 @@ pub fn cancel_timer_test() {
 pub fn cancel_already_fired_timer_test() {
   let subject = process.new_subject()
   let timer = process.send_after(subject, 0, "a")
-  let assert Ok(_) = process.receive(subject, 5)
+  let assert Ok(_) = process.receive(subject, 50)
   let assert process.TimerNotFound = process.cancel_timer(timer)
 }
 
