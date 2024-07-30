@@ -26,6 +26,7 @@ pub fn get_all_env() -> Dict(String, String)
 /// get_env("SHELL")
 /// // -> "/bin/bash"
 /// ```
+/// 
 /// ```gleam
 /// get_env(name: "PWD")
 /// // -> "/home/j3rn"
@@ -44,6 +45,7 @@ pub fn get_env(name name: String) -> Result(String, Nil)
 /// get_env("MYVAR")
 /// // -> "MYVALUE"
 /// ```
+/// 
 /// ```gleam
 /// set_env(value: "MYVALUE", name: "MYVAR")
 /// // -> Nil
@@ -54,7 +56,6 @@ pub fn get_env(name name: String) -> Result(String, Nil)
 @external(erlang, "gleam_erlang_ffi", "set_env")
 pub fn set_env(name name: String, value value: String) -> Nil
 
-// -> Error(Nil)
 /// Removes the environment variable with the given name.
 ///
 /// Returns Nil regardless of whether the variable ever existed.
@@ -69,6 +70,7 @@ pub fn set_env(name name: String, value value: String) -> Nil
 /// get_env("MYVAR")
 /// // -> Error(Nil)
 /// ```
+/// 
 /// ```gleam
 /// unset_env(name: "MYVAR")
 /// // ->  Nil
@@ -101,10 +103,12 @@ pub type OsFamily {
 /// family()
 /// // -> Linux
 /// ```
+/// 
 /// ```gleam
 /// family()
 /// // -> Darwin
 /// ```
+/// 
 /// ```gleam
 /// family()
 /// // -> Other("sunos")
