@@ -6,7 +6,7 @@
     new_selector/0, link/1, insert_selector_handler/3, select/1, select/2,
     trap_exits/1, map_selector/2, merge_selector/2, flush_messages/0,
     priv_directory/1, connect_node/1, register_process/2, unregister_process/1,
-    process_named/1, identity/1, pid_from_dynamic/1
+    process_named/1, identity/1, pid_from_dynamic/1, port_from_dynamic/1
 ]).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, atom_not_loaded}.
@@ -24,6 +24,11 @@ pid_from_dynamic(Data) when is_pid(Data) ->
     {ok, Data};
 pid_from_dynamic(Data) ->
     {error, [{decode_error, <<"Pid">>, gleam@dynamic:classify(Data), []}]}.
+
+port_from_dynamic(Data) when is_port(Data) ->
+    {ok, Data};
+port_from_dynamic(Data) ->
+    {error, [{decode_error, <<"Port">>, gleam@dynamic:classify(Data), []}]}.
 
 -spec get_line(io:prompt()) -> {ok, unicode:unicode_binary()} | {error, eof | no_data}.
 get_line(Prompt) ->
