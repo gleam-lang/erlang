@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased - 2024-08-19
+
+- Add `port_from_dynamic` for decoding an 
+  [Erlang Port](https://www.erlang.org/doc/system/ports). 
+
 ## v0.25.0 - 2024-03-20
 
 - Updated for `gleam_stdlib` v0.33.0.
