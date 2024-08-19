@@ -1,4 +1,3 @@
-
 import gleam/dynamic.{type DecodeErrors, type Dynamic}
 
 /// Ports are how code running on the Erlang virtual machine interacts with
