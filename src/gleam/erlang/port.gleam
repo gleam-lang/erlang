@@ -10,7 +10,7 @@ import gleam/dynamic.{type DecodeErrors, type Dynamic}
 ///
 pub type Port
 
-/// Checks to see whether a `Dynamic` value is a pid, and return the pid if
+/// Checks to see whether a `Dynamic` value is a port, and return the port if
 /// it is.
 ///
 /// ## Examples
@@ -20,7 +20,7 @@ pub type Port
 ///    Ok(process.self())
 ///
 ///    > from_dynamic(dynamic.from(123))
-///    Error([DecodeError(expected: "Pid", found: "Int", path: [])])
+///    Error([DecodeError(expected: "Port", found: "Int", path: [])])
 ///
 @external(erlang, "gleam_erlang_ffi", "port_from_dynamic")
 pub fn port_from_dynamic(from from: Dynamic) -> Result(Port, DecodeErrors)
