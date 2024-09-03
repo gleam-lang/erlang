@@ -11,10 +11,10 @@ pub fn get_all_test() {
 }
 
 pub fn set_get_test() {
-  let assert Nil = os.set_env("MYVAR", "MYVALUE")
+  os.set_env("MYVAR", "MYVALUE")
   let assert Ok("MYVALUE") = os.get_env("MYVAR")
 
-  let assert Nil = os.set_env(name: "MYVAR", value: "MYVALUE")
+  os.set_env(name: "MYVAR", value: "MYVALUE")
   let assert Ok("MYVALUE") = os.get_env(name: "MYVAR")
 
   os.unset_env("MYVAR")
@@ -23,12 +23,12 @@ pub fn set_get_test() {
 pub fn unset_test() {
   os.set_env("MYVAR", "MYVALUE")
 
-  let assert Nil = os.unset_env("MYVAR")
+  os.unset_env("MYVAR")
   let assert Error(Nil) = os.get_env("MYVAR")
 
   os.set_env("MYVAR", "MYVALUE")
 
-  let assert Nil = os.unset_env(name: "MYVAR")
+  os.unset_env(name: "MYVAR")
   let assert Error(Nil) = os.get_env(name: "MYVAR")
 }
 
@@ -37,5 +37,5 @@ pub fn get_non_existent_test() {
   os.unset_env("I_DONT_EXIST")
 
   let assert Error(Nil) = os.get_env("I_DONT_EXIST")
-  let assert Nil = os.unset_env("I_DONT_EXIST")
+  os.unset_env("I_DONT_EXIST")
 }
