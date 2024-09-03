@@ -13,18 +13,6 @@ pub type Pid
 @external(erlang, "erlang", "self")
 pub fn self() -> Pid
 
-/// Create a new Erlang process that runs concurrently to the creator. In other
-/// languages this might be called a fibre, a green thread, or a coroutine.
-///
-/// If `linked` is `True` then the created process is linked to the creator
-/// process. When a process terminates an exit signal is sent to all other
-/// processes that are linked to it, causing the process to either terminate or
-/// have to handle the signal.
-///
-/// More can be read about processes and links in the [Erlang documentation][1].
-///
-/// [1]: https://www.erlang.org/doc/reference_manual/processes.html
-///
 pub fn start(running implementation: fn() -> anything, linked link: Bool) -> Pid {
   case link {
     True -> spawn_link(implementation)
@@ -32,11 +20,34 @@ pub fn start(running implementation: fn() -> anything, linked link: Bool) -> Pid
   }
 }
 
+/// Create a new Erlang process that runs concurrently to the creator. In other
+/// languages this might be called a fibre, a green thread, or a coroutine.
+///
+/// The process is not linked to the parent process. If you wish to start a
+/// linked process see the `spawn` funtion.
+///
+/// More can be read about processes and links in the [Erlang documentation][1].
+///
+/// [1]: https://www.erlang.org/doc/reference_manual/processes.html
+///
 @external(erlang, "erlang", "spawn")
-fn spawn(a: fn() -> anything) -> Pid
+pub fn spawn(a: fn() -> anything) -> Pid
 
+/// Create a new Erlang process that runs concurrently to the creator. In other
+/// languages this might be called a fibre, a green thread, or a coroutine.
+///
+/// The created process is linked to the creator process. When a process
+/// terminates an exit signal is sent to all other processes that are linked to
+/// it, causing the process to either terminate or have to handle the signal.
+///
+/// If you wish to start an unlinked process see the `spawn_link` funtion.
+///
+/// More can be read about processes and links in the [Erlang documentation][1].
+///
+/// [1]: https://www.erlang.org/doc/reference_manual/processes.html
+///
 @external(erlang, "erlang", "spawn_link")
-fn spawn_link(a: fn() -> anything) -> Pid
+pub fn spawn_link(a: fn() -> anything) -> Pid
 
 /// A `Subject` is a value that processes can use to send and receive messages
 /// to and from each other in a well typed way.
@@ -63,12 +74,13 @@ fn spawn_link(a: fn() -> anything) -> Pid
 ///
 pub opaque type Subject(message) {
   Subject(owner: Pid, tag: Reference)
+  NamedSubject(name: Atom)
 }
 
 /// Create a new `Subject` owned by the current process.
 ///
 pub fn new_subject() -> Subject(message) {
-  Subject(owner: self(), tag: erlang.make_reference())
+  OwnedSubject(owner: self(), tag: erlang.make_reference())
 }
 
 /// Get the owner process for a `Subject`. This is the process that created the
