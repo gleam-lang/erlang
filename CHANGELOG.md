@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased - 2024-08-19
+## v0.26.0 - 2024-08-19
 
 - Add `port_from_dynamic` for decoding 
   [Erlang Port](https://www.erlang.org/doc/system/ports).
