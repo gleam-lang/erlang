@@ -1,4 +1,5 @@
 import gleam/dynamic.{DecodeError}
+import gleam/erlang
 import gleam/erlang/atom
 import gleam/erlang/process.{ProcessDown}
 import gleam/float
@@ -567,4 +568,98 @@ pub fn pid_from_dynamic_test() {
     []
     |> dynamic.from
     |> process.pid_from_dynamic
+}
+
+type TestType(unused) {
+  TestSimilar(owner: process.Pid, tag: erlang.Reference)
+  TestDifferent(unused, unused)
+  Subject(Int, String)
+}
+
+pub fn subject_from_dynamic_test() {
+  let subject = process.new_subject()
+  let assert Ok(sub_from_dynamic) =
+    subject
+    |> dynamic.from
+    |> process.subject_from_dynamic
+  let assert True = subject == sub_from_dynamic
+
+  let assert Error([
+    DecodeError(expected: "Subject", found: "TestSimilar", path: ["0"]),
+  ]) =
+    TestSimilar(process.self(), erlang.make_reference())
+    |> dynamic.from
+    |> process.subject_from_dynamic
+
+  let assert Error([
+    DecodeError(expected: "Pid", found: "Int", path: ["1"]),
+    DecodeError(expected: "Reference", found: "Int", path: ["2"]),
+  ]) =
+    TestDifferent(1, 2)
+    |> dynamic.from
+    |> process.subject_from_dynamic
+
+  let assert Error([
+    DecodeError(expected: "Pid", found: "Int", path: ["1"]),
+    DecodeError(expected: "Reference", found: "String", path: ["2"]),
+  ]) =
+    Subject(123, "abc")
+    |> dynamic.from
+    |> process.subject_from_dynamic
+
+  let assert Error([
+    DecodeError(expected: "Tuple of 3 elements", found: "Int", path: []),
+  ]) =
+    1
+    |> dynamic.from
+    |> process.subject_from_dynamic
+
+  let assert Error([
+    DecodeError(
+      expected: "Tuple of 3 elements",
+      found: "Tuple of 1 elements",
+      path: [],
+    ),
+  ]) =
+    #(1)
+    |> dynamic.from
+    |> process.subject_from_dynamic
+
+  let assert Error([DecodeError(expected: "Atom", found: "Int", path: ["0"])]) =
+    #(1, process.self(), erlang.make_reference())
+    |> dynamic.from
+    |> process.subject_from_dynamic
+}
+
+pub fn subject_from_dynamic_send_receive_test() {
+  let subject = process.new_subject()
+  let assert Ok(sub_from_dynamic) =
+    subject
+    |> dynamic.from
+    |> process.subject_from_dynamic
+  let assert True = subject == sub_from_dynamic
+
+  let assert Ok(another_sub_from_dynamic) =
+    subject
+    |> dynamic.from
+    |> process.subject_from_dynamic
+  let assert True = subject == another_sub_from_dynamic
+
+  process.start(
+    fn() { process.send(another_sub_from_dynamic, process.self()) },
+    linked: True,
+  )
+  let assert Ok(child_pid) = process.receive(sub_from_dynamic, 5)
+  let assert True = child_pid != process.self()
+
+  process.start(
+    fn() { process.send(sub_from_dynamic, process.self()) },
+    linked: True,
+  )
+  let assert Ok(child_pid) = process.receive(subject, 5)
+  let assert True = child_pid != process.self()
+
+  process.start(fn() { process.send(subject, process.self()) }, linked: True)
+  let assert Ok(child_pid) = process.receive(another_sub_from_dynamic, 5)
+  let assert True = child_pid != process.self()
 }

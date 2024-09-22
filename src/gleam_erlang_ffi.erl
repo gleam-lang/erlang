@@ -1,12 +1,13 @@
 -module(gleam_erlang_ffi).
 -export([
     atom_from_dynamic/1, rescue/1, atom_from_string/1, get_line/1,
-    ensure_all_started/1, sleep/1, os_family/0, sleep_forever/0, 
+    ensure_all_started/1, sleep/1, os_family/0, sleep_forever/0,
     get_all_env/0, get_env/1, set_env/2, unset_env/1, demonitor/1,
     new_selector/0, link/1, insert_selector_handler/3, select/1, select/2,
     trap_exits/1, map_selector/2, merge_selector/2, flush_messages/0,
     priv_directory/1, connect_node/1, register_process/2, unregister_process/1,
-    process_named/1, identity/1, pid_from_dynamic/1, port_from_dynamic/1
+    process_named/1, identity/1, pid_from_dynamic/1, reference_from_dynamic/1,
+    port_from_dynamic/1
 ]).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, atom_not_loaded}.
@@ -24,6 +25,11 @@ pid_from_dynamic(Data) when is_pid(Data) ->
     {ok, Data};
 pid_from_dynamic(Data) ->
     {error, [{decode_error, <<"Pid">>, gleam@dynamic:classify(Data), []}]}.
+
+reference_from_dynamic(Data) when is_reference(Data) ->
+    {ok, Data};
+reference_from_dynamic(Data) ->
+    {error, [{decode_error, <<"Reference">>, gleam@dynamic:classify(Data), []}]}.
 
 port_from_dynamic(Data) when is_port(Data) ->
     {ok, Data};
@@ -130,7 +136,7 @@ select({selector, Handlers}, Timeout) ->
         Msg when is_map_key({element(1, Msg), tuple_size(Msg)}, Handlers) ->
             Fn = maps:get({element(1, Msg), tuple_size(Msg)}, Handlers),
             {ok, Fn(Msg)};
-        
+
         Msg when AnythingHandler =/= undefined ->
             {ok, AnythingHandler(Msg)}
     after Timeout ->
@@ -141,7 +147,7 @@ demonitor({_, Reference}) ->
     erlang:demonitor(Reference, [flush]).
 
 link(Pid) ->
-    try 
+    try
         erlang:link(Pid)
     catch
         error:_ -> false
@@ -158,7 +164,7 @@ flush_messages() ->
 
 priv_directory(Name) ->
     try erlang:binary_to_existing_atom(Name) of
-        Atom -> 
+        Atom ->
             case code:priv_dir(Atom) of
                 {error, _} -> {error, nil};
                 Path -> {ok, unicode:characters_to_binary(Path)}
@@ -175,7 +181,7 @@ connect_node(Node) ->
     end.
 
 register_process(Pid, Name) ->
-    try 
+    try
         true = erlang:register(Name, Pid),
         {ok, nil}
     catch

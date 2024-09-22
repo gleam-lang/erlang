@@ -1,4 +1,4 @@
-import gleam/dynamic.{type Dynamic}
+import gleam/dynamic.{type DecodeErrors, type Dynamic}
 import gleam/erlang/atom.{type Atom}
 import gleam/erlang/charlist.{type Charlist}
 import gleam/list
@@ -162,6 +162,29 @@ pub type Reference
 @external(erlang, "erlang", "make_ref")
 pub fn make_reference() -> Reference
 
+/// Checks to see whether a `Dynamic` value is a Reference, and return the Reference if
+/// it is.
+///
+/// ## Examples
+///
+/// ```gleam
+/// import gleam/dynamic
+///
+/// reference_from_dynamic(dynamic.from(make_reference()))
+/// // -> Ok(Reference)
+/// ```
+///
+/// ```gleam
+/// import gleam/dynamic
+///
+/// reference_from_dynamic(dynamic.from(123))
+/// // -> Error([DecodeError(expected: "Reference", found: "Int", path: [])])
+/// ```
+@external(erlang, "gleam_erlang_ffi", "reference_from_dynamic")
+pub fn reference_from_dynamic(
+  from from: Dynamic,
+) -> Result(Reference, DecodeErrors)
+
 /// Returns the path of a package's `priv` directory, where extra non-Gleam
 /// or Erlang files are typically kept.
 ///
@@ -173,6 +196,6 @@ pub fn make_reference() -> Reference
 /// erlang.priv_directory("my_app")
 /// // -> Ok("/some/location/my_app/priv")
 /// ```
-/// 
+///
 @external(erlang, "gleam_erlang_ffi", "priv_directory")
 pub fn priv_directory(name: String) -> Result(String, Nil)

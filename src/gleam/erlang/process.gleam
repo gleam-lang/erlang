@@ -1,6 +1,7 @@
 import gleam/dynamic.{type DecodeErrors, type Dynamic}
 import gleam/erlang.{type Reference}
 import gleam/erlang/atom.{type Atom}
+import gleam/result
 import gleam/string
 
 /// A `Pid` (or Process identifier) is a reference to an Erlang process. Each
@@ -69,6 +70,55 @@ pub opaque type Subject(message) {
 ///
 pub fn new_subject() -> Subject(message) {
   Subject(owner: self(), tag: erlang.make_reference())
+}
+
+/// Checks to see whether a `Dynamic` value is a Subject, and return the Subject if
+/// it is.
+///
+/// ## Examples
+///
+/// ```gleam
+/// import gleam/dynamic
+///
+/// subject_from_dynamic(dynamic.from(new_subject()))
+/// // -> Ok(Subject))
+/// ```
+///
+/// ```gleam
+/// import gleam/dynamic
+///
+/// subject_from_dynamic(dynamic.from(123))
+/// // -> Error([
+/// //      DecodeError(expected: "Tuple of 3 elements", found: "Int", path: []),
+/// //    ])
+/// ```
+pub fn subject_from_dynamic(
+  from from: Dynamic,
+) -> Result(Subject(message), DecodeErrors) {
+  use from <- result.try(
+    from
+    |> dynamic.tuple3(
+      atom.from_dynamic,
+      pid_from_dynamic,
+      erlang.reference_from_dynamic,
+    ),
+  )
+
+  let #(record_atom, pid, tag) = from
+  let assert Ok(subject_atom) = atom.from_string("subject")
+  case record_atom == subject_atom {
+    True -> {
+      Ok(Subject(owner: pid, tag: tag))
+    }
+    False ->
+      Error([
+        dynamic.DecodeError(
+          expected: string.inspect(subject_atom),
+          found: string.inspect(record_atom),
+          path: ["0"],
+        ),
+      ])
+  }
 }
 
 /// Get the owner process for a `Subject`. This is the process that created the
@@ -147,12 +197,12 @@ pub fn receive(
 /// let int_subject = new_subject()
 /// let float_subject = new_subject()
 /// send(int_subject, 1)
-/// 
+///
 /// let selector =
 ///   new_selector()
 ///   |> selecting(int_subject, int.to_string)
 ///   |> selecting(float_subject, float.to_string)
-/// 
+///
 /// select(selector, 10)
 /// // -> Ok("1")
 /// ```
@@ -731,7 +781,7 @@ pub fn trap_exits(a: Bool) -> Nil
 /// - The process for the pid no longer exists.
 /// - The name has already been registered.
 /// - The process already has a name.
-/// - The name is the atom `undefined`, which is reserved by Erlang. 
+/// - The name is the atom `undefined`, which is reserved by Erlang.
 ///
 @external(erlang, "gleam_erlang_ffi", "register_process")
 pub fn register(pid: Pid, name: Atom) -> Result(Nil, Nil)
@@ -756,13 +806,13 @@ pub fn named(name: Atom) -> Result(Pid, Nil)
 /// it is.
 ///
 /// ## Examples
-/// 
+///
 /// ```gleam
 /// import gleam/dynamic
 /// from_dynamic(dynamic.from(process.self()))
 /// // -> Ok(process.self())
 /// ```
-/// 
+///
 /// ```gleam
 /// from_dynamic(dynamic.from(123))
 /// // -> Error([DecodeError(expected: "Pid", found: "Int", path: [])])
