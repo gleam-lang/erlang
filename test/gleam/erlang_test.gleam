@@ -1,4 +1,4 @@
-import gleam/dynamic
+import gleam/dynamic.{DecodeError}
 import gleam/erlang.{UnknownApplication}
 import gleam/erlang/atom
 import gleam/iterator
@@ -47,6 +47,27 @@ pub fn make_reference_test() {
     let assert True = reference != erlang.make_reference()
   })
   |> iterator.run
+}
+
+pub fn reference_from_dynamic_test() {
+  let reference = erlang.make_reference()
+  let assert Ok(reference_from_dynamic) =
+    reference
+    |> dynamic.from
+    |> erlang.reference_from_dynamic
+  let assert True = reference == reference_from_dynamic
+
+  let assert Error([DecodeError(expected: "Reference", found: "Int", path: [])]) =
+    123
+    |> dynamic.from
+    |> erlang.reference_from_dynamic
+
+  let assert Error([
+    DecodeError(expected: "Reference", found: "String", path: []),
+  ]) =
+    "abc"
+    |> dynamic.from
+    |> erlang.reference_from_dynamic
 }
 
 pub fn priv_directory_test() {
