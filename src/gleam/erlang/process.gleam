@@ -72,55 +72,6 @@ pub fn new_subject() -> Subject(message) {
   Subject(owner: self(), tag: erlang.make_reference())
 }
 
-/// Checks to see whether a `Dynamic` value is a Subject, and return the Subject if
-/// it is.
-///
-/// ## Examples
-///
-/// ```gleam
-/// import gleam/dynamic
-///
-/// subject_from_dynamic(dynamic.from(new_subject()))
-/// // -> Ok(Subject))
-/// ```
-///
-/// ```gleam
-/// import gleam/dynamic
-///
-/// subject_from_dynamic(dynamic.from(123))
-/// // -> Error([
-/// //      DecodeError(expected: "Tuple of 3 elements", found: "Int", path: []),
-/// //    ])
-/// ```
-pub fn subject_from_dynamic(
-  from from: Dynamic,
-) -> Result(Subject(message), DecodeErrors) {
-  use from <- result.try(
-    from
-    |> dynamic.tuple3(
-      atom.from_dynamic,
-      pid_from_dynamic,
-      erlang.reference_from_dynamic,
-    ),
-  )
-
-  let #(record_atom, pid, tag) = from
-  let assert Ok(subject_atom) = atom.from_string("subject")
-  case record_atom == subject_atom {
-    True -> {
-      Ok(Subject(owner: pid, tag: tag))
-    }
-    False ->
-      Error([
-        dynamic.DecodeError(
-          expected: string.inspect(subject_atom),
-          found: string.inspect(record_atom),
-          path: ["0"],
-        ),
-      ])
-  }
-}
-
 /// Get the owner process for a `Subject`. This is the process that created the
 /// `Subject` and will receive messages sent with it.
 ///
