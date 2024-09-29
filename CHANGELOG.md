@@ -1,8 +1,13 @@
 # Changelog
 
+## v0.26.1 - TBD
+
+- Add `reference_from_dynamic` to `gleam/erlang` for decoding references
+  [Erlang Reference](https://www.erlang.org/doc/system/data_types#reference)
+
 ## v0.26.0 - 2024-08-19
 
-- Add `port_from_dynamic` for decoding 
+- Add `port_from_dynamic` for decoding
   [Erlang Port](https://www.erlang.org/doc/system/ports).
 - Add `gleam/erlang/port` and the `Port` type.
 
