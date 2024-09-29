@@ -1,7 +1,6 @@
 import gleam/dynamic.{type DecodeErrors, type Dynamic}
 import gleam/erlang.{type Reference}
 import gleam/erlang/atom.{type Atom}
-import gleam/result
 import gleam/string
 
 /// A `Pid` (or Process identifier) is a reference to an Erlang process. Each
