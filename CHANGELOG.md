@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.26.1 - TBD
+## v0.27.0 - 2024-09-30
 
 - Add `reference_from_dynamic` to `gleam/erlang` for decoding references
   [Erlang Reference](https://www.erlang.org/doc/system/data_types#reference)
