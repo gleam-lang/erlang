@@ -7,6 +7,18 @@ import gleam/list
 fn erl_format(a: String, b: List(a)) -> Charlist
 
 /// Return a string representation of any term
+///
+/// # Example
+///
+/// ```gleam
+/// let input = erlang.get_line("Enter a name: ")
+/// // > Enter a name: <- Gleam
+/// // Returns type "Result(String, GetLineError)"
+/// let formatted_input = erlang.format(input)
+/// io.print(formatted_input)
+/// // -> {ok,<<"Gleam\n">>}%
+/// // Returns type String
+/// ```
 pub fn format(term: any) -> String {
   charlist.to_string(erl_format("~p", [term]))
 }
