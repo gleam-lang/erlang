@@ -12,6 +12,7 @@ fn erl_format(a: String, b: List(a)) -> Charlist
 ///
 /// ```gleam
 /// erlang.format(input)
+/// // -> {ok,<<"Gleam\n">>}%
 /// ```
 pub fn format(term: any) -> String {
   charlist.to_string(erl_format("~p", [term]))
