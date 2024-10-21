@@ -3,8 +3,9 @@
     atom_from_dynamic/1, rescue/1, atom_from_string/1, get_line/1,
     ensure_all_started/1, sleep/1, os_family/0, sleep_forever/0,
     get_all_env/0, get_env/1, set_env/2, unset_env/1, demonitor/1,
-    new_selector/0, link/1, insert_selector_handler/3, select/1, select/2,
-    trap_exits/1, map_selector/2, merge_selector/2, flush_messages/0,
+    new_selector/0, link/1, insert_selector_handler/3,
+    remove_selector_handler/2, select/1, select/2, trap_exits/1,
+    map_selector/2, merge_selector/2, flush_messages/0,
     priv_directory/1, connect_node/1, register_process/2, unregister_process/1,
     process_named/1, identity/1, pid_from_dynamic/1, reference_from_dynamic/1,
     port_from_dynamic/1
@@ -118,6 +119,9 @@ merge_selector({selector, HandlersA}, {selector, HandlersB}) ->
 
 insert_selector_handler({selector, Handlers}, Tag, Fn) ->
     {selector, Handlers#{Tag => Fn}}.
+
+remove_selector_handler({selector, Handlers}, Tag) ->
+    {selector, maps:remove(Tag, Handlers)}.
 
 select(Selector) ->
     {ok, Message} = select(Selector, infinity),
