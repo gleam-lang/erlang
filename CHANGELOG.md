@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.28.0 - 2024-10-21
+
+- The `gleam/erlang/process` module gains the `deselecting_process_down`
+  function.
+
 ## v0.27.0 - 2024-09-30
 
 - Add `reference_from_dynamic` to `gleam/erlang` for decoding references

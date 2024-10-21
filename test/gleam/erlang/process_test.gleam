@@ -139,8 +139,9 @@ pub fn demonitor_test() {
 
   // Monitor child
   let monitor = process.monitor_process(pid)
+  let empty_selector = process.new_selector()
   let selector =
-    process.new_selector()
+    empty_selector
     |> process.selecting_process_down(monitor, fn(x) { x })
 
   // Shutdown child to trigger monitor
@@ -152,6 +153,10 @@ pub fn demonitor_test() {
 
   // There is no down message
   let assert Error(Nil) = process.select(selector, 5)
+
+  // Remove monitor from selector
+  let assert True =
+    empty_selector == selector |> process.deselecting_process_down(monitor)
 }
 
 pub fn try_call_test() {

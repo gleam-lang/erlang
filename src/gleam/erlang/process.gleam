@@ -453,6 +453,12 @@ fn insert_selector_handler(
   mapping mapping: fn(message) -> payload,
 ) -> Selector(payload)
 
+@external(erlang, "gleam_erlang_ffi", "remove_selector_handler")
+fn remove_selector_handler(
+  a: Selector(payload),
+  for for: tag,
+) -> Selector(payload)
+
 /// Suspends the process calling this function for the specified number of
 /// milliseconds.
 ///
@@ -511,7 +517,9 @@ pub fn monitor_process(pid: Pid) -> ProcessMonitor {
 }
 
 /// Add a `ProcessMonitor` to a `Selector` so that the `ProcessDown` message can
-/// be received using the `Selector` and the `select` function.
+/// be received using the `Selector` and the `select` function. The
+/// `ProcessMonitor` can be removed later with
+/// [`deselecting_process_down`](#deselecting_process_down).
 ///
 pub fn selecting_process_down(
   selector: Selector(payload),
@@ -541,6 +549,17 @@ pub type CallError(msg) {
   /// time.
   ///
   CallTimeout
+}
+
+/// Remove a `ProcessMonitor` from a `Selector` prevoiusly added by
+/// [`selecting_process_down`](#selecting_process_down). If the `ProcessMonitor` is not in the
+/// `Selector` it will be returned unchanged.
+///
+pub fn deselecting_process_down(
+  selector: Selector(payload),
+  monitor: ProcessMonitor,
+) -> Selector(payload) {
+  remove_selector_handler(selector, monitor.tag)
 }
 
 // This function is based off of Erlang's gen:do_call/4.
