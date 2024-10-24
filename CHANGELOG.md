@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.28.0 - 2024-10-21
+## v0.28.0 - 2024-10-24
 
 - The `gleam/erlang/process` module gains the `deselecting_process_down`
   function.
