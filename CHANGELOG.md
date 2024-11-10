@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- The `gleam/erlang/process` module gains the `call_forever` and
+  `try_call_forever` functions.
+
 ## v0.28.0 - 2024-10-24
 
 - The `gleam/erlang/process` module gains the `deselecting_process_down`
