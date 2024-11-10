@@ -620,6 +620,54 @@ pub fn call(
   resp
 }
 
+/// Similar to the `call` function but will wait forever for a message to
+/// arrive rather than timing out after a specified amount of time.
+///
+/// If the receiving process exits, the calling process crashes.
+/// If you wish an error to be returned instead see the `try_call_forever`
+/// function.
+///
+pub fn call_forever(
+  subject: Subject(request),
+  make_request: fn(Subject(response)) -> request,
+) -> response {
+  let assert Ok(response) = try_call_forever(subject, make_request)
+  response
+}
+
+/// Similar to the `try_call` function but will wait forever for a message
+/// to arrive rather than timing out after a specified amount of time.
+///
+/// If the receiving process exits then an error is returned.
+///
+pub fn try_call_forever(
+  subject: Subject(request),
+  make_request: fn(Subject(response)) -> request,
+) -> Result(response, CallError(c)) {
+  let reply_subject = new_subject()
+
+  // Monitor the callee process so we can tell if it goes down (meaning we
+  // won't get a reply)
+  let monitor = monitor_process(subject_owner(subject))
+
+  // Send the request to the process over the channel
+  send(subject, make_request(reply_subject))
+
+  // Await a reply or handle failure modes (timeout, process down, etc)
+  let result =
+    new_selector()
+    |> selecting(reply_subject, Ok)
+    |> selecting_process_down(monitor, fn(down) {
+      Error(CalleeDown(reason: down.reason))
+    })
+    |> select_forever
+
+  // Demonitor the process and close the channels as we're done
+  demonitor_process(monitor)
+
+  result
+}
+
 /// Creates a link between the calling process and another process.
 ///
 /// When a process crashes any linked processes will also crash. This is useful
