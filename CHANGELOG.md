@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.29.0 - 2024-11-10
 
 - The `gleam/erlang/process` module gains the `call_forever` and
   `try_call_forever` functions.
