@@ -256,13 +256,16 @@ pub fn selecting_trapped_exits(
 @external(erlang, "gleam_erlang_ffi", "flush_messages")
 pub fn flush_messages() -> Nil
 
-/// Add a new `Subject` to the `Selector` to that it's messages can be received.
+/// Add a new `Subject` to the `Selector` so that its messages can be selected
+/// from the receiver process inbox.
 ///
 /// The `mapping` function provided with the `Subject` can be used to convert
 /// the type of messages received using this `Subject`. This is useful for when
 /// you wish to add multiple `Subject`s to a `Selector` when they have differing
 /// message types. If you do not wish to transform the incoming messages in any
 /// way then the `identity` function can be given.
+///
+/// See `deselecting` to remove a subject from a selector.
 ///
 pub fn selecting(
   selector: Selector(payload),
@@ -271,6 +274,16 @@ pub fn selecting(
 ) -> Selector(payload) {
   let handler = fn(message: #(Reference, message)) { transform(message.1) }
   insert_selector_handler(selector, #(subject.tag, 2), handler)
+}
+
+/// Remove a new `Subject` from the `Selector` so that its messages will not be
+/// selected from the receiver process inbox.
+///
+pub fn deselecting(
+  selector: Selector(payload),
+  for subject: Subject(message),
+) -> Selector(payload) {
+  remove_selector_handler(selector, #(subject.tag, 2))
 }
 
 /// Add a handler to a selector for 2 element tuple messages with a given tag

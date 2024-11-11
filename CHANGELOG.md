@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.30.0 - 2024-11-11
+
+- The `gleam/erlang/process` module gains the `deselecting` function.
+
 ## v0.29.0 - 2024-11-10
 
 - The `gleam/erlang/process` module gains the `call_forever` and

@@ -5,6 +5,7 @@ import gleam/float
 import gleam/function
 import gleam/int
 import gleam/option.{Some}
+import gleeunit/should
 
 pub fn self_test() {
   let subject = process.new_subject()
@@ -612,4 +613,25 @@ pub fn pid_from_dynamic_test() {
     []
     |> dynamic.from
     |> process.pid_from_dynamic
+}
+
+pub fn deselecting_test() {
+  let subject1 = process.new_subject()
+  let subject2 = process.new_subject()
+  let selector0 = process.new_selector()
+  let selector1 = selector0 |> process.selecting(subject1, function.identity)
+  let selector2 = selector1 |> process.selecting(subject2, function.identity)
+
+  selector2
+  |> process.deselecting(subject2)
+  |> should.equal(selector1)
+
+  selector1
+  |> process.deselecting(subject1)
+  |> should.equal(selector0)
+
+  selector2
+  |> process.deselecting(subject1)
+  |> process.deselecting(subject2)
+  |> should.equal(selector0)
 }
