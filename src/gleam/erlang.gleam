@@ -206,3 +206,19 @@ pub fn reference_from_dynamic(
 ///
 @external(erlang, "gleam_erlang_ffi", "priv_directory")
 pub fn priv_directory(name: String) -> Result(String, Nil)
+
+/// Portable hash function that gives the same hash for the
+/// same Gleam/Erlang term regardless of machine architecture and
+/// ERTS version.
+///
+/// The function returns a hash value for Term within the range 0..limit-1.
+/// The maximum value for limit is 2^32.
+///
+/// <https://www.erlang.org/doc/apps/erts/erlang.html#phash2/2>
+@external(erlang, "erlang", "phash2")
+pub fn hash_range(term: anything, limit limit: Int) -> Int
+
+/// Equivalent to hash_range.
+/// Returns a value in the range 0..2^27-1
+@external(erlang, "erlang", "phash2")
+pub fn hash(term: anything) -> Int
