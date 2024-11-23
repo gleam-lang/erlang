@@ -79,3 +79,15 @@ pub fn priv_directory_test() {
   let assert Ok(dir) = erlang.priv_directory("gleam_stdlib")
   let assert True = string.ends_with(dir, "/gleam_stdlib/priv")
 }
+
+pub fn hash_range_test() {
+  let assert 9 = erlang.hash_range("hello", limit: 10)
+  let assert 0 = erlang.hash_range([5, 2, 8], limit: 10)
+  let assert 82 = erlang.hash_range(Ok(#("testing", 123)), limit: 200)
+}
+
+pub fn hash_test() {
+  let assert 47_480_723 = erlang.hash("hello")
+  let assert 79_761_634 = erlang.hash([5, 2, 8])
+  let assert 133_777_698 = erlang.hash(Ok(#("testing", 123)))
+}
