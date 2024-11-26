@@ -80,10 +80,10 @@ pub fn priv_directory_test() {
   let assert True = string.ends_with(dir, "/gleam_stdlib/priv")
 }
 
-pub fn hash_range_test() {
-  let assert 9 = erlang.hash_range("hello", limit: 10)
-  let assert 0 = erlang.hash_range([5, 2, 8], limit: 10)
-  let assert 82 = erlang.hash_range(Ok(#("testing", 123)), limit: 200)
+pub fn bounded_hash_test() {
+  let assert 9 = erlang.bounded_hash("hello", limit: 10)
+  let assert 0 = erlang.bounded_hash([5, 2, 8], limit: 10)
+  let assert 82 = erlang.bounded_hash(Ok(#("testing", 123)), limit: 200)
 }
 
 pub fn hash_test() {

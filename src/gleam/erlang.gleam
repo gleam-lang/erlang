@@ -216,7 +216,7 @@ pub fn priv_directory(name: String) -> Result(String, Nil)
 ///
 /// <https://www.erlang.org/doc/apps/erts/erlang.html#phash2/2>
 @external(erlang, "erlang", "phash2")
-pub fn hash_range(term: anything, limit limit: Int) -> Int
+pub fn bounded_hash(term: anything, limit limit: Int) -> Int
 
 /// Equivalent to hash_range.
 /// Returns a value in the range 0..2^27-1

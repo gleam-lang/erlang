@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+- The `gleam/erlang` module gains the `hash` and
+  `bounded_hash` functions.
+
 ## v0.30.0 - 2024-11-11
 
 - The `gleam/erlang/process` module gains the `deselecting` function.
