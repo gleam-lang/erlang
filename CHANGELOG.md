@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
-- The `gleam/erlang` module gains the `hash` and
-  `bounded_hash` functions.
+## v0.31.0 - 2024-11-27
+
+- The `gleam/erlang` module gains the `phash2` and
+  `bounded_phash2` functions.
 
 ## v0.30.0 - 2024-11-11
 

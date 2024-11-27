@@ -80,14 +80,14 @@ pub fn priv_directory_test() {
   let assert True = string.ends_with(dir, "/gleam_stdlib/priv")
 }
 
-pub fn bounded_hash_test() {
-  let assert 9 = erlang.bounded_hash("hello", limit: 10)
-  let assert 0 = erlang.bounded_hash([5, 2, 8], limit: 10)
-  let assert 82 = erlang.bounded_hash(Ok(#("testing", 123)), limit: 200)
+pub fn bounded_phash2_test() {
+  let assert 9 = erlang.bounded_phash2("hello", limit: 10)
+  let assert 0 = erlang.bounded_phash2([5, 2, 8], limit: 10)
+  let assert 82 = erlang.bounded_phash2(Ok(#("testing", 123)), limit: 200)
 }
 
-pub fn hash_test() {
-  let assert 47_480_723 = erlang.hash("hello")
-  let assert 79_761_634 = erlang.hash([5, 2, 8])
-  let assert 133_777_698 = erlang.hash(Ok(#("testing", 123)))
+pub fn phash2_test() {
+  let assert 47_480_723 = erlang.phash2("hello")
+  let assert 79_761_634 = erlang.phash2([5, 2, 8])
+  let assert 133_777_698 = erlang.phash2(Ok(#("testing", 123)))
 }
