@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- `send_abnormal_exit` no longer includes `Abnormal(...)` in the reason,
+  in order to be compatible with `selecting_trapped_exits`.
+
 ## v0.32.0 - 2024-11-28
 
 - The `gleam/os` environment functions have been deprecated in favour of the
