@@ -16,6 +16,7 @@ import gleam/dict.{type Dict}
 /// // ])
 /// ```
 ///
+@deprecated("Please use the envoy package instead")
 @external(erlang, "gleam_erlang_ffi", "get_all_env")
 pub fn get_all_env() -> Dict(String, String)
 
@@ -32,6 +33,7 @@ pub fn get_all_env() -> Dict(String, String)
 /// // -> "/home/j3rn"
 /// ```
 ///
+@deprecated("Please use the envoy package instead")
 @external(erlang, "gleam_erlang_ffi", "get_env")
 pub fn get_env(name name: String) -> Result(String, Nil)
 
@@ -53,6 +55,7 @@ pub fn get_env(name name: String) -> Result(String, Nil)
 /// // -> "MYVALUE"
 /// ```
 ///
+@deprecated("Please use the envoy package instead")
 @external(erlang, "gleam_erlang_ffi", "set_env")
 pub fn set_env(name name: String, value value: String) -> Nil
 
@@ -77,6 +80,7 @@ pub fn set_env(name name: String, value value: String) -> Nil
 /// get_env("MYVAR")
 /// // -> Error(Nil)
 /// ```
+@deprecated("Please use the envoy package instead")
 @external(erlang, "gleam_erlang_ffi", "unset_env")
 pub fn unset_env(name name: String) -> Nil
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.0 - 2024-11-28
+
+- The `gleam/os` environment functions have been deprecated in favour of the
+  `envoy` package.
+
 ## v0.31.0 - 2024-11-27
 
 - The `gleam/erlang` module gains the `phash2` and
