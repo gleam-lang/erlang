@@ -560,6 +560,23 @@ pub fn selecting_trapped_exits_test() {
   let assert True = pid == exited
 }
 
+pub fn selecting_abnormal_exit_test() {
+  process.flush_messages()
+
+  process.trap_exits(True)
+  let pid =
+    process.start(linked: True, running: fn() {
+      process.send_abnormal_exit(process.self(), "reason")
+    })
+
+  let assert Ok(process.ExitMessage(exited, process.Abnormal("reason"))) =
+    process.new_selector()
+    |> process.selecting_trapped_exits(function.identity)
+    |> process.select(10)
+
+  let assert True = pid == exited
+}
+
 pub fn flush_messages_test() {
   let subject = process.new_subject()
   process.send(subject, 1)
