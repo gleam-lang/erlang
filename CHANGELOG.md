@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Change `process.Abnormal` to hold a `Dynamic` value instead of a `String`,
+  in order to avoid encoding exit reasons such as panics as strings.
+- `send_abnormal_exit` no longer includes `Abnormal(...)` in the reason,
+  in order to be better compatible with `selecting_trapped_exits`.
+- `ProcessDown` and `CalleeDown` contain `ExitReason` instead of `Dynamic` as the reason.
+
 ## v0.33.0 - 2024-12-05
 
 - The `gleam/erlang/process` module gains the `receive_forever` function.
