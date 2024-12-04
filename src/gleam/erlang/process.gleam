@@ -121,13 +121,16 @@ pub fn send(subject: Subject(message), message: message) -> Nil
 /// The `within` parameter specifies the timeout duration in milliseconds.
 ///
 @external(erlang, "gleam_erlang_ffi", "receive")
-pub fn receive_forever(from subject: Subject(message)) -> message
-
-@external(erlang, "gleam_erlang_ffi", "receive")
 pub fn receive(
   from subject: Subject(message),
   within timeout: Int,
 ) -> Result(message, Nil)
+
+/// Receive a message that has been sent to current process using the `Subject`.
+///
+/// Same as `receive` but waits forever and returns the message as is.
+@external(erlang, "gleam_erlang_ffi", "receive")
+pub fn receive_forever(from subject: Subject(message)) -> message
 
 /// A type that enables a process to wait for messages from multiple `Subject`s
 /// at the same time, returning whichever message arrives first.
