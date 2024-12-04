@@ -78,6 +78,11 @@ pub fn subject_owner(subject: Subject(message)) -> Pid {
   subject.owner
 }
 
+type DoNotLeak
+
+@external(erlang, "erlang", "send")
+fn raw_send(a: Pid, b: message) -> DoNotLeak
+
 /// Send a message to a process using a `Subject`. The message must be of the
 /// type that the `Subject` accepts.
 ///
@@ -102,8 +107,10 @@ pub fn subject_owner(subject: Subject(message)) -> Pid {
 /// send(subject, "Hello, Joe!")
 /// ```
 ///
-@external(erlang, "gleam_erlang_ffi", "send")
-pub fn send(subject: Subject(message), message: message) -> Nil
+pub fn send(subject: Subject(message), message: message) -> Nil {
+  raw_send(subject.owner, #(subject.tag, message))
+  Nil
+}
 
 /// Receive a message that has been sent to current process using the `Subject`.
 ///
