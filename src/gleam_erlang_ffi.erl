@@ -8,7 +8,7 @@
     map_selector/2, merge_selector/2, flush_messages/0,
     priv_directory/1, connect_node/1, register_process/2, unregister_process/1,
     process_named/1, identity/1, pid_from_dynamic/1, reference_from_dynamic/1,
-    port_from_dynamic/1
+    port_from_dynamic/1, 'receive'/1, 'receive'/2, send/2
 ]).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, atom_not_loaded}.
@@ -146,6 +146,24 @@ select({selector, Handlers}, Timeout) ->
     after Timeout ->
         {error, nil}
     end.
+
+'receive'({subject, _Pid, Ref}) ->
+    receive
+        {Ref, Message} ->
+            Message
+    end.
+
+'receive'({subject, _Pid, Ref}, Timeout) ->
+    receive
+        {Ref, Message} ->
+            {ok, Message}
+    after Timeout ->
+        {error, nil}
+    end.
+
+send({subject, Pid, Ref}, Message) ->
+    Pid ! {Ref, Message},
+    nil.
 
 demonitor({_, Reference}) ->
     erlang:demonitor(Reference, [flush]).

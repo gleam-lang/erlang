@@ -78,11 +78,6 @@ pub fn subject_owner(subject: Subject(message)) -> Pid {
   subject.owner
 }
 
-type DoNotLeak
-
-@external(erlang, "erlang", "send")
-fn raw_send(a: Pid, b: message) -> DoNotLeak
-
 /// Send a message to a process using a `Subject`. The message must be of the
 /// type that the `Subject` accepts.
 ///
@@ -107,10 +102,8 @@ fn raw_send(a: Pid, b: message) -> DoNotLeak
 /// send(subject, "Hello, Joe!")
 /// ```
 ///
-pub fn send(subject: Subject(message), message: message) -> Nil {
-  raw_send(subject.owner, #(subject.tag, message))
-  Nil
-}
+@external(erlang, "gleam_erlang_ffi", "send")
+pub fn send(subject: Subject(message), message: message) -> Nil
 
 /// Receive a message that has been sent to current process using the `Subject`.
 ///
@@ -127,14 +120,14 @@ pub fn send(subject: Subject(message), message: message) -> Nil {
 ///
 /// The `within` parameter specifies the timeout duration in milliseconds.
 ///
+@external(erlang, "gleam_erlang_ffi", "receive")
+pub fn receive_forever(from subject: Subject(message)) -> message
+
+@external(erlang, "gleam_erlang_ffi", "receive")
 pub fn receive(
   from subject: Subject(message),
   within timeout: Int,
-) -> Result(message, Nil) {
-  new_selector()
-  |> selecting(subject, fn(x) { x })
-  |> select(within: timeout)
-}
+) -> Result(message, Nil)
 
 /// A type that enables a process to wait for messages from multiple `Subject`s
 /// at the same time, returning whichever message arrives first.
