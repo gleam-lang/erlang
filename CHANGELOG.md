@@ -1,8 +1,9 @@
 # Changelog
 
-## v0.33.0 - 2024-12-03
+## v0.33.0 - 2024-12-05
 
 - The `gleam/erlang/process` module gains the `receive_forever` function.
+- The `gleam/os` environment functions have been removed.
 
 ## v0.32.0 - 2024-11-28
 
