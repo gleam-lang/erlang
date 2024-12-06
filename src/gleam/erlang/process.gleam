@@ -1,7 +1,7 @@
+import gleam/bool
 import gleam/dynamic.{type DecodeErrors, type Dynamic}
 import gleam/erlang.{type Reference}
 import gleam/erlang/atom.{type Atom}
-import gleam/string
 
 /// A `Pid` (or Process identifier) is a reference to an Erlang process. Each
 /// process has a `Pid` and it is one of the lowest level building blocks of
@@ -222,7 +222,7 @@ pub type ExitMessage {
 pub type ExitReason {
   Normal
   Killed
-  Abnormal(reason: String)
+  Abnormal(reason: Dynamic)
 }
 
 /// Add a handler for trapped exit messages. In order for these messages to be
@@ -235,18 +235,19 @@ pub fn selecting_trapped_exits(
 ) -> Selector(a) {
   let tag = atom.create_from_string("EXIT")
   let handler = fn(message: #(Atom, Pid, Dynamic)) -> a {
-    let reason = message.2
-    let normal = dynamic.from(Normal)
-    let killed = dynamic.from(Killed)
-    let reason = case dynamic.string(reason) {
-      _ if reason == normal -> Normal
-      _ if reason == killed -> Killed
-      Ok(reason) -> Abnormal(reason)
-      Error(_) -> Abnormal(string.inspect(reason))
-    }
+    let reason = decode_exit_reason(message.2)
     handler(ExitMessage(message.1, reason))
   }
   insert_selector_handler(selector, #(tag, 3), handler)
+}
+
+fn decode_exit_reason(reason: Dynamic) -> ExitReason {
+  let normal = dynamic.from(Normal)
+  let killed = dynamic.from(Killed)
+
+  use <- bool.guard(reason == normal, Normal)
+  use <- bool.guard(reason == killed, Killed)
+  Abnormal(reason)
 }
 
 // TODO: implement in Gleam
@@ -511,7 +512,7 @@ pub opaque type ProcessMonitor {
 /// A message received when a monitored process exits.
 ///
 pub type ProcessDown {
-  ProcessDown(pid: Pid, reason: Dynamic)
+  ProcessDown(pid: Pid, reason: ExitReason)
 }
 
 /// Start monitoring a process so that when the monitored process exits a
@@ -542,7 +543,11 @@ pub fn selecting_process_down(
   monitor: ProcessMonitor,
   mapping: fn(ProcessDown) -> payload,
 ) -> Selector(payload) {
-  insert_selector_handler(selector, monitor.tag, mapping)
+  let handler = fn(message: #(Atom, Pid, Dynamic)) -> payload {
+    let reason = decode_exit_reason(message.2)
+    mapping(ProcessDown(message.1, reason))
+  }
+  insert_selector_handler(selector, monitor.tag, handler)
 }
 
 /// Remove the monitor for a process so that when the monitor process exits a
@@ -559,7 +564,7 @@ pub fn demonitor_process(monitor monitor: ProcessMonitor) -> Nil
 pub type CallError(msg) {
   /// The process being called exited before it sent a response.
   ///
-  CalleeDown(reason: Dynamic)
+  CalleeDown(reason: ExitReason)
 
   /// The process being called did not response within the permitted amount of
   /// time.
@@ -790,7 +795,7 @@ pub fn send_exit(to pid: Pid) -> Nil {
 /// [1]: http://erlang.org/doc/man/erlang.html#exit-2
 ///
 pub fn send_abnormal_exit(pid: Pid, reason: String) -> Nil {
-  erlang_send_exit(pid, Abnormal(reason))
+  erlang_send_exit(pid, reason)
   Nil
 }
 
