@@ -551,8 +551,13 @@ pub fn selecting_process_down(
 /// If the message has already been sent it is removed from the monitoring
 /// process' mailbox.
 ///
+pub fn demonitor_process(monitor monitor: ProcessMonitor) -> Nil {
+  erlang_demonitor_process(monitor)
+  Nil
+}
+
 @external(erlang, "gleam_erlang_ffi", "demonitor")
-pub fn demonitor_process(monitor monitor: ProcessMonitor) -> Nil
+fn erlang_demonitor_process(monitor: ProcessMonitor) -> DoNotLeak
 
 /// An error returned when making a call to a process.
 ///

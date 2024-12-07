@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.33.1 - 2024-12-07
+
+- Fixed a bug where `process.demonitor_process` would return the incorrect
+  value.
+
 ## v0.33.0 - 2024-12-05
 
 - The `gleam/erlang/process` module gains the `receive_forever` function.
