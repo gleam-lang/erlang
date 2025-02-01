@@ -1,4 +1,5 @@
-import gleam/dynamic.{DecodeError}
+import gleam/dynamic
+import gleam/dynamic/decode.{DecodeError}
 import gleam/erlang/port
 import gleeunit/should
 

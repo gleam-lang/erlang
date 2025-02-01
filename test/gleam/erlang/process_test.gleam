@@ -1,4 +1,5 @@
-import gleam/dynamic.{DecodeError}
+import gleam/dynamic
+import gleam/dynamic/decode.{DecodeError}
 import gleam/erlang/atom
 import gleam/erlang/process.{ProcessDown}
 import gleam/float
@@ -295,21 +296,21 @@ pub fn selecting_record_test() {
 
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record2("h", dynamic.unsafe_coerce)
+    |> process.selecting_record2("h", unsafe_coerce)
     |> process.select(0)
 
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record2("c", dynamic.unsafe_coerce)
+    |> process.selecting_record2("c", unsafe_coerce)
     |> process.select(0)
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record2("c", dynamic.unsafe_coerce)
+    |> process.selecting_record2("c", unsafe_coerce)
     |> process.select(0)
   let assert Error(Nil) =
     process.new_selector()
     |> process.selecting_record3("c", fn(a, b) {
-      #(dynamic.unsafe_coerce(a), dynamic.unsafe_coerce(b))
+      #(unsafe_coerce(a), unsafe_coerce(b))
     })
     |> process.select(0)
 
@@ -317,13 +318,13 @@ pub fn selecting_record_test() {
     process.new_selector()
     |> process.selecting_record8("g", fn(a, b, c, d, e, f, g) {
       #(
-        dynamic.unsafe_coerce(a),
-        dynamic.unsafe_coerce(b),
-        dynamic.unsafe_coerce(c),
-        dynamic.unsafe_coerce(d),
-        dynamic.unsafe_coerce(e),
-        dynamic.unsafe_coerce(f),
-        dynamic.unsafe_coerce(g),
+        unsafe_coerce(a),
+        unsafe_coerce(b),
+        unsafe_coerce(c),
+        unsafe_coerce(d),
+        unsafe_coerce(e),
+        unsafe_coerce(f),
+        unsafe_coerce(g),
       )
     })
     |> process.select(0)
@@ -332,12 +333,12 @@ pub fn selecting_record_test() {
     process.new_selector()
     |> process.selecting_record7("f", fn(a, b, c, d, e, f) {
       #(
-        dynamic.unsafe_coerce(a),
-        dynamic.unsafe_coerce(b),
-        dynamic.unsafe_coerce(c),
-        dynamic.unsafe_coerce(d),
-        dynamic.unsafe_coerce(e),
-        dynamic.unsafe_coerce(f),
+        unsafe_coerce(a),
+        unsafe_coerce(b),
+        unsafe_coerce(c),
+        unsafe_coerce(d),
+        unsafe_coerce(e),
+        unsafe_coerce(f),
       )
     })
     |> process.select(0)
@@ -346,11 +347,11 @@ pub fn selecting_record_test() {
     process.new_selector()
     |> process.selecting_record6("e", fn(a, b, c, d, e) {
       #(
-        dynamic.unsafe_coerce(a),
-        dynamic.unsafe_coerce(b),
-        dynamic.unsafe_coerce(c),
-        dynamic.unsafe_coerce(d),
-        dynamic.unsafe_coerce(e),
+        unsafe_coerce(a),
+        unsafe_coerce(b),
+        unsafe_coerce(c),
+        unsafe_coerce(d),
+        unsafe_coerce(e),
       )
     })
     |> process.select(0)
@@ -358,36 +359,27 @@ pub fn selecting_record_test() {
   let assert Ok(#(7, 8, 9, 10)) =
     process.new_selector()
     |> process.selecting_record5("d", fn(a, b, c, d) {
-      #(
-        dynamic.unsafe_coerce(a),
-        dynamic.unsafe_coerce(b),
-        dynamic.unsafe_coerce(c),
-        dynamic.unsafe_coerce(d),
-      )
+      #(unsafe_coerce(a), unsafe_coerce(b), unsafe_coerce(c), unsafe_coerce(d))
     })
     |> process.select(0)
 
   let assert Ok(#(4, 5, 6)) =
     process.new_selector()
     |> process.selecting_record4("c", fn(a, b, c) {
-      #(
-        dynamic.unsafe_coerce(a),
-        dynamic.unsafe_coerce(b),
-        dynamic.unsafe_coerce(c),
-      )
+      #(unsafe_coerce(a), unsafe_coerce(b), unsafe_coerce(c))
     })
     |> process.select(0)
 
   let assert Ok(#(2, 3)) =
     process.new_selector()
     |> process.selecting_record3("b", fn(a, b) {
-      #(dynamic.unsafe_coerce(a), dynamic.unsafe_coerce(b))
+      #(unsafe_coerce(a), unsafe_coerce(b))
     })
     |> process.select(0)
 
   let assert Ok(1) =
     process.new_selector()
-    |> process.selecting_record2("a", dynamic.unsafe_coerce)
+    |> process.selecting_record2("a", unsafe_coerce)
     |> process.select(0)
 }
 
@@ -398,11 +390,11 @@ pub fn selecting_anything_test() {
 
   let selector =
     process.new_selector()
-    |> process.selecting_anything(dynamic.int)
+    |> process.selecting_anything(decode.run(_, decode.int))
 
   let assert Ok(Ok(1)) = process.select(selector, 0)
   let assert Ok(Error([
-    dynamic.DecodeError(expected: "Int", found: "Float", path: []),
+    decode.DecodeError(expected: "Int", found: "Float", path: []),
   ])) = process.select(selector, 0)
   let assert Error(Nil) = process.select(selector, 0)
 }
@@ -656,3 +648,6 @@ pub fn deselecting_test() {
   |> process.deselecting(subject2)
   |> should.equal(selector0)
 }
+
+@external(erlang, "gleam_erlang_ffi", "identity")
+fn unsafe_coerce(a: dynamic.Dynamic) -> anything

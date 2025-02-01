@@ -1,4 +1,5 @@
-import gleam/dynamic.{type DecodeErrors, type Dynamic}
+import gleam/dynamic.{type Dynamic}
+import gleam/dynamic/decode.{type DecodeError}
 import gleam/erlang.{type Reference}
 import gleam/erlang/atom.{type Atom}
 import gleam/string
@@ -238,7 +239,7 @@ pub fn selecting_trapped_exits(
     let reason = message.2
     let normal = dynamic.from(Normal)
     let killed = dynamic.from(Killed)
-    let reason = case dynamic.string(reason) {
+    let reason = case decode.run(reason, decode.string) {
       _ if reason == normal -> Normal
       _ if reason == killed -> Killed
       Ok(reason) -> Abnormal(reason)
@@ -743,7 +744,7 @@ pub type Cancelled {
 /// Cancel a given timer, causing it not to trigger if it has not done already.
 ///
 pub fn cancel_timer(timer: Timer) -> Cancelled {
-  case dynamic.int(erlang_cancel_timer(timer)) {
+  case decode.run(erlang_cancel_timer(timer), decode.int) {
     Ok(i) -> Cancelled(i)
     Error(_) -> TimerNotFound
   }
@@ -847,13 +848,13 @@ pub fn named(name: Atom) -> Result(Pid, Nil)
 ///
 /// ```gleam
 /// import gleam/dynamic
-/// from_dynamic(dynamic.from(process.self()))
+/// pid_from_dynamic(dynamic.from(process.self()))
 /// // -> Ok(process.self())
 /// ```
 ///
 /// ```gleam
-/// from_dynamic(dynamic.from(123))
+/// pid_from_dynamic(dynamic.from(123))
 /// // -> Error([DecodeError(expected: "Pid", found: "Int", path: [])])
 /// ```
 @external(erlang, "gleam_erlang_ffi", "pid_from_dynamic")
-pub fn pid_from_dynamic(from from: Dynamic) -> Result(Pid, DecodeErrors)
+pub fn pid_from_dynamic(from from: Dynamic) -> Result(Pid, List(DecodeError))
