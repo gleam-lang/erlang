@@ -22,12 +22,15 @@ pub fn empty_string_test() {
   let assert "" =
     []
     |> dynamic.from
-    |> dynamic.unsafe_coerce
+    |> unsafe_coerce
     |> charlist.to_string
 
   let assert [] =
     ""
     |> charlist.from_string()
     |> dynamic.from
-    |> dynamic.unsafe_coerce
+    |> unsafe_coerce
 }
+
+@external(erlang, "gleam_erlang_ffi", "identity")
+fn unsafe_coerce(a: dynamic.Dynamic) -> anything

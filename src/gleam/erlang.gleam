@@ -1,4 +1,5 @@
-import gleam/dynamic.{type DecodeErrors, type Dynamic}
+import gleam/dynamic.{type Dynamic}
+import gleam/dynamic/decode.{type DecodeError}
 import gleam/erlang/atom.{type Atom}
 import gleam/erlang/charlist.{type Charlist}
 import gleam/list
@@ -190,7 +191,7 @@ pub fn make_reference() -> Reference
 @external(erlang, "gleam_erlang_ffi", "reference_from_dynamic")
 pub fn reference_from_dynamic(
   from from: Dynamic,
-) -> Result(Reference, DecodeErrors)
+) -> Result(Reference, List(DecodeError))
 
 /// Returns the path of a package's `priv` directory, where extra non-Gleam
 /// or Erlang files are typically kept.

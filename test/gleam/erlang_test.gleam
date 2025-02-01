@@ -1,7 +1,8 @@
-import gleam/dynamic.{DecodeError}
+import gleam/dynamic
+import gleam/dynamic/decode.{DecodeError}
 import gleam/erlang.{UnknownApplication}
 import gleam/erlang/atom
-import gleam/iterator
+import gleam/list
 import gleam/string
 
 pub fn term_to_binary_test() {
@@ -42,11 +43,10 @@ pub fn ensure_all_started_unknown_test() {
 
 pub fn make_reference_test() {
   let reference = erlang.make_reference()
-  iterator.range(0, 100_000)
-  |> iterator.map(fn(_) {
+  list.range(0, 100_000)
+  |> list.each(fn(_) {
     let assert True = reference != erlang.make_reference()
   })
-  |> iterator.run
 }
 
 pub fn reference_from_dynamic_test() {

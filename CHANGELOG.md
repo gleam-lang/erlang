@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Fixed deprecation warnings with the Gleam standard library v0.53.0 or later.
+- Increased minimum required Gleam standard library version to v0.50.0.
+
 ## v0.33.1 - 2024-12-07
 
 - Fixed a bug where `process.demonitor_process` would return the incorrect

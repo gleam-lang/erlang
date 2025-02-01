@@ -1,4 +1,5 @@
-import gleam/dynamic.{DecodeError}
+import gleam/dynamic
+import gleam/dynamic/decode.{DecodeError}
 import gleam/erlang/atom
 
 pub fn from_string_test() {

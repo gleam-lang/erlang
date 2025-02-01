@@ -1,4 +1,5 @@
-import gleam/dynamic.{type DecodeErrors, type Dynamic}
+import gleam/dynamic.{type Dynamic}
+import gleam/dynamic/decode.{type DecodeError}
 
 /// Ports are how code running on the Erlang virtual machine interacts with
 /// the outside world. Bytes of data can be sent to and read from ports,
@@ -16,11 +17,11 @@ pub type Port
 /// ## Examples
 ///
 ///    > import gleam/dynamic
-///    > from_dynamic(dynamic.from(process.self()))
+///    > port_from_dynamic(dynamic.from(process.self()))
 ///    Ok(process.self())
 ///
-///    > from_dynamic(dynamic.from(123))
+///    > port_from_dynamic(dynamic.from(123))
 ///    Error([DecodeError(expected: "Port", found: "Int", path: [])])
 ///
 @external(erlang, "gleam_erlang_ffi", "port_from_dynamic")
-pub fn port_from_dynamic(from from: Dynamic) -> Result(Port, DecodeErrors)
+pub fn port_from_dynamic(from from: Dynamic) -> Result(Port, List(DecodeError))
