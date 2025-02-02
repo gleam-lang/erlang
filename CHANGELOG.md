@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased
+## v0.34.0 - 2025-02-02
 
 - Fixed deprecation warnings with the Gleam standard library v0.53.0 or later.
-- Increased minimum required Gleam standard library version to v0.50.0.
+- Increased minimum required Gleam standard library version to v0.53.0.
 
 ## v0.33.1 - 2024-12-07
 
