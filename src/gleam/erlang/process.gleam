@@ -39,6 +39,8 @@ fn spawn(a: fn() -> anything) -> Pid
 @external(erlang, "erlang", "spawn_link")
 fn spawn_link(a: fn() -> anything) -> Pid
 
+// TODO: changelog
+// TODO: documentation
 /// A `Subject` is a value that processes can use to send and receive messages
 /// to and from each other in a well typed way.
 ///
@@ -64,7 +66,12 @@ fn spawn_link(a: fn() -> anything) -> Pid
 ///
 pub opaque type Subject(message) {
   Subject(owner: Pid, tag: Reference)
+  NamedSubject(name: Name(message))
 }
+
+// TODO: changelog
+// TODO: documentation
+pub type Name(message)
 
 /// Create a new `Subject` owned by the current process.
 ///
@@ -72,17 +79,29 @@ pub fn new_subject() -> Subject(message) {
   Subject(owner: self(), tag: erlang.make_reference())
 }
 
+// TODO: documentation
+// TODO: test
+// TODO: changelog
 /// Get the owner process for a `Subject`. This is the process that created the
 /// `Subject` and will receive messages sent with it.
 ///
-pub fn subject_owner(subject: Subject(message)) -> Pid {
-  subject.owner
+pub fn subject_owner(subject: Subject(message)) -> Result(Pid, Nil) {
+  case subject {
+    NamedSubject(_) -> todo
+    Subject(pid, _) -> Ok(pid)
+  }
 }
 
 type DoNotLeak
 
 @external(erlang, "erlang", "send")
 fn raw_send(a: Pid, b: message) -> DoNotLeak
+
+// TODO: documentation
+// TODO: test
+// TODO: changelog
+@external(erlang, "gleam_erlang_ffi", "registered_process")
+pub fn registered_process(name: Name(anything)) -> Result(Pid, Nil)
 
 /// Send a message to a process using a `Subject`. The message must be of the
 /// type that the `Subject` accepts.
@@ -109,8 +128,21 @@ fn raw_send(a: Pid, b: message) -> DoNotLeak
 /// ```
 ///
 pub fn send(subject: Subject(message), message: message) -> Nil {
-  raw_send(subject.owner, #(subject.tag, message))
-  Nil
+  case subject {
+    Subject(pid, tag) -> {
+      raw_send(pid, #(tag, message))
+      Nil
+    }
+    NamedSubject(name) -> {
+      case registered_process(name) {
+        Ok(pid) -> {
+          raw_send(pid, #(name, message))
+          Nil
+        }
+        Error(_) -> Nil
+      }
+    }
+  }
 }
 
 /// Receive a message that has been sent to current process using the `Subject`.
@@ -277,7 +309,10 @@ pub fn selecting(
   mapping transform: fn(message) -> payload,
 ) -> Selector(payload) {
   let handler = fn(message: #(Reference, message)) { transform(message.1) }
-  insert_selector_handler(selector, #(subject.tag, 2), handler)
+  case subject {
+    NamedSubject(name) -> insert_selector_handler(selector, #(name, 2), handler)
+    Subject(_, tag:) -> insert_selector_handler(selector, #(tag, 2), handler)
+  }
 }
 
 /// Remove a new `Subject` from the `Selector` so that its messages will not be
@@ -287,7 +322,10 @@ pub fn deselecting(
   selector: Selector(payload),
   for subject: Subject(message),
 ) -> Selector(payload) {
-  remove_selector_handler(selector, #(subject.tag, 2))
+  case subject {
+    NamedSubject(name) -> remove_selector_handler(selector, #(name, 2))
+    Subject(_, tag:) -> remove_selector_handler(selector, #(tag, 2))
+  }
 }
 
 /// Add a handler to a selector for 2 element tuple messages with a given tag
@@ -584,6 +622,9 @@ pub fn deselecting_process_down(
   remove_selector_handler(selector, monitor.tag)
 }
 
+// TODO: change to use aliases?: https://www.erlang.org/doc/system/ref_man_processes.html#process-aliases
+// TODO: documentation
+// TODO: test
 // This function is based off of Erlang's gen:do_call/4.
 /// Send a message to a process and wait for a reply.
 ///
@@ -601,7 +642,11 @@ pub fn try_call(
 
   // Monitor the callee process so we can tell if it goes down (meaning we
   // won't get a reply)
-  let monitor = monitor_process(subject_owner(subject))
+  let monitor =
+    monitor_process(case subject_owner(subject) {
+      Ok(pid) -> pid
+      Error(_) -> todo
+    })
 
   // Send the request to the process over the channel
   send(subject, make_request(reply_subject))
@@ -657,6 +702,7 @@ pub fn call_forever(
   response
 }
 
+// TODO: remove?
 /// Similar to the `try_call` function but will wait forever for a message
 /// to arrive rather than timing out after a specified amount of time.
 ///
@@ -670,7 +716,11 @@ pub fn try_call_forever(
 
   // Monitor the callee process so we can tell if it goes down (meaning we
   // won't get a reply)
-  let monitor = monitor_process(subject_owner(subject))
+  let monitor =
+    monitor_process(case subject_owner(subject) {
+      Ok(pid) -> pid
+      Error(_) -> todo
+    })
 
   // Send the request to the process over the channel
   send(subject, make_request(reply_subject))
@@ -715,12 +765,18 @@ pub fn unlink(pid: Pid) -> Nil {
 pub type Timer
 
 @external(erlang, "erlang", "send_after")
-fn erlang_send_after(a: Int, b: Pid, c: msg) -> Timer
+fn pid_send_after(a: Int, b: Pid, c: #(Reference, msg)) -> Timer
+
+@external(erlang, "erlang", "send_after")
+fn name_send_after(a: Int, b: Name(msg), c: #(Name(msg), msg)) -> Timer
 
 /// Send a message over a channel after a specified number of milliseconds.
 ///
 pub fn send_after(subject: Subject(msg), delay: Int, message: msg) -> Timer {
-  erlang_send_after(delay, subject.owner, #(subject.tag, message))
+  case subject {
+    NamedSubject(name) -> name_send_after(delay, name, #(name, message))
+    Subject(owner, tag) -> pid_send_after(delay, owner, #(tag, message))
+  }
 }
 
 @external(erlang, "erlang", "cancel_timer")
