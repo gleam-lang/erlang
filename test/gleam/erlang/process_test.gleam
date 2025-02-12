@@ -27,7 +27,7 @@ pub fn sleep_test() {
 
 pub fn subject_owner_test() {
   let subject = process.new_subject()
-  let assert True = process.subject_owner(subject) == process.self()
+  let assert True = process.subject_owner(subject) == Ok(process.self())
 }
 
 pub fn receive_test() {
