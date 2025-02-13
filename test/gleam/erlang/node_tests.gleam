@@ -14,7 +14,7 @@ pub fn visible_test() {
 }
 
 pub fn connect_not_alive_test() {
-  let name = atom.create_from_string("not_found@localhost")
+  let name = atom.create("not_found@localhost")
   let assert Error(node.LocalNodeIsNotAlive) = node.connect(name)
 }
 

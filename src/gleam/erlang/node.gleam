@@ -1,4 +1,5 @@
 import gleam/erlang/atom.{type Atom}
+import gleam/erlang/process.{type Name}
 
 pub type Node
 
@@ -44,17 +45,26 @@ pub type ConnectError {
 pub fn connect(node: Atom) -> Result(Node, ConnectError)
 
 // TODO: test
+// TODO: document
+// TODO: decide if this should send to just a name of if it should require the
+//       programmer to create a subject first. Current thought is that name is
+//       better because a subject could hold a pid which would already know
+//       what node it is on, so doesn't make as much sense to duplicate that here.
+//       Oh! Wait! Why couldn't a subject specify where the node is?
 /// Send a message to a named process on a given node.
 ///
 /// These messages are untyped, like regular Erlang messages.
 ///
-pub fn send(node: Node, name: Atom, message: message) -> Nil {
-  raw_send(#(name, node), message)
+pub fn send(node: Node, name: Name(message), message: message) -> Nil {
+  raw_send(#(name, node), #(name, message))
   Nil
 }
 
 @external(erlang, "erlang", "send")
-fn raw_send(receiver: #(Atom, Node), message: message) -> DoNotLeak
+fn raw_send(
+  receiver: #(Name(message), Node),
+  message: #(Name(message), message),
+) -> DoNotLeak
 
 /// Convert a node to the atom of its name.
 ///
