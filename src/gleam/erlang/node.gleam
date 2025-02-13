@@ -45,15 +45,11 @@ pub type ConnectError {
 pub fn connect(node: Atom) -> Result(Node, ConnectError)
 
 // TODO: test
-// TODO: document
-// TODO: decide if this should send to just a name of if it should require the
-//       programmer to create a subject first. Current thought is that name is
-//       better because a subject could hold a pid which would already know
-//       what node it is on, so doesn't make as much sense to duplicate that here.
-//       Oh! Wait! Why couldn't a subject specify where the node is?
 /// Send a message to a named process on a given node.
 ///
-/// These messages are untyped, like regular Erlang messages.
+/// This function sends messages in the same format as the send function in the
+/// process module, so messages sent using it can be received as normal using
+/// subjects and selectors.
 ///
 pub fn send(node: Node, name: Name(message), message: message) -> Nil {
   raw_send(#(name, node), #(name, message))
@@ -65,8 +61,3 @@ fn raw_send(
   receiver: #(Name(message), Node),
   message: #(Name(message), message),
 ) -> DoNotLeak
-
-/// Convert a node to the atom of its name.
-///
-@external(erlang, "gleam_erlang_ffi", "identity")
-pub fn to_atom(node: Node) -> Atom
