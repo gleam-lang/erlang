@@ -2,18 +2,28 @@
 
 ## v1.0.0-rc1 - Unreleased
 
-- The `gleam/erlang/os` module has been removed.
-- The `gleam/erlang` module has been removed.
-- The `gleam/erlang/reference` module has been created with the `Reference`
-  type, and the `new` function.
+- In the `gleam/erlang/process` module:
+  - The `Name` type has been introduced. This type is used to give processes
+    names, making it easier to pass references around your application, and to
+    have a new process take over a role from a previous one that has crashed.
+- In the `gleam/erlang/node` module:
+  - The `send` function now sends messages in the same format as the `send`
+    process from the `gleam/erlang/process` module.
+  - The `send` function now accepts a `Name` rather than an `Atom`.
+  - The `to_atom` function has been removed.
+- The `gleam/erlang/reference` module has been created with:
+  - The `Reference` type.
+  - The `new` function.
+- The `gleam/erlang/application` module was created with:
+  - The `priv_directory` function, formerly of the `gleam/erlang` module.
+  - The `StartType` type.
 - In the `gleam/erlang/atom` module:
   - The `AtomNotLoaded` type has been removed.
   - The error type of `from_string` is now `Nil`.
   - The `from_string` function has been renamed to `get`.
   - The `create_from_string` function has been renamed to `create`.
-- The `gleam/erlang/application` module was created with:
-  - The `priv_directory` function, formerly of the `gleam/erlang` module.
-  - The `StartType` type.
+- The `gleam/erlang` module has been removed.
+- The `gleam/erlang/os` module has been removed.
 
 ## v0.34.0 - 2025-02-02
 
