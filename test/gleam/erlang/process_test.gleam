@@ -583,7 +583,7 @@ pub fn flush_messages_test() {
 }
 
 pub fn register_name_taken_test() {
-  let taken_name = atom.create_from_string("code_server")
+  let taken_name = atom.create("code_server")
   let assert Ok(a) = process.named(taken_name)
   let assert Error(Nil) = process.register(process.self(), taken_name)
   let assert Ok(b) = process.named(taken_name)
@@ -591,7 +591,7 @@ pub fn register_name_taken_test() {
 }
 
 pub fn register_name_test() {
-  let name = atom.create_from_string("register_name_test_name")
+  let name = atom.create("register_name_test_name")
   let _ = process.unregister(name)
   let assert Error(Nil) = process.named(name)
   let assert Ok(Nil) = process.register(process.self(), name)
@@ -601,31 +601,13 @@ pub fn register_name_test() {
 }
 
 pub fn unregister_name_test() {
-  let name = atom.create_from_string("unregister_name_test_name")
+  let name = atom.create("unregister_name_test_name")
   let _ = process.unregister(name)
   let assert Ok(Nil) = process.register(process.self(), name)
   let assert Ok(_) = process.named(name)
   let assert Ok(Nil) = process.unregister(name)
   let assert Error(Nil) = process.named(name)
   let _ = process.unregister(name)
-}
-
-pub fn pid_from_dynamic_test() {
-  let result =
-    process.self()
-    |> dynamic.from
-    |> process.pid_from_dynamic
-  let assert True = result == Ok(process.self())
-
-  let assert Error([DecodeError(expected: "Pid", found: "Int", path: [])]) =
-    1
-    |> dynamic.from
-    |> process.pid_from_dynamic
-
-  let assert Error([DecodeError(expected: "Pid", found: "List", path: [])]) =
-    []
-    |> dynamic.from
-    |> process.pid_from_dynamic
 }
 
 pub fn deselecting_test() {

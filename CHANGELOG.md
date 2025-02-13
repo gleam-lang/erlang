@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.0.0-rc1 - Unreleased
+
+- The `gleam/erlang/os` module has been removed.
+- The `gleam/erlang` module has been removed.
+- The `gleam/erlang/reference` module has been created with the `Reference`
+  type, and the `new` function.
+- In the `gleam/erlang/atom` module:
+  - The `AtomNotLoaded` type has been removed.
+  - The error type of `from_string` is now `Nil`.
+  - The `from_string` function has been renamed to `get`.
+  - The `create_from_string` function has been renamed to `create`.
+- The `gleam/erlang/application` module was created with:
+  - The `priv_directory` function, formerly of the `gleam/erlang` module.
+  - The `StartType` type.
+
 ## v0.34.0 - 2025-02-02
 
 - Fixed deprecation warnings with the Gleam standard library v0.53.0 or later.
