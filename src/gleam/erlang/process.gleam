@@ -14,6 +14,7 @@ pub type Pid
 @external(erlang, "erlang", "self")
 pub fn self() -> Pid
 
+// TODO: replace with a function for spawning linked and another unlinked
 /// Create a new Erlang process that runs concurrently to the creator. In other
 /// languages this might be called a fibre, a green thread, or a coroutine.
 ///
@@ -72,6 +73,19 @@ pub opaque type Subject(message) {
 // TODO: changelog
 // TODO: documentation
 pub type Name(message)
+
+// TODO: changelog
+// TODO: test
+// TODO: documentation
+@external(erlang, "gleam_erlang_ffi", "new_name")
+pub fn new_name() -> Name(message)
+
+// TODO: changelog
+// TODO: test
+// TODO: documentation
+pub fn named_subject(name: Name(message)) -> Subject(message) {
+  NamedSubject(name)
+}
 
 /// Create a new `Subject` owned by the current process.
 ///
@@ -282,7 +296,7 @@ pub fn selecting_trapped_exits(
   insert_selector_handler(selector, #(tag, 3), handler)
 }
 
-// TODO: implement in Gleam
+// TODO: rename?
 /// Discard all messages in the current process' mailbox.
 ///
 /// Warning: This function may cause other processes to crash if they sent a
@@ -869,6 +883,8 @@ pub fn send_abnormal_exit(pid: Pid, reason: String) -> Nil {
 @external(erlang, "gleam_erlang_ffi", "trap_exits")
 pub fn trap_exits(a: Bool) -> Nil
 
+// TODO: changelog
+// TODO: review design
 /// Register a process under a given name, allowing it to be looked up using
 /// the `named` function.
 ///
@@ -879,8 +895,10 @@ pub fn trap_exits(a: Bool) -> Nil
 /// - The name is the atom `undefined`, which is reserved by Erlang.
 ///
 @external(erlang, "gleam_erlang_ffi", "register_process")
-pub fn register(pid: Pid, name: Atom) -> Result(Nil, Nil)
+pub fn register(pid: Pid, name: Name(message)) -> Result(Nil, Nil)
 
+// TODO: changelog
+// TODO: review design
 /// Un-register a process name, after which the process can no longer be looked
 /// up by that name, and both the name and the process can be re-used in other
 /// registrations.
@@ -890,7 +908,7 @@ pub fn register(pid: Pid, name: Atom) -> Result(Nil, Nil)
 /// likely result in undesirable behaviour and crashes.
 ///
 @external(erlang, "gleam_erlang_ffi", "unregister_process")
-pub fn unregister(name: Atom) -> Result(Nil, Nil)
+pub fn unregister(name: Name(message)) -> Result(Nil, Nil)
 
 /// Look up a process by name, returning the pid if it exists.
 ///

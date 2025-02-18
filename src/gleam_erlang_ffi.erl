@@ -1,11 +1,11 @@
 -module(gleam_erlang_ffi).
 -export([
-    rescue/1, atom_from_string/1, sleep/1, sleep_forever/0, demonitor/1,
+    atom_from_string/1, sleep/1, sleep_forever/0, demonitor/1,
     new_selector/0, link/1, insert_selector_handler/3, registered_process/1,
     remove_selector_handler/2, select/1, select/2, trap_exits/1,
     map_selector/2, merge_selector/2, flush_messages/0, priv_directory/1,
     connect_node/1, register_process/2, unregister_process/1, process_named/1,
-    identity/1, 'receive'/1, 'receive'/2
+    identity/1, 'receive'/1, 'receive'/2, new_name/0
 ]).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, nil}.
@@ -14,13 +14,8 @@ atom_from_string(S) ->
     catch error:badarg -> {error, nil}
     end.
 
-rescue(F) ->
-    try {ok, F()}
-    catch
-        throw:X -> {error, {thrown, X}};
-        error:X -> {error, {errored, X}};
-        exit:X -> {error, {exited, X}}
-    end.
+new_name() ->
+    list_to_atom("name" ++ integer_to_list(erlang:unique_integer([positive]))).
 
 sleep(Microseconds) ->
     timer:sleep(Microseconds),
@@ -74,14 +69,22 @@ select({selector, Handlers}, Timeout) ->
 
 'receive'({subject, _Pid, Ref}) ->
     receive
-        {Ref, Message} ->
-            Message
+        {Ref, Message} -> Message
+    end;
+'receive'({named_subject, Name}) ->
+    receive
+        {Name, Message} -> Message
     end.
 
 'receive'({subject, _Pid, Ref}, Timeout) ->
     receive
-        {Ref, Message} ->
-            {ok, Message}
+        {Ref, Message} -> {ok, Message}
+    after Timeout ->
+        {error, nil}
+    end;
+'receive'({named_subject, Name}, Timeout) ->
+    receive
+        {Name, Message} -> {ok, Message}
     after Timeout ->
         {error, nil}
     end.
@@ -124,6 +127,7 @@ connect_node(Node) ->
     end.
 
 register_process(Pid, Name) ->
+    erlang:display({Pid, Name}),
     try
         true = erlang:register(Name, Pid),
         {ok, nil}
