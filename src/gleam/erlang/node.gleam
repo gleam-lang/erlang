@@ -1,4 +1,5 @@
 import gleam/erlang/atom.{type Atom}
+import gleam/erlang/process.{type Name}
 
 pub type Node
 
@@ -46,17 +47,17 @@ pub fn connect(node: Atom) -> Result(Node, ConnectError)
 // TODO: test
 /// Send a message to a named process on a given node.
 ///
-/// These messages are untyped, like regular Erlang messages.
+/// This function sends messages in the same format as the send function in the
+/// process module, so messages sent using it can be received as normal using
+/// subjects and selectors.
 ///
-pub fn send(node: Node, name: Atom, message: message) -> Nil {
-  raw_send(#(name, node), message)
+pub fn send(node: Node, name: Name(message), message: message) -> Nil {
+  raw_send(#(name, node), #(name, message))
   Nil
 }
 
 @external(erlang, "erlang", "send")
-fn raw_send(receiver: #(Atom, Node), message: message) -> DoNotLeak
-
-/// Convert a node to the atom of its name.
-///
-@external(erlang, "gleam_erlang_ffi", "identity")
-pub fn to_atom(node: Node) -> Atom
+fn raw_send(
+  receiver: #(Name(message), Node),
+  message: #(Name(message), message),
+) -> DoNotLeak

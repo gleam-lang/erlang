@@ -1,62 +1,24 @@
-import gleam/dynamic
-import gleam/dynamic/decode.{DecodeError}
 import gleam/erlang/atom
+import gleam/int
 
 pub fn from_string_test() {
-  let assert Ok(_) = atom.from_string("ok")
-  let assert Error(atom.AtomNotLoaded) =
-    atom.from_string("the vm does not have an atom with this content")
+  let assert Ok(_) = atom.get("ok")
+  let assert Error(Nil) =
+    atom.get("the vm does not have an atom with this content")
 }
 
 pub fn create_from_string_test() {
-  let result =
-    "ok"
-    |> atom.create_from_string
-    |> Ok
-  let assert True = result == atom.from_string("ok")
+  let assert True = atom.get("ok") == Ok(atom.create("ok"))
 
-  let result =
-    "expect"
-    |> atom.create_from_string
-    |> Ok
-  let assert True = result == atom.from_string("expect")
-
-  let result =
-    "this is another atom we have not seen before"
-    |> atom.create_from_string
-    |> Ok
-  let assert True =
-    result == atom.from_string("this is another atom we have not seen before")
+  // Generate the string at runtime to prevent erlc from optimising the atom
+  // creation and doing it at compile time.
+  let new = "this is a new atom " <> int.to_string(int.random(100))
+  let assert Error(Nil) = atom.get(new)
+  let created = atom.create(new)
+  let assert True = atom.get(new) == Ok(created)
 }
 
 pub fn to_string_test() {
-  let assert "ok" = atom.to_string(atom.create_from_string("ok"))
-
-  let assert "expect" = atom.to_string(atom.create_from_string("expect"))
-}
-
-pub fn from_dynamic_test() {
-  let result =
-    ""
-    |> atom.create_from_string
-    |> dynamic.from
-    |> atom.from_dynamic
-  let assert True = result == Ok(atom.create_from_string(""))
-
-  let result =
-    "ok"
-    |> atom.create_from_string
-    |> dynamic.from
-    |> atom.from_dynamic
-  let assert True = result == Ok(atom.create_from_string("ok"))
-
-  let assert Error([DecodeError(expected: "Atom", found: "Int", path: [])]) =
-    1
-    |> dynamic.from
-    |> atom.from_dynamic
-
-  let assert Error([DecodeError(expected: "Atom", found: "List", path: [])]) =
-    []
-    |> dynamic.from
-    |> atom.from_dynamic
+  let assert "ok" = atom.to_string(atom.create("ok"))
+  let assert "expect" = atom.to_string(atom.create("expect"))
 }
