@@ -127,7 +127,6 @@ connect_node(Node) ->
     end.
 
 register_process(Pid, Name) ->
-    erlang:display({Pid, Name}),
     try
         true = erlang:register(Name, Pid),
         {ok, nil}

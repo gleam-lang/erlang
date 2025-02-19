@@ -11,34 +11,41 @@ import gleam/string
 pub type Pid
 
 /// Get the `Pid` for the current process.
+///
 @external(erlang, "erlang", "self")
 pub fn self() -> Pid
 
-// TODO: replace with a function for spawning linked and another unlinked
+// TODO: test
+// TODO: documentation
 /// Create a new Erlang process that runs concurrently to the creator. In other
 /// languages this might be called a fibre, a green thread, or a coroutine.
 ///
-/// If `linked` is `True` then the created process is linked to the creator
-/// process. When a process terminates an exit signal is sent to all other
-/// processes that are linked to it, causing the process to either terminate or
-/// have to handle the signal.
+/// The child process is linked to the creator process. When a process
+/// terminates an exit signal is sent to all other processes that are linked to
+/// it, causing the process to either terminate or have to handle the signal.
+/// If you want an unlinked process use the `spawn_unlinked` function.
 ///
 /// More can be read about processes and links in the [Erlang documentation][1].
 ///
 /// [1]: https://www.erlang.org/doc/reference_manual/processes.html
 ///
-pub fn start(running implementation: fn() -> anything, linked link: Bool) -> Pid {
-  case link {
-    True -> spawn_link(implementation)
-    False -> spawn(implementation)
-  }
-}
-
-@external(erlang, "erlang", "spawn")
-fn spawn(a: fn() -> anything) -> Pid
-
 @external(erlang, "erlang", "spawn_link")
-fn spawn_link(a: fn() -> anything) -> Pid
+pub fn spawn(a: fn() -> anything) -> Pid
+
+// TODO: test
+// TODO: documentation
+/// Create a new Erlang process that runs concurrently to the creator. In other
+/// languages this might be called a fibre, a green thread, or a coroutine.
+///
+/// Typically you want to create a linked process using the `spawn` function,
+/// but creating an unlinked process may be occasionally useful.
+///
+/// More can be read about processes and links in the [Erlang documentation][1].
+///
+/// [1]: https://www.erlang.org/doc/reference_manual/processes.html
+///
+@external(erlang, "erlang", "spawn")
+pub fn spawn_unlinked(a: fn() -> anything) -> Pid
 
 // TODO: changelog
 // TODO: documentation
@@ -567,6 +574,7 @@ pub type ProcessDown {
   ProcessDown(pid: Pid, reason: Dynamic)
 }
 
+// TODO: rename to "monitor"
 /// Start monitoring a process so that when the monitored process exits a
 /// message is sent to the monitoring process.
 ///

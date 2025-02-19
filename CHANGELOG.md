@@ -6,6 +6,8 @@
   - The `Name` type has been introduced. This type is used to give processes
     names, making it easier to pass references around your application, and to
     have a new process take over a role from a previous one that has crashed.
+  - The `start` function has been replaced by the `spawn` and `spawn_unlinked`
+    functions.
 - In the `gleam/erlang/node` module:
   - The `send` function now sends messages in the same format as the `send`
     process from the `gleam/erlang/process` module.

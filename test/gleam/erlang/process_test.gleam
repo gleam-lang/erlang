@@ -1,22 +1,23 @@
 import gleam/dynamic
 import gleam/dynamic/decode.{DecodeError}
-import gleam/erlang/atom
 import gleam/erlang/process.{ProcessDown}
 import gleam/float
 import gleam/function
 import gleam/int
-import gleam/io
 import gleam/option.{Some}
 import gleeunit/should
+
+@external(erlang, "gleam_erlang_ffi", "identity")
+fn unsafe_coerce(a: dynamic.Dynamic) -> anything
 
 pub fn self_test() {
   let subject = process.new_subject()
   let pid = process.self()
 
   let assert True = pid == process.self()
-  let assert False = pid == process.start(fn() { Nil }, linked: True)
+  let assert False = pid == process.spawn(fn() { Nil })
 
-  process.start(fn() { process.send(subject, process.self()) }, linked: True)
+  process.spawn(fn() { process.send(subject, process.self()) })
   let assert Ok(child_pid) = process.receive(subject, 5)
   let assert True = child_pid != process.self()
 }
@@ -38,13 +39,10 @@ pub fn receive_test() {
   process.send(subject, 0)
 
   // Send message from another process
-  process.start(
-    fn() {
-      process.send(subject, 1)
-      process.send(subject, 2)
-    },
-    linked: True,
-  )
+  process.spawn(fn() {
+    process.send(subject, 1)
+    process.send(subject, 2)
+  })
 
   // Assert all the messages arrived
   let assert Ok(0) = process.receive(subject, 0)
@@ -60,13 +58,10 @@ pub fn receive_forever_test() {
   process.send(subject, 0)
 
   // Send message from another process
-  process.start(
-    fn() {
-      process.send(subject, 1)
-      process.send(subject, 2)
-    },
-    linked: True,
-  )
+  process.spawn(fn() {
+    process.send(subject, 1)
+    process.send(subject, 2)
+  })
 
   // Assert all the messages arrived
   let assert 0 = process.receive_forever(subject)
@@ -75,13 +70,13 @@ pub fn receive_forever_test() {
 }
 
 pub fn is_alive_test() {
-  let pid = process.start(fn() { Nil }, False)
+  let pid = process.spawn_unlinked(fn() { Nil })
   process.sleep(5)
   let assert False = process.is_alive(pid)
 }
 
 pub fn sleep_forever_test() {
-  let pid = process.start(process.sleep_forever, False)
+  let pid = process.spawn_unlinked(process.sleep_forever)
   process.sleep(5)
   let assert True = process.is_alive(pid)
 }
@@ -124,7 +119,7 @@ pub fn monitor_test() {
   // Spawn child
   let parent_subject = process.new_subject()
   let pid =
-    process.start(linked: False, running: fn() {
+    process.spawn_unlinked(fn() {
       let subject = process.new_subject()
       process.send(parent_subject, subject)
       // Wait for the parent to send a message before exiting
@@ -154,7 +149,7 @@ pub fn demonitor_test() {
   // Spawn child
   let parent_subject = process.new_subject()
   let pid =
-    process.start(linked: False, running: fn() {
+    process.spawn_unlinked(fn() {
       let subject = process.new_subject()
       process.send(parent_subject, subject)
       // Wait for the parent to send a message before exiting
@@ -186,7 +181,7 @@ pub fn demonitor_test() {
 pub fn try_call_test() {
   let parent_subject = process.new_subject()
 
-  process.start(linked: True, running: fn() {
+  process.spawn(fn() {
     // Send the child subject to the parent so it can call the child
     let child_subject = process.new_subject()
     process.send(parent_subject, child_subject)
@@ -206,7 +201,7 @@ pub fn try_call_test() {
 pub fn try_call_timeout_test() {
   let parent_subject = process.new_subject()
 
-  process.start(linked: True, running: fn() {
+  process.spawn(fn() {
     // Send the call subject to the parent
     let child_subject = process.new_subject()
     process.send(parent_subject, child_subject)
@@ -226,7 +221,7 @@ pub fn try_call_timeout_test() {
 pub fn try_call_forever_test() {
   let parent_subject = process.new_subject()
 
-  process.start(linked: True, running: fn() {
+  process.spawn(fn() {
     // Send the child subject to the parent so it can call the child
     let child_subject = process.new_subject()
     process.send(parent_subject, child_subject)
@@ -246,7 +241,7 @@ pub fn try_call_forever_test() {
 pub fn call_test() {
   let parent_subject = process.new_subject()
 
-  process.start(linked: True, running: fn() {
+  process.spawn(fn() {
     // Send the child subject to the parent so it can call the child
     let child_subject = process.new_subject()
     process.send(parent_subject, child_subject)
@@ -265,7 +260,7 @@ pub fn call_test() {
 pub fn call_forever_test() {
   let parent_subject = process.new_subject()
 
-  process.start(linked: True, running: fn() {
+  process.spawn(fn() {
     // Send the child subject to the parent so it can call the child
     let child_subject = process.new_subject()
     process.send(parent_subject, child_subject)
@@ -406,38 +401,29 @@ pub fn linking_self_test() {
 
 pub fn linking_new_test() {
   let assert True =
-    process.link(
-      process.start(linked: False, running: fn() { process.sleep(100) }),
-    )
+    process.link(process.spawn_unlinked(fn() { process.sleep(100) }))
 }
 
 pub fn relinking_test() {
-  let assert True =
-    process.link(
-      process.start(linked: True, running: fn() { process.sleep(100) }),
-    )
+  let assert True = process.link(process.spawn(fn() { process.sleep(100) }))
 }
 
 pub fn linking_dead_test() {
-  let pid = process.start(linked: True, running: fn() { Nil })
+  let pid = process.spawn(fn() { Nil })
   process.sleep(20)
   let assert False = process.link(pid)
 }
 
 pub fn unlink_unlinked_test() {
-  process.unlink(
-    process.start(linked: False, running: fn() { process.sleep(100) }),
-  )
+  process.unlink(process.spawn_unlinked(fn() { process.sleep(100) }))
 }
 
 pub fn unlink_linked_test() {
-  process.unlink(
-    process.start(linked: True, running: fn() { process.sleep(100) }),
-  )
+  process.unlink(process.spawn(fn() { process.sleep(100) }))
 }
 
 pub fn unlink_dead_test() {
-  let pid = process.start(linked: True, running: fn() { Nil })
+  let pid = process.spawn(fn() { Nil })
   process.sleep(10)
   process.unlink(pid)
 }
@@ -470,38 +456,38 @@ pub fn cancel_already_fired_timer_test() {
 }
 
 pub fn kill_test() {
-  let pid = process.start(linked: False, running: fn() { process.sleep(100) })
+  let pid = process.spawn_unlinked(fn() { process.sleep(100) })
   let assert True = process.is_alive(pid)
   process.kill(pid)
   let assert False = process.is_alive(pid)
 }
 
 pub fn kill_already_dead_test() {
-  let pid = process.start(linked: True, running: fn() { Nil })
+  let pid = process.spawn(fn() { Nil })
   process.sleep(10)
   let assert False = process.is_alive(pid)
   process.kill(pid)
 }
 
 pub fn send_exit_test() {
-  let pid = process.start(linked: False, running: fn() { process.sleep(100) })
+  let pid = process.spawn_unlinked(fn() { process.sleep(100) })
   process.send_exit(pid)
 }
 
 pub fn send_exit_already_dead_test() {
-  let pid = process.start(linked: True, running: fn() { Nil })
+  let pid = process.spawn(fn() { Nil })
   process.sleep(10)
   let assert False = process.is_alive(pid)
   process.send_exit(pid)
 }
 
 pub fn send_abnormal_exit_test() {
-  let pid = process.start(linked: False, running: fn() { process.sleep(100) })
+  let pid = process.spawn_unlinked(fn() { process.sleep(100) })
   process.send_abnormal_exit(pid, "Bye")
 }
 
 pub fn send_abnormal_exit_already_dead_test() {
-  let pid = process.start(linked: True, running: fn() { Nil })
+  let pid = process.spawn(fn() { Nil })
   process.sleep(10)
   let assert False = process.is_alive(pid)
   process.send_abnormal_exit(pid, "Bye")
@@ -509,7 +495,7 @@ pub fn send_abnormal_exit_already_dead_test() {
 
 pub fn trap_exit_test() {
   process.trap_exits(True)
-  let pid = process.start(linked: True, running: fn() { process.sleep(100) })
+  let pid = process.spawn(fn() { process.sleep(100) })
   // This would cause an error if we were not trapping exits
   process.kill(pid)
 }
@@ -563,7 +549,7 @@ pub fn selecting_trapped_exits_test() {
   process.flush_messages()
 
   process.trap_exits(True)
-  let pid = process.start(linked: True, running: fn() { process.sleep(100) })
+  let pid = process.spawn(fn() { process.sleep(100) })
   process.kill(pid)
 
   let assert Ok(process.ExitMessage(exited, process.Killed)) =
@@ -633,9 +619,6 @@ pub fn deselecting_test() {
   |> process.deselecting(subject2)
   |> should.equal(selector0)
 }
-
-@external(erlang, "gleam_erlang_ffi", "identity")
-fn unsafe_coerce(a: dynamic.Dynamic) -> anything
 
 pub fn name_test() {
   let name = process.new_name()
