@@ -22,6 +22,8 @@
   - The error type of `from_string` is now `Nil`.
   - The `from_string` function has been renamed to `get`.
   - The `create_from_string` function has been renamed to `create`.
+- In the `gleam/erlang/node` module:
+  - The `send` function has been renamed to `untyped_send`.
 - The `gleam/erlang` module has been removed.
 - The `gleam/erlang/os` module has been removed.
 
