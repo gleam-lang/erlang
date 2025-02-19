@@ -1,5 +1,4 @@
 import gleam/erlang/atom.{type Atom}
-import gleam/erlang/process.{type Name}
 
 pub type Node
 
@@ -45,19 +44,18 @@ pub type ConnectError {
 pub fn connect(node: Atom) -> Result(Node, ConnectError)
 
 // TODO: test
-/// Send a message to a named process on a given node.
+/// Send a message to a named process on a given node. There is no type-system
+/// guarentee that the receiving process expects messages of the type being
+/// sent, so be careful when using this function.
 ///
 /// This function sends messages in the same format as the send function in the
 /// process module, so messages sent using it can be received as normal using
 /// subjects and selectors.
 ///
-pub fn send(node: Node, name: Name(message), message: message) -> Nil {
+pub fn untyped_send(node: Node, name: Atom, message: message) -> Nil {
   raw_send(#(name, node), #(name, message))
   Nil
 }
 
 @external(erlang, "erlang", "send")
-fn raw_send(
-  receiver: #(Name(message), Node),
-  message: #(Name(message), message),
-) -> DoNotLeak
+fn raw_send(receiver: #(Atom, Node), message: #(Atom, message)) -> DoNotLeak
