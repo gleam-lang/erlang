@@ -75,12 +75,10 @@ pub opaque type Subject(message) {
 // TODO: documentation
 pub type Name(message)
 
-// TODO: test
 // TODO: documentation
 @external(erlang, "gleam_erlang_ffi", "new_name")
 pub fn new_name() -> Name(message)
 
-// TODO: test
 // TODO: documentation
 pub fn named_subject(name: Name(message)) -> Subject(message) {
   NamedSubject(name)
@@ -92,7 +90,6 @@ pub fn new_subject() -> Subject(message) {
   Subject(owner: self(), tag: reference.new())
 }
 
-// TODO: test
 /// Get the owner process for a subject, which is the process that will
 /// receive any messages sent using the subject.
 ///
@@ -562,7 +559,6 @@ pub type ProcessDown {
   ProcessDown(pid: Pid, reason: Dynamic)
 }
 
-// TODO: rename to "monitor"
 /// Start monitoring a process so that when the monitored process exits a
 /// message is sent to the monitoring process.
 ///
@@ -665,11 +661,16 @@ fn perform_call(
   reply
 }
 
-// TODO: documentation: panics
-// TODO: test
 // This function is based off of Erlang's gen:do_call/4.
 /// Send a message to a process and wait a given number of milliseconds for a
 /// reply.
+///
+/// This function will panic under the following circumstances:
+/// - The callee process exited prior to sending a reply.
+/// - The callee process did not send a reply within the permitted amount of
+///   time.
+/// - The subject is a named subject but no process is registered with that
+///   name.
 ///
 pub fn call(
   subject: Subject(message),
@@ -679,12 +680,12 @@ pub fn call(
   perform_call(subject, make_request, select(_, timeout))
 }
 
-// TODO: documentation
-// TODO: documentation: panics
-/// Similar to the `try_call` function but will wait forever for a message
-/// to arrive rather than timing out after a specified amount of time.
+/// Send a message to a process and wait for a reply.
 ///
-/// If the receiving process exits then an error is returned.
+/// This function will panic under the following circumstances:
+/// - The callee process exited prior to sending a reply.
+/// - The subject is a named subject but no process is registered with that
+///   name.
 ///
 pub fn call_forever(
   subject: Subject(message),
