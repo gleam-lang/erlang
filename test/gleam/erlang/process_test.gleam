@@ -127,7 +127,7 @@ pub fn monitor_test() {
     })
 
   // Monitor child
-  let monitor = process.monitor_process(pid)
+  let monitor = process.monitor(pid)
   let selector =
     process.new_selector()
     |> process.selecting_process_down(monitor, fn(x) { x })
@@ -157,7 +157,7 @@ pub fn demonitor_test() {
     })
 
   // Monitor child
-  let monitor = process.monitor_process(pid)
+  let monitor = process.monitor(pid)
   let empty_selector = process.new_selector()
   let selector =
     empty_selector
@@ -176,66 +176,6 @@ pub fn demonitor_test() {
   // Remove monitor from selector
   let assert True =
     empty_selector == selector |> process.deselecting_process_down(monitor)
-}
-
-pub fn try_call_test() {
-  let parent_subject = process.new_subject()
-
-  process.spawn(fn() {
-    // Send the child subject to the parent so it can call the child
-    let child_subject = process.new_subject()
-    process.send(parent_subject, child_subject)
-    // Wait for the subject to be messaged
-    let assert Ok(#(x, reply)) = process.receive(child_subject, 50)
-    // Reply
-    process.send(reply, x + 1)
-  })
-
-  let assert Ok(call_subject) = process.receive(parent_subject, 50)
-
-  // Call the child process and get a response.
-  let assert Ok(2) =
-    process.try_call(call_subject, fn(subject) { #(1, subject) }, 50)
-}
-
-pub fn try_call_timeout_test() {
-  let parent_subject = process.new_subject()
-
-  process.spawn(fn() {
-    // Send the call subject to the parent
-    let child_subject = process.new_subject()
-    process.send(parent_subject, child_subject)
-    // Wait for the subject to be called
-    let assert Ok(_) = process.receive(child_subject, 50)
-    // Never reply
-    process.sleep(100)
-  })
-
-  let assert Ok(call_subject) = process.receive(parent_subject, 50)
-
-  // Call the child process over the subject
-  let assert Error(process.CallTimeout) =
-    process.try_call(call_subject, fn(x) { x }, 10)
-}
-
-pub fn try_call_forever_test() {
-  let parent_subject = process.new_subject()
-
-  process.spawn(fn() {
-    // Send the child subject to the parent so it can call the child
-    let child_subject = process.new_subject()
-    process.send(parent_subject, child_subject)
-    // Wait for the subject to be messaged
-    let assert Ok(#(x, reply)) = process.receive(child_subject, 50)
-    // Reply
-    process.send(reply, x + 1)
-  })
-
-  let assert Ok(call_subject) = process.receive(parent_subject, 50)
-
-  // Call the child process and get a response.
-  let assert Ok(2) =
-    process.try_call_forever(call_subject, fn(subject) { #(1, subject) })
 }
 
 pub fn call_test() {
