@@ -4,7 +4,9 @@ import gleam/erlang/process.{ProcessDown}
 import gleam/float
 import gleam/function
 import gleam/int
+import gleam/list
 import gleam/option.{Some}
+import gleam/set
 import gleeunit/should
 
 @external(erlang, "gleam_erlang_ffi", "identity")
@@ -30,6 +32,28 @@ pub fn sleep_test() {
 pub fn subject_owner_test() {
   let subject = process.new_subject()
   let assert True = process.subject_owner(subject) == Ok(process.self())
+}
+
+pub fn new_name_test() {
+  let assert 1000 =
+    list.range(1, 1000)
+    |> list.map(fn(_) { process.new_name() })
+    |> set.from_list
+    |> set.size
+}
+
+pub fn subject_owner_named_test() {
+  let name = process.new_name()
+  let subject = process.named_subject(name)
+  let assert Ok(_) = process.register(process.self(), name)
+  let assert True = process.subject_owner(subject) == Ok(process.self())
+  let assert Ok(_) = process.unregister(name)
+}
+
+pub fn subject_owner_named_unregistered_test() {
+  let name = process.new_name()
+  let subject = process.named_subject(name)
+  let assert Error(Nil) = process.subject_owner(subject)
 }
 
 pub fn receive_test() {
