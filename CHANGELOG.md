@@ -6,8 +6,18 @@
   - The `Name` type has been introduced. This type is used to give processes
     names, making it easier to pass references around your application, and to
     have a new process take over a role from a previous one that has crashed.
+  - The `new_name` function has been added for creating new names.
+  - The `named_subject` function has been added for creating a subject for a
+    given name.
+  - The `register` function now takes a name rather than an atom.
+  - The `unregister` function now takes a name rather than an atom.
+  - The `named` function now takes a name rather than an atom.
+  - The `try_call` and `try_call_forever` functions have been removed in favour
+    of `call` and `call_forever`.
   - The `start` function has been replaced by the `spawn` and `spawn_unlinked`
     functions.
+  - The `subject_owner` function now returns a result as a named subject may not
+    any process registered for that name.
 - In the `gleam/erlang/node` module:
   - The `send` function now sends messages in the same format as the `send`
     process from the `gleam/erlang/process` module.

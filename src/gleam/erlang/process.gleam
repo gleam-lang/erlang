@@ -2,6 +2,7 @@ import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/erlang/atom.{type Atom}
 import gleam/erlang/reference.{type Reference}
+import gleam/function
 import gleam/string
 
 /// A `Pid` (or Process identifier) is a reference to an Erlang process. Each
@@ -15,8 +16,6 @@ pub type Pid
 @external(erlang, "erlang", "self")
 pub fn self() -> Pid
 
-// TODO: test
-// TODO: documentation
 /// Create a new Erlang process that runs concurrently to the creator. In other
 /// languages this might be called a fibre, a green thread, or a coroutine.
 ///
@@ -32,8 +31,6 @@ pub fn self() -> Pid
 @external(erlang, "erlang", "spawn_link")
 pub fn spawn(a: fn() -> anything) -> Pid
 
-// TODO: test
-// TODO: documentation
 /// Create a new Erlang process that runs concurrently to the creator. In other
 /// languages this might be called a fibre, a green thread, or a coroutine.
 ///
@@ -47,8 +44,6 @@ pub fn spawn(a: fn() -> anything) -> Pid
 @external(erlang, "erlang", "spawn")
 pub fn spawn_unlinked(a: fn() -> anything) -> Pid
 
-// TODO: changelog
-// TODO: documentation
 /// A `Subject` is a value that processes can use to send and receive messages
 /// to and from each other in a well typed way.
 ///
@@ -77,17 +72,14 @@ pub opaque type Subject(message) {
   NamedSubject(name: Name(message))
 }
 
-// TODO: changelog
 // TODO: documentation
 pub type Name(message)
 
-// TODO: changelog
 // TODO: test
 // TODO: documentation
 @external(erlang, "gleam_erlang_ffi", "new_name")
 pub fn new_name() -> Name(message)
 
-// TODO: changelog
 // TODO: test
 // TODO: documentation
 pub fn named_subject(name: Name(message)) -> Subject(message) {
@@ -100,15 +92,16 @@ pub fn new_subject() -> Subject(message) {
   Subject(owner: self(), tag: reference.new())
 }
 
-// TODO: documentation
 // TODO: test
-// TODO: changelog
-/// Get the owner process for a `Subject`. This is the process that created the
-/// `Subject` and will receive messages sent with it.
+/// Get the owner process for a subject, which is the process that will
+/// receive any messages sent using the subject.
+///
+/// If the subject was created from a name and no process is currently
+/// registered with that name then this function will return an error.
 ///
 pub fn subject_owner(subject: Subject(message)) -> Result(Pid, Nil) {
   case subject {
-    NamedSubject(_) -> todo
+    NamedSubject(name) -> named(name)
     Subject(pid, _) -> Ok(pid)
   }
 }
@@ -117,12 +110,6 @@ type DoNotLeak
 
 @external(erlang, "erlang", "send")
 fn raw_send(a: Pid, b: message) -> DoNotLeak
-
-// TODO: documentation
-// TODO: test
-// TODO: changelog
-@external(erlang, "gleam_erlang_ffi", "registered_process")
-pub fn registered_process(name: Name(anything)) -> Result(Pid, Nil)
 
 /// Send a message to a process using a `Subject`. The message must be of the
 /// type that the `Subject` accepts.
@@ -155,7 +142,7 @@ pub fn send(subject: Subject(message), message: message) -> Nil {
       Nil
     }
     NamedSubject(name) -> {
-      case registered_process(name) {
+      case named(name) {
         Ok(pid) -> {
           raw_send(pid, #(name, message))
           Nil
@@ -303,12 +290,13 @@ pub fn selecting_trapped_exits(
   insert_selector_handler(selector, #(tag, 3), handler)
 }
 
-// TODO: rename?
 /// Discard all messages in the current process' mailbox.
 ///
 /// Warning: This function may cause other processes to crash if they sent a
 /// message to the current process and are waiting for a response, so use with
 /// caution.
+///
+/// This function may be useful in tests.
 ///
 @external(erlang, "gleam_erlang_ffi", "flush_messages")
 pub fn flush_messages() -> Nil
@@ -587,7 +575,7 @@ pub type ProcessDown {
 ///
 /// The process can be demonitored with the `demonitor_process` function.
 ///
-pub fn monitor_process(pid: Pid) -> ProcessMonitor {
+pub fn monitor(pid: Pid) -> ProcessMonitor {
   Process
   |> erlang_monitor_process(pid)
   |> ProcessMonitor
@@ -644,122 +632,65 @@ pub fn deselecting_process_down(
   remove_selector_handler(selector, monitor.tag)
 }
 
-// TODO: change to use aliases?: https://www.erlang.org/doc/system/ref_man_processes.html#process-aliases
-// TODO: documentation
-// TODO: test
-// This function is based off of Erlang's gen:do_call/4.
-/// Send a message to a process and wait for a reply.
-///
-/// If the receiving process exits or does not reply within the allowed amount
-/// of time then an error is returned.
-///
-/// The `within` parameter specifies the timeout duration in milliseconds.
-///
-pub fn try_call(
-  subject: Subject(request),
-  make_request: fn(Subject(response)) -> request,
-  within timeout: Int,
-) -> Result(response, CallError(response)) {
+fn perform_call(
+  subject: Subject(message),
+  make_request: fn(Subject(reply)) -> message,
+  run_selector: fn(Selector(reply)) -> Result(reply, Nil),
+) -> reply {
   let reply_subject = new_subject()
+  let assert Ok(callee) = subject_owner(subject)
+    as "Callee subject had no owner"
 
   // Monitor the callee process so we can tell if it goes down (meaning we
   // won't get a reply)
-  let monitor =
-    monitor_process(case subject_owner(subject) {
-      Ok(pid) -> pid
-      Error(_) -> todo
-    })
+  let monitor = monitor(callee)
 
   // Send the request to the process over the channel
   send(subject, make_request(reply_subject))
 
   // Await a reply or handle failure modes (timeout, process down, etc)
-  let result =
+  let reply =
     new_selector()
-    |> selecting(reply_subject, Ok)
-    |> selecting_process_down(monitor, fn(down: ProcessDown) {
-      Error(CalleeDown(reason: down.reason))
+    |> selecting(reply_subject, function.identity)
+    |> selecting_process_down(monitor, fn(down) {
+      panic as { "callee exited: " <> string.inspect(down) }
     })
-    |> select(timeout)
+    |> run_selector
+
+  let assert Ok(reply) = reply as "callee did not send reply before timeout"
 
   // Demonitor the process and close the channels as we're done
   demonitor_process(monitor)
 
-  // Prepare an appropriate error (if present) for the caller
-  case result {
-    Error(Nil) -> Error(CallTimeout)
-    Ok(res) -> res
-  }
+  reply
 }
 
-/// Send a message to a process and wait for a reply.
-///
-/// If the receiving process exits or does not reply within the allowed amount
-/// of time the calling process crashes. If you wish an error to be returned
-/// instead see the `try_call` function.
-///
-/// The `within` parameter specifies the timeout duration in milliseconds.
+// TODO: documentation: panics
+// TODO: test
+// This function is based off of Erlang's gen:do_call/4.
+/// Send a message to a process and wait a given number of milliseconds for a
+/// reply.
 ///
 pub fn call(
-  subject: Subject(request),
-  make_request: fn(Subject(response)) -> request,
+  subject: Subject(message),
+  make_request: fn(Subject(reply)) -> message,
   within timeout: Int,
-) -> response {
-  let assert Ok(resp) = try_call(subject, make_request, timeout)
-  resp
+) -> reply {
+  perform_call(subject, make_request, select(_, timeout))
 }
 
-/// Similar to the `call` function but will wait forever for a message to
-/// arrive rather than timing out after a specified amount of time.
-///
-/// If the receiving process exits, the calling process crashes.
-/// If you wish an error to be returned instead see the `try_call_forever`
-/// function.
-///
-pub fn call_forever(
-  subject: Subject(request),
-  make_request: fn(Subject(response)) -> request,
-) -> response {
-  let assert Ok(response) = try_call_forever(subject, make_request)
-  response
-}
-
-// TODO: remove?
+// TODO: documentation
+// TODO: documentation: panics
 /// Similar to the `try_call` function but will wait forever for a message
 /// to arrive rather than timing out after a specified amount of time.
 ///
 /// If the receiving process exits then an error is returned.
 ///
-pub fn try_call_forever(
-  subject: Subject(request),
-  make_request: fn(Subject(response)) -> request,
-) -> Result(response, CallError(c)) {
-  let reply_subject = new_subject()
-
-  // Monitor the callee process so we can tell if it goes down (meaning we
-  // won't get a reply)
-  let monitor =
-    monitor_process(case subject_owner(subject) {
-      Ok(pid) -> pid
-      Error(_) -> todo
-    })
-
-  // Send the request to the process over the channel
-  send(subject, make_request(reply_subject))
-
-  // Await a reply or handle failure modes (timeout, process down, etc)
-  let result =
-    new_selector()
-    |> selecting(reply_subject, Ok)
-    |> selecting_process_down(monitor, fn(down) {
-      Error(CalleeDown(reason: down.reason))
-    })
-    |> select_forever
-
-  // Demonitor the process and close the channels as we're done
-  demonitor_process(monitor)
-
-  result
+pub fn call_forever(
+  subject: Subject(message),
+  make_request: fn(Subject(reply)) -> message,
+) -> reply {
+  perform_call(subject, make_request, fn(s) { Ok(select_forever(s)) })
 }
 
 /// Creates a link between the calling process and another process.
@@ -891,8 +822,6 @@ pub fn send_abnormal_exit(pid: Pid, reason: String) -> Nil {
 @external(erlang, "gleam_erlang_ffi", "trap_exits")
 pub fn trap_exits(a: Bool) -> Nil
 
-// TODO: changelog
-// TODO: review design
 /// Register a process under a given name, allowing it to be looked up using
 /// the `named` function.
 ///
@@ -900,13 +829,10 @@ pub fn trap_exits(a: Bool) -> Nil
 /// - The process for the pid no longer exists.
 /// - The name has already been registered.
 /// - The process already has a name.
-/// - The name is the atom `undefined`, which is reserved by Erlang.
 ///
 @external(erlang, "gleam_erlang_ffi", "register_process")
 pub fn register(pid: Pid, name: Name(message)) -> Result(Nil, Nil)
 
-// TODO: changelog
-// TODO: review design
 /// Un-register a process name, after which the process can no longer be looked
 /// up by that name, and both the name and the process can be re-used in other
 /// registrations.
@@ -918,7 +844,7 @@ pub fn register(pid: Pid, name: Name(message)) -> Result(Nil, Nil)
 @external(erlang, "gleam_erlang_ffi", "unregister_process")
 pub fn unregister(name: Name(message)) -> Result(Nil, Nil)
 
-/// Look up a process by name, returning the pid if it exists.
+/// Look up a process by registered name, returning the pid if it exists.
 ///
 @external(erlang, "gleam_erlang_ffi", "process_named")
-pub fn named(name: Atom) -> Result(Pid, Nil)
+pub fn named(name: Name(a)) -> Result(Pid, Nil)
