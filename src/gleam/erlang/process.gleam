@@ -72,8 +72,8 @@ pub opaque type Subject(message) {
   NamedSubject(name: Name(message))
 }
 
-/// A name an identity that a process can adopt, after which they will receive
-/// messages sent to that name. This has two main advantages;
+/// A name is an identity that a process can adopt, after which they will receive
+/// messages sent to that name. This has two main advantages:
 ///
 /// - Structuring OTP programs becomes easier as a name can be passed down the
 ///   program from the top level, while without names subjects and pids would
@@ -87,7 +87,7 @@ pub opaque type Subject(message) {
 /// name can be registered by at most 1 process. Create all the names your
 /// program needs at the start of your program and pass them down. Names are
 /// Erlang atoms internally, so never create them dynamically. Generating too
-/// many atoms will result in the atom getting filled and crashing the entire
+/// many atoms will result in the atom table getting filled and causing the entire
 /// virtual machine to crash.
 ///
 /// The most commonly used name functions are `new_name`, `register`, and
@@ -106,7 +106,7 @@ pub type Name(message)
 /// within a process within a supervision tree.
 ///
 /// Each time this function is called a new atom will be generated. Generating
-/// too many atoms will result in the atom getting filled and crashing the
+/// too many atoms will result in the atom table getting filled and causing the
 /// entire virtual machine to crash.
 ///
 @external(erlang, "gleam_erlang_ffi", "new_name")
@@ -148,6 +148,11 @@ fn raw_send(a: Pid, b: message) -> DoNotLeak
 /// This function does not wait for the `Subject` owner process to call the
 /// `receive` function, instead it returns once the message has been placed in
 /// the process' mailbox.
+/// 
+/// # Named Subjects
+/// 
+/// If this function is called on a named subject for which a process has not been 
+/// registered, it will simply drop the message as there's no mailbox to send it to.
 ///
 /// # Ordering
 ///

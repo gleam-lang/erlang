@@ -17,7 +17,7 @@
   - The `start` function has been replaced by the `spawn` and `spawn_unlinked`
     functions.
   - The `subject_owner` function now returns a result as a named subject may not
-    any process registered for that name.
+    have any process registered for that name.
 - In the `gleam/erlang/node` module:
   - The `send` function now sends messages in the same format as the `send`
     process from the `gleam/erlang/process` module.
