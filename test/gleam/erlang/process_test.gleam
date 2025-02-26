@@ -1,5 +1,6 @@
 import gleam/dynamic
 import gleam/dynamic/decode.{DecodeError}
+import gleam/erlang/atom
 import gleam/erlang/process.{ProcessDown}
 import gleam/float
 import gleam/function
@@ -533,35 +534,33 @@ pub fn flush_messages_test() {
   let assert Error(Nil) = process.receive(subject, 0)
 }
 
-// TODO: re-add tests
-//
-// pub fn register_name_taken_test() {
-//   let taken_name = atom.create("code_server")
-//   let assert Ok(a) = process.named(taken_name)
-//   let assert Error(Nil) = process.register(process.self(), taken_name)
-//   let assert Ok(b) = process.named(taken_name)
-//   let assert True = a == b
-// }
-//
-// pub fn register_name_test() {
-//   let name = atom.create("register_name_test_name")
-//   let _ = process.unregister(name)
-//   let assert Error(Nil) = process.named(name)
-//   let assert Ok(Nil) = process.register(process.self(), name)
-//   let assert Ok(pid) = process.named(name)
-//   let assert True = pid == process.self()
-//   let _ = process.unregister(name)
-// }
-//
-// pub fn unregister_name_test() {
-//   let name = atom.create("unregister_name_test_name")
-//   let _ = process.unregister(name)
-//   let assert Ok(Nil) = process.register(process.self(), name)
-//   let assert Ok(_) = process.named(name)
-//   let assert Ok(Nil) = process.unregister(name)
-//   let assert Error(Nil) = process.named(name)
-//   let _ = process.unregister(name)
-// }
+pub fn register_name_taken_test() {
+  let taken_name = unsafe_coerce(dynamic.from(atom.create("code_server")))
+  let assert Ok(a) = process.named(taken_name)
+  let assert Error(Nil) = process.register(process.self(), taken_name)
+  let assert Ok(b) = process.named(taken_name)
+  let assert True = a == b
+}
+
+pub fn register_name_test() {
+  let name = process.new_name()
+  let _ = process.unregister(name)
+  let assert Error(Nil) = process.named(name)
+  let assert Ok(Nil) = process.register(process.self(), name)
+  let assert Ok(pid) = process.named(name)
+  let assert True = pid == process.self()
+  let _ = process.unregister(name)
+}
+
+pub fn unregister_name_test() {
+  let name = process.new_name()
+  let _ = process.unregister(name)
+  let assert Ok(Nil) = process.register(process.self(), name)
+  let assert Ok(_) = process.named(name)
+  let assert Ok(Nil) = process.unregister(name)
+  let assert Error(Nil) = process.named(name)
+  let _ = process.unregister(name)
+}
 
 pub fn deselecting_test() {
   let subject1 = process.new_subject()
