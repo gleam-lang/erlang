@@ -72,14 +72,48 @@ pub opaque type Subject(message) {
   NamedSubject(name: Name(message))
 }
 
-// TODO: documentation
+/// A name an identity that a process can adopt, after which they will receive
+/// messages sent to that name. This has two main advantages;
+///
+/// - Structuring OTP programs becomes easier as a name can be passed down the
+///   program from the top level, while without names subjects and pids would
+///   need to be passed up from the started process and then back down to the
+///   code that works with that process.
+/// - A new process can adopt the name of one that previously failed, allowing
+///   it to transparently take-over and handle messages that are sent to that
+///   name.
+///
+/// Names are globally unique at each process can have at most 1 name, and each
+/// name can be registered by at most 1 process. Create all the names your
+/// program needs at the start of your program and pass them down. Names are
+/// Erlang atoms internally, so never create them dynamically. Generating too
+/// many atoms will result in the atom getting filled and crashing the entire
+/// virtual machine to crash.
+///
+/// The most commonly used name functions are `new_name`, `register`, and
+/// `named_subject`.
+///
 pub type Name(message)
 
-// TODO: documentation
+/// Generate a new name that a process can register itself with using the
+/// `register` function, and other processes can send messages to using
+/// `named_subject`.
+///
+/// ## Safe use
+///
+/// Use this function to create all the processes your program needs when it
+/// starts. **Never call this function dynamically** such as within a loop or
+/// within a process within a supervision tree.
+///
+/// Each time this function is called a new atom will be generated. Generating
+/// too many atoms will result in the atom getting filled and crashing the
+/// entire virtual machine to crash.
+///
 @external(erlang, "gleam_erlang_ffi", "new_name")
 pub fn new_name() -> Name(message)
 
-// TODO: documentation
+/// Create a subject for a name, which can be used to send and receive messages.
+///
 pub fn named_subject(name: Name(message)) -> Subject(message) {
   NamedSubject(name)
 }
