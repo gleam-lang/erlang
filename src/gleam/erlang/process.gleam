@@ -29,7 +29,7 @@ pub fn self() -> Pid
 /// [1]: https://www.erlang.org/doc/reference_manual/processes.html
 ///
 @external(erlang, "erlang", "spawn_link")
-pub fn spawn(a: fn() -> anything) -> Pid
+pub fn spawn(running: fn() -> anything) -> Pid
 
 /// Create a new Erlang process that runs concurrently to the creator. In other
 /// languages this might be called a fibre, a green thread, or a coroutine.
@@ -83,7 +83,7 @@ pub opaque type Subject(message) {
 ///   it to transparently take-over and handle messages that are sent to that
 ///   name.
 ///
-/// Names are globally unique at each process can have at most 1 name, and each
+/// Names are globally unique as each process can have at most 1 name, and each
 /// name can be registered by at most 1 process. Create all the names your
 /// program needs at the start of your program and pass them down. Names are
 /// Erlang atoms internally, so never create them dynamically. Generating too
@@ -101,7 +101,7 @@ pub type Name(message)
 ///
 /// ## Safe use
 ///
-/// Use this function to create all the processes your program needs when it
+/// Use this function to create all the names your program needs when it
 /// starts. **Never call this function dynamically** such as within a loop or
 /// within a process within a supervision tree.
 ///
