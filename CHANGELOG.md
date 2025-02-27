@@ -19,10 +19,10 @@
   - The `subject_owner` function now returns a result as a named subject may not
     have any process registered for that name.
 - In the `gleam/erlang/node` module:
-  - The `send` function now sends messages in the same format as the `send`
-    process from the `gleam/erlang/process` module.
-  - The `send` function now accepts a `Name` rather than an `Atom`.
   - The `to_atom` function has been removed.
+  - The `send` function has been removed.
+  - The `untyped_send` function has been added. It sends messages in the same
+    format as the `send` process from the `gleam/erlang/process` module.
 - The `gleam/erlang/reference` module has been created with:
   - The `Reference` type.
   - The `new` function.
@@ -34,8 +34,6 @@
   - The error type of `from_string` is now `Nil`.
   - The `from_string` function has been renamed to `get`.
   - The `create_from_string` function has been renamed to `create`.
-- In the `gleam/erlang/node` module:
-  - The `send` function has been renamed to `untyped_send`.
 - The `gleam/erlang` module has been removed.
 - The `gleam/erlang/os` module has been removed.
 
