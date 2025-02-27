@@ -5,6 +5,8 @@
 
 import gleam/erlang/node.{type Node}
 
+/// The Erlang/OTP application `start` callback takes a start-type as an
+/// argument, indicating the context in which the application is being started.
 pub type StartType {
   /// A normal application start.
   Normal
