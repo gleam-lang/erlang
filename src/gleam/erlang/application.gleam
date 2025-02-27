@@ -13,8 +13,8 @@ pub type StartType {
   /// function has been called, or because the current node has higher priority
   /// than the previous node.
   Takeover(previous: Node)
-  // The application is distributed and started at the current node because of
-  // a failover from the previous node.
+  /// The application is distributed and started at the current node because of
+  /// a failover from the previous node.
   Failover(previous: Node)
 }
 
