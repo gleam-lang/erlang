@@ -2,34 +2,17 @@
 
 A library for making use of Erlang specific code!
 
-## Features
-
-- Typed Erlang processes and message sending.
-- Erlang binary format (de)serialisation.
-- Functions for working with Erlang's charlists.
-- Basic distributed Erlang support and working with nodes.
-- Reading and writing of environment variables.
-- Functions for working with atoms.
-
-## Usage
-
-Add this library to your Gleam project
-
 ```shell
-gleam add gleam_erlang
+gleam add gleam_erlang@1
 ```
-
-And then use it in your code
-
 ```gleam
 import gleam/io
 import gleam/erlang/process
 
 pub fn main() {
-  let fun = fn() { 
+  process.spawn(fn() { 
     io.println("Hello from another process running concurrently!")
-  }
-  process.start(fun, True)
+  })
 }
 ```
 
