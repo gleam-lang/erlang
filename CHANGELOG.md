@@ -18,6 +18,8 @@
     functions.
   - The `subject_owner` function now returns a result as a named subject may not
     have any process registered for that name.
+  - The `selecting_record*` functions have been replaced by the
+    `selecting_record` function.
 - In the `gleam/erlang/node` module:
   - The `to_atom` function has been removed.
   - The `send` function has been removed.

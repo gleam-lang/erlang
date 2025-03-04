@@ -247,6 +247,7 @@ fn send(a: process.Pid, b: anything) -> Nil
 
 pub fn selecting_record_test() {
   send(process.self(), #("a", 1))
+  send(process.self(), #("a", 1, 2))
   send(process.self(), #("b", 2, 3))
   send(process.self(), #("c", 4, 5, 6))
   send(process.self(), #("d", 7, 8, 9, 10))
@@ -257,90 +258,65 @@ pub fn selecting_record_test() {
 
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record2("h", unsafe_coerce)
+    |> process.selecting_record("h", 1, unsafe_coerce)
     |> process.select(0)
 
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record2("c", unsafe_coerce)
+    |> process.selecting_record("c", 1, unsafe_coerce)
     |> process.select(0)
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record2("c", unsafe_coerce)
+    |> process.selecting_record("c", 1, unsafe_coerce)
     |> process.select(0)
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record3("c", fn(a, b) {
-      #(unsafe_coerce(a), unsafe_coerce(b))
-    })
+    |> process.selecting_record("c", 2, unsafe_coerce)
     |> process.select(0)
 
-  let assert Ok(#(22, 23, 24, 25, 26, 27, 28)) =
+  let assert Ok(#("g", 22, 23, 24, 25, 26, 27, 28)) =
     process.new_selector()
-    |> process.selecting_record8("g", fn(a, b, c, d, e, f, g) {
-      #(
-        unsafe_coerce(a),
-        unsafe_coerce(b),
-        unsafe_coerce(c),
-        unsafe_coerce(d),
-        unsafe_coerce(e),
-        unsafe_coerce(f),
-        unsafe_coerce(g),
-      )
-    })
+    |> process.selecting_record("g", 7, unsafe_coerce)
     |> process.select(0)
 
-  let assert Ok(#(16, 17, 18, 19, 20, 21)) =
+  let assert Ok(#("f", 16, 17, 18, 19, 20, 21)) =
     process.new_selector()
-    |> process.selecting_record7("f", fn(a, b, c, d, e, f) {
-      #(
-        unsafe_coerce(a),
-        unsafe_coerce(b),
-        unsafe_coerce(c),
-        unsafe_coerce(d),
-        unsafe_coerce(e),
-        unsafe_coerce(f),
-      )
-    })
+    |> process.selecting_record("f", 6, unsafe_coerce)
     |> process.select(0)
 
-  let assert Ok(#(11, 12, 13, 14, 15)) =
+  let assert Ok(#("e", 11, 12, 13, 14, 15)) =
     process.new_selector()
-    |> process.selecting_record6("e", fn(a, b, c, d, e) {
-      #(
-        unsafe_coerce(a),
-        unsafe_coerce(b),
-        unsafe_coerce(c),
-        unsafe_coerce(d),
-        unsafe_coerce(e),
-      )
-    })
+    |> process.selecting_record("e", 5, unsafe_coerce)
     |> process.select(0)
 
-  let assert Ok(#(7, 8, 9, 10)) =
+  let assert Ok(#("d", 7, 8, 9, 10)) =
     process.new_selector()
-    |> process.selecting_record5("d", fn(a, b, c, d) {
-      #(unsafe_coerce(a), unsafe_coerce(b), unsafe_coerce(c), unsafe_coerce(d))
-    })
+    |> process.selecting_record("d", 4, unsafe_coerce)
     |> process.select(0)
 
-  let assert Ok(#(4, 5, 6)) =
+  let assert Ok(#("c", 4, 5, 6)) =
     process.new_selector()
-    |> process.selecting_record4("c", fn(a, b, c) {
-      #(unsafe_coerce(a), unsafe_coerce(b), unsafe_coerce(c))
-    })
+    |> process.selecting_record("c", 3, unsafe_coerce)
     |> process.select(0)
 
-  let assert Ok(#(2, 3)) =
+  let assert Ok(#("b", 2, 3)) =
     process.new_selector()
-    |> process.selecting_record3("b", fn(a, b) {
-      #(unsafe_coerce(a), unsafe_coerce(b))
-    })
+    |> process.selecting_record("b", 2, unsafe_coerce)
     |> process.select(0)
 
-  let assert Ok(1) =
+  let assert Ok(#("a", 1)) =
     process.new_selector()
-    |> process.selecting_record2("a", unsafe_coerce)
+    |> process.selecting_record("a", 1, unsafe_coerce)
+    |> process.select(0)
+
+  let assert Error(Nil) =
+    process.new_selector()
+    |> process.selecting_record("a", 1, unsafe_coerce)
+    |> process.select(0)
+
+  let assert Ok(#("a", 1, 2)) =
+    process.new_selector()
+    |> process.selecting_record("a", 2, unsafe_coerce)
     |> process.select(0)
 }
 
