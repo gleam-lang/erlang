@@ -155,7 +155,7 @@ pub fn monitor_test() {
   let monitor = process.monitor(pid)
   let selector =
     process.new_selector()
-    |> process.selecting_process_down(monitor, fn(x) { x })
+    |> process.selecting_monitors(fn(x) { x })
 
   // There is no monitor message while the child is alive
   let assert Error(Nil) = process.select(selector, 0)
@@ -165,9 +165,51 @@ pub fn monitor_test() {
   process.send(child_subject, Nil)
 
   // We get a process down message!
-  let assert Ok(ProcessDown(downed_pid, _reason)) = process.select(selector, 50)
+  let assert Ok(ProcessDown(downed_monitor, downed_pid, _reason)) =
+    process.select(selector, 50)
 
   let assert True = downed_pid == pid
+  let assert True = downed_monitor == monitor
+}
+
+pub fn monitor_specific_test() {
+  let parent_subject = process.new_subject()
+  let spawn = fn() {
+    process.spawn_unlinked(fn() {
+      let subject = process.new_subject()
+      process.send(parent_subject, subject)
+      // Wait for the parent to send a message before exiting
+      process.receive(subject, 150)
+    })
+  }
+  // Spawn child
+  let pid1 = spawn()
+  let pid2 = spawn()
+
+  // Monitor children
+  let monitor1 = process.monitor(pid1)
+  let _monitor2 = process.monitor(pid2)
+  let selector =
+    process.new_selector()
+    |> process.selecting_specific_monitor(monitor1, fn(x) { x })
+
+  // There is no monitor message while the child is alive
+  let assert Error(Nil) = process.select(selector, 0)
+
+  // Shutdown child to trigger monitor
+  let assert Ok(child_subject) = process.receive(parent_subject, 50)
+  process.send(child_subject, Nil)
+
+  // We get a process down message!
+  let assert Ok(ProcessDown(downed_monitor, downed_pid, _reason)) =
+    process.select(selector, 50)
+
+  let assert True = downed_pid == pid1
+  let assert True = downed_monitor == monitor1
+
+  // We don't get the other one if we select again as the selector doesn't
+  // include it
+  let assert Error(Nil) = process.select(selector, 50)
 }
 
 pub fn demonitor_test() {
@@ -186,7 +228,7 @@ pub fn demonitor_test() {
   let empty_selector = process.new_selector()
   let selector =
     empty_selector
-    |> process.selecting_process_down(monitor, fn(x) { x })
+    |> process.selecting_specific_monitor(monitor, fn(x) { x })
 
   // Shutdown child to trigger monitor
   let assert Ok(child_subject) = process.receive(parent_subject, 50)
@@ -200,7 +242,7 @@ pub fn demonitor_test() {
 
   // Remove monitor from selector
   let assert True =
-    empty_selector == selector |> process.deselecting_process_down(monitor)
+    empty_selector == selector |> process.deselecting_specific_monitor(monitor)
 }
 
 pub fn call_test() {
