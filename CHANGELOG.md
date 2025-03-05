@@ -20,6 +20,13 @@
     have any process registered for that name.
   - The `selecting_record*` functions have been replaced by the
     `selecting_record` function.
+  - The `ProcessDown` type has been removed.
+  - The `Down` type has been added.
+  - The `selecting_monitors` function has been added.
+  - The `selecting_specific_monitor` function has been added.
+  - The `deselecting_specific_monitor` function has been added.
+  - The `selecting_process_down` function has been removed.
+  - The `deselecting_process_down` function has been removed.
 - In the `gleam/erlang/node` module:
   - The `to_atom` function has been removed.
   - The `send` function has been removed.

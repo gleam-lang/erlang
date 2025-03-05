@@ -4,7 +4,8 @@
     link/1, insert_selector_handler/3, remove_selector_handler/2, select/1,
     select/2, trap_exits/1, map_selector/2, merge_selector/2, flush_messages/0,
     priv_directory/1, connect_node/1, register_process/2, unregister_process/1,
-    process_named/1, identity/1, 'receive'/1, 'receive'/2, new_name/0
+    process_named/1, identity/1, 'receive'/1, 'receive'/2, new_name/0,
+    cast_down_message/1
 ]).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, nil}.
@@ -52,9 +53,9 @@ select({selector, Handlers}, Timeout) ->
         % Monitored process down messages.
         % This is special cased so we can selectively receive based on the
         % reference as well as the record tag.
-        {'DOWN', Ref, process, Pid, Reason} when is_map_key(Ref, Handlers) ->
+        {'DOWN', Ref, _, _, _} = Message when is_map_key(Ref, Handlers) ->
             Fn = maps:get(Ref, Handlers),
-            {ok, Fn({process_down, Pid, Reason})};
+            {ok, Fn(cast_down_message(Message))};
 
         Msg when is_map_key({element(1, Msg), tuple_size(Msg)}, Handlers) ->
             Fn = maps:get({element(1, Msg), tuple_size(Msg)}, Handlers),
@@ -65,6 +66,12 @@ select({selector, Handlers}, Timeout) ->
     after Timeout ->
         {error, nil}
     end.
+
+cast_down_message({'DOWN', Ref, process, Pid, Reason}) ->
+    {process_down, Ref, Pid, Reason};
+cast_down_message({'DOWN', Ref, port, Pid, Reason}) ->
+    {port_down, Ref, Pid, Reason}.
+    
 
 'receive'({subject, _Pid, Ref}) ->
     receive
@@ -88,7 +95,7 @@ select({selector, Handlers}, Timeout) ->
         {error, nil}
     end.
 
-demonitor({_, Reference}) ->
+demonitor(Reference) ->
     erlang:demonitor(Reference, [flush]).
 
 link(Pid) ->

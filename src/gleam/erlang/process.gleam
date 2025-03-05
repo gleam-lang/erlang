@@ -1,6 +1,7 @@
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/erlang/atom.{type Atom}
+import gleam/erlang/port.{type Port}
 import gleam/erlang/reference.{type Reference}
 import gleam/function
 import gleam/string
@@ -447,16 +448,15 @@ type ProcessMonitorFlag {
 }
 
 @external(erlang, "erlang", "monitor")
-fn erlang_monitor_process(a: ProcessMonitorFlag, b: Pid) -> Reference
+fn erlang_monitor_process(a: ProcessMonitorFlag, b: Pid) -> Monitor
 
-pub opaque type ProcessMonitor {
-  ProcessMonitor(tag: Reference)
-}
+pub type Monitor
 
 /// A message received when a monitored process exits.
 ///
-pub type ProcessDown {
-  ProcessDown(pid: Pid, reason: Dynamic)
+pub type Down {
+  ProcessDown(monitor: Monitor, pid: Pid, reason: Dynamic)
+  PortDown(monitor: Monitor, port: Port, reason: Dynamic)
 }
 
 /// Start monitoring a process so that when the monitored process exits a
@@ -466,44 +466,63 @@ pub type ProcessDown {
 /// process was not alive when this function is called the message will never
 /// be received.
 ///
-/// The down message can be received with a `Selector` and the
-/// `selecting_process_down` function.
+/// The down message can be received with a selector and the
+/// `selecting_monitors` function.
 ///
 /// The process can be demonitored with the `demonitor_process` function.
 ///
-pub fn monitor(pid: Pid) -> ProcessMonitor {
-  Process
-  |> erlang_monitor_process(pid)
-  |> ProcessMonitor
+pub fn monitor(pid: Pid) -> Monitor {
+  erlang_monitor_process(Process, pid)
 }
 
-// TODO: work out how to select any process down rather than specific ones
-/// Add a `ProcessMonitor` to a `Selector` so that the `ProcessDown` message can
-/// be received using the `Selector` and the `select` function. The
-/// `ProcessMonitor` can be removed later with
-/// [`deselecting_process_down`](#deselecting_process_down).
+/// Select for a message sent for a given monitor.
 ///
-pub fn selecting_process_down(
+/// Each monitor handler added to a selector has a selecting performance cost,
+/// so prefer [`selecting_monitors`](#selecting_monitors) if you are selecting
+/// for multiple monitors.
+///
+/// The handler can be removed from the selector later using
+/// [`deselecting_specific_monitor`](#deselecting_specific_monitor).
+///
+pub fn selecting_specific_monitor(
   selector: Selector(payload),
-  monitor: ProcessMonitor,
-  mapping: fn(ProcessDown) -> payload,
+  monitor: Monitor,
+  mapping: fn(Down) -> payload,
 ) -> Selector(payload) {
-  insert_selector_handler(selector, monitor.tag, mapping)
+  insert_selector_handler(selector, monitor, mapping)
 }
+
+/// Select for any messages sent for any monitors set up by the selecting process.
+///
+/// If you want to select for a specific message then use 
+/// [`selecting_specific_monitor`](#selecting_specific_monitor), but this
+/// function is preferred if you need to select for multiple monitors.
+///
+pub fn selecting_monitors(
+  selector: Selector(payload),
+  mapping: fn(Down) -> payload,
+) -> Selector(payload) {
+  insert_selector_handler(selector, #(atom.create("DOWN"), 5), fn(message) {
+    mapping(cast_down_message(message))
+  })
+}
+
+@external(erlang, "gleam_erlang_ffi", "cast_down_message")
+fn cast_down_message(message: Dynamic) -> Down
 
 /// Remove the monitor for a process so that when the monitor process exits a
-/// `ProcessDown` message is not sent to the monitoring process.
+/// `Down` message is not sent to the monitoring process.
 ///
 /// If the message has already been sent it is removed from the monitoring
 /// process' mailbox.
 ///
-pub fn demonitor_process(monitor monitor: ProcessMonitor) -> Nil {
+pub fn demonitor_process(monitor monitor: Monitor) -> Nil {
   erlang_demonitor_process(monitor)
   Nil
 }
 
 @external(erlang, "gleam_erlang_ffi", "demonitor")
-fn erlang_demonitor_process(monitor: ProcessMonitor) -> DoNotLeak
+fn erlang_demonitor_process(monitor: Monitor) -> DoNotLeak
 
 /// An error returned when making a call to a process.
 ///
@@ -518,15 +537,16 @@ pub type CallError(msg) {
   CallTimeout
 }
 
-/// Remove a `ProcessMonitor` from a `Selector` prevoiusly added by
-/// [`selecting_process_down`](#selecting_process_down). If the `ProcessMonitor` is not in the
-/// `Selector` it will be returned unchanged.
+/// Remove a `Monitor` from a `Selector` prevoiusly added by
+/// [`selecting_specific_monitor`](#selecting_specific_monitor). If
+/// the `Monitor` is not in the `Selector` it will be returned
+/// unchanged.
 ///
-pub fn deselecting_process_down(
+pub fn deselecting_specific_monitor(
   selector: Selector(payload),
-  monitor: ProcessMonitor,
+  monitor: Monitor,
 ) -> Selector(payload) {
-  remove_selector_handler(selector, monitor.tag)
+  remove_selector_handler(selector, monitor)
 }
 
 fn perform_call(
@@ -549,7 +569,7 @@ fn perform_call(
   let reply =
     new_selector()
     |> selecting(reply_subject, function.identity)
-    |> selecting_process_down(monitor, fn(down) {
+    |> selecting_specific_monitor(monitor, fn(down) {
       panic as { "callee exited: " <> string.inspect(down) }
     })
     |> run_selector
