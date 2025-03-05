@@ -1,8 +1,16 @@
+//// Multiple Erlang VM instances can form a cluster to make a distributed
+//// Erlang system, talking directly to each other using messages rather than
+//// other communication protocols like HTTP. In a distributed Erlang system
+//// each virtual machine is called a _node_. This module provides Node related
+//// types and functions to be used as a foundation by other packages providing
+//// more specialised functionality.
+////
+//// For more information on distributed Erlang systems see the Erlang
+//// documentation: <https://www.erlang.org/doc/system/distributed.html>.
+
 import gleam/erlang/atom.{type Atom}
 
 pub type Node
-
-type DoNotLeak
 
 /// Return the current node.
 ///
@@ -42,20 +50,3 @@ pub type ConnectError {
 ///
 @external(erlang, "gleam_erlang_ffi", "connect_node")
 pub fn connect(node: Atom) -> Result(Node, ConnectError)
-
-// TODO: test
-/// Send a message to a named process on a given node. There is no type-system
-/// guarentee that the receiving process expects messages of the type being
-/// sent, so be careful when using this function.
-///
-/// This function sends messages in the same format as the send function in the
-/// process module, so messages sent using it can be received as normal using
-/// subjects and selectors.
-///
-pub fn untyped_send(node: Node, name: Atom, message: message) -> Nil {
-  raw_send(#(name, node), #(name, message))
-  Nil
-}
-
-@external(erlang, "erlang", "send")
-fn raw_send(receiver: #(Atom, Node), message: #(Atom, message)) -> DoNotLeak

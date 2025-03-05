@@ -23,8 +23,6 @@
 - In the `gleam/erlang/node` module:
   - The `to_atom` function has been removed.
   - The `send` function has been removed.
-  - The `untyped_send` function has been added. It sends messages in the same
-    format as the `send` process from the `gleam/erlang/process` module.
 - The `gleam/erlang/reference` module has been created with:
   - The `Reference` type.
   - The `new` function.
