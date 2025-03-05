@@ -14,6 +14,7 @@
   - The `named` function now takes a name rather than an atom.
   - The `try_call` and `try_call_forever` functions have been removed in favour
     of `call` and `call_forever`.
+  - The `CallError` type has been removed.
   - The `start` function has been replaced by the `spawn` and `spawn_unlinked`
     functions.
   - The `subject_owner` function now returns a result as a named subject may not
@@ -27,6 +28,7 @@
   - The `deselecting_specific_monitor` function has been added.
   - The `selecting_process_down` function has been removed.
   - The `deselecting_process_down` function has been removed.
+  - The `Abnormal` variant of the `ExitReason` type now holds a `Dynamic`.
 - In the `gleam/erlang/node` module:
   - The `to_atom` function has been removed.
   - The `send` function has been removed.

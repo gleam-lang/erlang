@@ -300,7 +300,7 @@ pub type ExitMessage {
 pub type ExitReason {
   Normal
   Killed
-  Abnormal(reason: String)
+  Abnormal(reason: Dynamic)
 }
 
 /// Add a handler for trapped exit messages. In order for these messages to be
@@ -313,16 +313,7 @@ pub fn selecting_trapped_exits(
 ) -> Selector(a) {
   let tag = atom.create("EXIT")
   let handler = fn(message: #(Atom, Pid, Dynamic)) -> a {
-    let reason = message.2
-    let normal = dynamic.from(Normal)
-    let killed = dynamic.from(Killed)
-    let reason = case decode.run(reason, decode.string) {
-      _ if reason == normal -> Normal
-      _ if reason == killed -> Killed
-      Ok(reason) -> Abnormal(reason)
-      Error(_) -> Abnormal(string.inspect(reason))
-    }
-    handler(ExitMessage(message.1, reason))
+    handler(ExitMessage(message.1, cast_exit_reason(message.2)))
   }
   insert_selector_handler(selector, #(tag, 3), handler)
 }
@@ -455,8 +446,8 @@ pub type Monitor
 /// A message received when a monitored process exits.
 ///
 pub type Down {
-  ProcessDown(monitor: Monitor, pid: Pid, reason: Dynamic)
-  PortDown(monitor: Monitor, port: Port, reason: Dynamic)
+  ProcessDown(monitor: Monitor, pid: Pid, reason: ExitReason)
+  PortDown(monitor: Monitor, port: Port, reason: ExitReason)
 }
 
 /// Start monitoring a process so that when the monitored process exits a
@@ -510,6 +501,9 @@ pub fn selecting_monitors(
 @external(erlang, "gleam_erlang_ffi", "cast_down_message")
 fn cast_down_message(message: Dynamic) -> Down
 
+@external(erlang, "gleam_erlang_ffi", "cast_exit_reason")
+fn cast_exit_reason(message: Dynamic) -> ExitReason
+
 /// Remove the monitor for a process so that when the monitor process exits a
 /// `Down` message is not sent to the monitoring process.
 ///
@@ -523,19 +517,6 @@ pub fn demonitor_process(monitor monitor: Monitor) -> Nil {
 
 @external(erlang, "gleam_erlang_ffi", "demonitor")
 fn erlang_demonitor_process(monitor: Monitor) -> DoNotLeak
-
-/// An error returned when making a call to a process.
-///
-pub type CallError(msg) {
-  /// The process being called exited before it sent a response.
-  ///
-  CalleeDown(reason: Dynamic)
-
-  /// The process being called did not response within the permitted amount of
-  /// time.
-  ///
-  CallTimeout
-}
 
 /// Remove a `Monitor` from a `Selector` prevoiusly added by
 /// [`selecting_specific_monitor`](#selecting_specific_monitor). If
@@ -727,7 +708,7 @@ pub fn send_exit(to pid: Pid) -> Nil {
 /// [1]: http://erlang.org/doc/man/erlang.html#exit-2
 ///
 pub fn send_abnormal_exit(pid: Pid, reason: String) -> Nil {
-  erlang_send_exit(pid, Abnormal(reason))
+  erlang_send_exit(pid, dynamic.from(reason))
   Nil
 }
 

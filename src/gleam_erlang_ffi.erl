@@ -5,7 +5,7 @@
     select/2, trap_exits/1, map_selector/2, merge_selector/2, flush_messages/0,
     priv_directory/1, connect_node/1, register_process/2, unregister_process/1,
     process_named/1, identity/1, 'receive'/1, 'receive'/2, new_name/0,
-    cast_down_message/1
+    cast_down_message/1, cast_exit_reason/1
 ]).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, nil}.
@@ -67,10 +67,14 @@ select({selector, Handlers}, Timeout) ->
         {error, nil}
     end.
 
+cast_exit_reason(normal) -> normal;
+cast_exit_reason(killed) -> killed;
+cast_exit_reason(Other) -> {abnormal, Other}.
+
 cast_down_message({'DOWN', Ref, process, Pid, Reason}) ->
-    {process_down, Ref, Pid, Reason};
+    {process_down, Ref, Pid, cast_exit_reason(Reason)};
 cast_down_message({'DOWN', Ref, port, Pid, Reason}) ->
-    {port_down, Ref, Pid, Reason}.
+    {port_down, Ref, Pid, cast_exit_reason(Reason)}.
     
 
 'receive'({subject, _Pid, Ref}) ->
