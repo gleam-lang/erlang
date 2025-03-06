@@ -115,6 +115,9 @@ pub fn new_name() -> Name(message)
 
 /// Create a subject for a name, which can be used to send and receive messages.
 ///
+/// All subjects created for the same name behave identically and can be used
+/// interchangably.
+///
 pub fn named_subject(name: Name(message)) -> Subject(message) {
   NamedSubject(name)
 }
@@ -707,7 +710,7 @@ pub fn send_exit(to pid: Pid) -> Nil {
 ///
 /// [1]: http://erlang.org/doc/man/erlang.html#exit-2
 ///
-pub fn send_abnormal_exit(pid: Pid, reason: String) -> Nil {
+pub fn send_abnormal_exit(pid: Pid, reason: anything) -> Nil {
   erlang_send_exit(pid, dynamic.from(reason))
   Nil
 }
