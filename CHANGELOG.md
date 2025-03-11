@@ -44,7 +44,9 @@
   - The `from_string` function has been renamed to `get`.
   - The `create_from_string` function has been renamed to `create`.
 - The `gleam/erlang` module has been removed.
-- The `gleam/erlang/os` module has been removed.
+- The `gleam/erlang/os` module has been removed. The [input](https://github.com/bcpeinhardt/input)
+  and [envoy](https://github.com/lpil/envoy) packages may be a suitable
+  replacement.
 
 ## v0.34.0 - 2025-02-02
 
