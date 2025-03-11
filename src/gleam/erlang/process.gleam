@@ -162,6 +162,11 @@ fn raw_send(a: Pid, b: message) -> DoNotLeak
 /// If this function is called on a named subject for which a process has not been 
 /// registered, it will simply drop the message as there's no mailbox to send it to.
 ///
+/// # Panics
+///
+/// This function will panic when sending to a named subject if no process is
+/// currently registed under that name.
+///
 /// # Ordering
 ///
 /// If process P1 sends two messages to process P2 it is guaranteed that process
@@ -183,18 +188,13 @@ pub fn send(subject: Subject(message), message: message) -> Nil {
   case subject {
     Subject(pid, tag) -> {
       raw_send(pid, #(tag, message))
-      Nil
     }
     NamedSubject(name) -> {
-      case named(name) {
-        Ok(pid) -> {
-          raw_send(pid, #(name, message))
-          Nil
-        }
-        Error(_) -> Nil
-      }
+      let assert Ok(pid) = named(name) as "Sending to unregistered name"
+      raw_send(pid, #(name, message))
     }
   }
+  Nil
 }
 
 /// Receive a message that has been sent to current process using the `Subject`.
