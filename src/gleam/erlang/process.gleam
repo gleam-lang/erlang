@@ -100,6 +100,10 @@ pub type Name(message)
 /// `register` function, and other processes can send messages to using
 /// `named_subject`.
 ///
+/// The string argument is a prefix for the Erlang name. A unique suffix is
+/// added to the prefix to make the name, removing the possibility of name
+/// collisions.
+///
 /// ## Safe use
 ///
 /// Use this function to create all the names your program needs when it
@@ -111,7 +115,7 @@ pub type Name(message)
 /// entire virtual machine to crash.
 ///
 @external(erlang, "gleam_erlang_ffi", "new_name")
-pub fn new_name() -> Name(message)
+pub fn new_name(prefix prefix: String) -> Name(message)
 
 /// Create a subject for a name, which can be used to send and receive messages.
 ///

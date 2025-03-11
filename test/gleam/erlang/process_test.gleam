@@ -38,13 +38,13 @@ pub fn subject_owner_test() {
 pub fn new_name_test() {
   let assert 1000 =
     list.range(1, 1000)
-    |> list.map(fn(_) { process.new_name() })
+    |> list.map(fn(_) { process.new_name("name") })
     |> set.from_list
     |> set.size
 }
 
 pub fn subject_owner_named_test() {
-  let name = process.new_name()
+  let name = process.new_name("name")
   let subject = process.named_subject(name)
   let assert Ok(_) = process.register(process.self(), name)
   let assert True = process.subject_owner(subject) == Ok(process.self())
@@ -52,7 +52,7 @@ pub fn subject_owner_named_test() {
 }
 
 pub fn subject_owner_named_unregistered_test() {
-  let name = process.new_name()
+  let name = process.new_name("name")
   let subject = process.named_subject(name)
   let assert Error(Nil) = process.subject_owner(subject)
 }
@@ -605,7 +605,7 @@ pub fn register_name_taken_test() {
 }
 
 pub fn register_name_test() {
-  let name = process.new_name()
+  let name = process.new_name("name")
   let _ = process.unregister(name)
   let assert Error(Nil) = process.named(name)
   let assert Ok(Nil) = process.register(process.self(), name)
@@ -615,7 +615,7 @@ pub fn register_name_test() {
 }
 
 pub fn unregister_name_test() {
-  let name = process.new_name()
+  let name = process.new_name("name")
   let _ = process.unregister(name)
   let assert Ok(Nil) = process.register(process.self(), name)
   let assert Ok(_) = process.named(name)
@@ -646,7 +646,7 @@ pub fn deselecting_test() {
 }
 
 pub fn name_test() {
-  let name = process.new_name()
+  let name = process.new_name("name")
   let assert Ok(_) = process.register(process.self(), name)
   let subject = process.named_subject(name)
   process.send(subject, "Hello")

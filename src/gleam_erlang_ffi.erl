@@ -4,7 +4,7 @@
     link/1, insert_selector_handler/3, remove_selector_handler/2, select/1,
     select/2, trap_exits/1, map_selector/2, merge_selector/2, flush_messages/0,
     priv_directory/1, connect_node/1, register_process/2, unregister_process/1,
-    process_named/1, identity/1, 'receive'/1, 'receive'/2, new_name/0,
+    process_named/1, identity/1, 'receive'/1, 'receive'/2, new_name/1,
     cast_down_message/1, cast_exit_reason/1
 ]).
 
@@ -14,8 +14,10 @@ atom_from_string(S) ->
     catch error:badarg -> {error, nil}
     end.
 
-new_name() ->
-    list_to_atom("name" ++ integer_to_list(erlang:unique_integer([positive]))).
+new_name(Prefix) ->
+    Suffix = integer_to_binary(erlang:unique_integer([positive])),
+    Name = <<Prefix/bits, "$"/utf8, Suffix/bits>>,
+    binary_to_atom(Name).
 
 sleep(Microseconds) ->
     timer:sleep(Microseconds),
