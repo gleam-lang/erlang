@@ -283,7 +283,7 @@ pub fn call_test() {
   let assert Ok(call_subject) = process.receive(parent_subject, 50)
 
   // Call the child process and get a response.
-  let assert 2 = process.call(call_subject, fn(subject) { #(1, subject) }, 50)
+  let assert 2 = process.call(call_subject, 50, fn(subject) { #(1, subject) })
 }
 
 pub fn call_forever_test() {
