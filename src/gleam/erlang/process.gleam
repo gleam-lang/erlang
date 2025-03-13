@@ -379,6 +379,10 @@ pub fn deselecting(
 /// but this function may be useful if you need to receive messages sent from
 /// other BEAM languages that do not use the `Subject` type.
 ///
+/// This will not select messages sent via a subject even if the message has
+/// the same tag in the first position. This is because went a message is send
+/// via a subject a new tag is used that is unique and specific to that subject.
+///
 pub fn selecting_record(
   selector: Selector(payload),
   tag tag: tag,
@@ -574,6 +578,8 @@ fn perform_call(
 /// Send a message to a process and wait a given number of milliseconds for a
 /// reply.
 ///
+/// ## Panics
+///
 /// This function will panic under the following circumstances:
 /// - The callee process exited prior to sending a reply.
 /// - The callee process did not send a reply within the permitted amount of
@@ -581,15 +587,61 @@ fn perform_call(
 /// - The subject is a named subject but no process is registered with that
 ///   name.
 ///
+/// ## Examples
+///
+/// ```gleam
+/// pub type Message {
+///   // This message variant is to be used with `call`.
+///   // The `reply` field contains a subject that the reply message will be
+///   // sent over.
+///   SayHello(reply_to: Subject(String), name: String)
+/// }
+/// 
+/// // Typically we make public functions that hide the details of a process'
+/// // message-based API.
+/// pub fn say_hello(subject: Subject(Message), name: String) -> String {
+///   // The `SayHello` message constructor is given _partially applied_ with
+///   // all the arguments except the reply subject, which will be supplied by
+///   // the `call` function itself before sending the message.
+///   process.call(subject, 100, SayHello(_, name))
+/// }
+///
+/// // This is the message handling logic used by the process that owns the
+/// // subject, and so receives the messages. In a real project it would be
+/// // within a process or some higher level abstraction like an actor, but for
+/// // this demonstration that has been omitted.
+/// pub fn handle_message(message: Message) -> Nil {
+///   case message {
+///     SayHello(reply:, name:) -> {
+///       let data = "Hello, " <> name <> "!"
+///       // The reply subject is used to send the response back.
+///       // If the receiver process does not sent a reply in time then the
+///       // caller will crash.
+///       process.send(reply, data)
+///     }
+///   }
+/// }
+///
+/// // Here is what it looks like using the functional API to call the process.
+/// pub fn run(subject: Subject(Message)) {
+///   say_hello(subject, "Lucy")
+///   // -> "Hello, Lucy!"
+///   say_hello(subject, "Nubi")
+///   // -> "Hello, Nubi!"
+/// }
+/// ```
+///
 pub fn call(
   subject: Subject(message),
-  make_request: fn(Subject(reply)) -> message,
-  within timeout: Int,
+  waiting timeout: Int,
+  sending make_request: fn(Subject(reply)) -> message,
 ) -> reply {
   perform_call(subject, make_request, select(_, timeout))
 }
 
 /// Send a message to a process and wait for a reply.
+///
+/// # Panics
 ///
 /// This function will panic under the following circumstances:
 /// - The callee process exited prior to sending a reply.

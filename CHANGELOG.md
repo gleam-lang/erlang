@@ -29,6 +29,7 @@
   - The `selecting_process_down` function has been removed.
   - The `deselecting_process_down` function has been removed.
   - The `Abnormal` variant of the `ExitReason` type now holds a `Dynamic`.
+  - The argument ordering and labels of `call` have changed.
 - In the `gleam/erlang/node` module:
   - The `to_atom` function has been removed.
   - The `send` function has been removed.
