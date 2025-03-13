@@ -380,7 +380,7 @@ pub fn deselecting(
 /// other BEAM languages that do not use the `Subject` type.
 ///
 /// This will not select messages sent via a subject even if the message has
-/// the same tag in the first position. This is because went a message is send
+/// the same tag in the first position. This is because when a message is sent
 /// via a subject a new tag is used that is unique and specific to that subject.
 ///
 pub fn selecting_record(
