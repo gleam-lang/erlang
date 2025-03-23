@@ -1,5 +1,5 @@
 import gleam/dynamic
-import gleam/dynamic/decode.{DecodeError}
+import gleam/dynamic/decode
 import gleam/erlang/atom
 import gleam/erlang/process.{ProcessDown}
 import gleam/float
