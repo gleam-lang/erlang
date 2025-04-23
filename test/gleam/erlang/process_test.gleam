@@ -117,27 +117,27 @@ pub fn selector_test() {
 
   let selector =
     process.new_selector()
-    |> process.selecting(subject2, int.to_string)
-    |> process.selecting(subject3, float.to_string)
+    |> process.select_map(subject2, int.to_string)
+    |> process.select_map(subject3, float.to_string)
 
   // We can selectively receive messages for subjects 2 and 3, skipping the one
   // from subject 1 even though it is first in the mailbox.
-  let assert Ok("2") = process.select(selector, 0)
-  let assert Ok("3.0") = process.select(selector, 0)
-  let assert Error(Nil) = process.select(selector, 0)
+  let assert Ok("2") = process.selector_receive(selector, 0)
+  let assert Ok("3.0") = process.selector_receive(selector, 0)
+  let assert Error(Nil) = process.selector_receive(selector, 0)
 
   // More messages for subjects 2 and 3
   process.send(subject2, 2)
   process.send(subject3, 3.0)
 
   // Include subject 1 also
-  let selector = process.selecting(selector, subject1, fn(x) { x })
+  let selector = process.select(selector, subject1)
 
   // Now we get the message for subject 1 first as it is first in the mailbox
-  let assert Ok("1") = process.select(selector, 0)
-  let assert Ok("2") = process.select(selector, 0)
-  let assert Ok("3.0") = process.select(selector, 0)
-  let assert Error(Nil) = process.select(selector, 0)
+  let assert Ok("1") = process.selector_receive(selector, 0)
+  let assert Ok("2") = process.selector_receive(selector, 0)
+  let assert Ok("3.0") = process.selector_receive(selector, 0)
+  let assert Error(Nil) = process.selector_receive(selector, 0)
 }
 
 pub fn monitor_normal_exit_test() {
@@ -175,10 +175,10 @@ fn monitor_process_exit(terminating_with: fn() -> Nil) -> process.ExitReason {
   let monitor = process.monitor(pid)
   let selector =
     process.new_selector()
-    |> process.selecting_monitors(fn(x) { x })
+    |> process.select_monitors(fn(x) { x })
 
   // There is no monitor message while the child is alive
-  let assert Error(Nil) = process.select(selector, 0)
+  let assert Error(Nil) = process.selector_receive(selector, 0)
 
   // Terminate child to trigger monitor
   let assert Ok(child_subject) = process.receive(parent_subject, 50)
@@ -186,7 +186,7 @@ fn monitor_process_exit(terminating_with: fn() -> Nil) -> process.ExitReason {
 
   // We get a process down message!
   let assert Ok(ProcessDown(downed_monitor, downed_pid, reason)) =
-    process.select(selector, 50)
+    process.selector_receive(selector, 50)
 
   let assert True = downed_pid == pid
   let assert True = downed_monitor == monitor
@@ -213,10 +213,10 @@ pub fn monitor_specific_test() {
   let _monitor2 = process.monitor(pid2)
   let selector =
     process.new_selector()
-    |> process.selecting_specific_monitor(monitor1, fn(x) { x })
+    |> process.select_specific_monitor(monitor1, fn(x) { x })
 
   // There is no monitor message while the child is alive
-  let assert Error(Nil) = process.select(selector, 0)
+  let assert Error(Nil) = process.selector_receive(selector, 0)
 
   // Shutdown child to trigger monitor
   let assert Ok(child_subject) = process.receive(parent_subject, 50)
@@ -224,14 +224,14 @@ pub fn monitor_specific_test() {
 
   // We get a process down message!
   let assert Ok(ProcessDown(downed_monitor, downed_pid, _reason)) =
-    process.select(selector, 50)
+    process.selector_receive(selector, 50)
 
   let assert True = downed_pid == pid1
   let assert True = downed_monitor == monitor1
 
   // We don't get the other one if we select again as the selector doesn't
   // include it
-  let assert Error(Nil) = process.select(selector, 50)
+  let assert Error(Nil) = process.selector_receive(selector, 50)
 }
 
 pub fn demonitor_test() {
@@ -250,7 +250,7 @@ pub fn demonitor_test() {
   let empty_selector = process.new_selector()
   let selector =
     empty_selector
-    |> process.selecting_specific_monitor(monitor, fn(x) { x })
+    |> process.select_specific_monitor(monitor, fn(x) { x })
 
   // Shutdown child to trigger monitor
   let assert Ok(child_subject) = process.receive(parent_subject, 50)
@@ -260,11 +260,11 @@ pub fn demonitor_test() {
   process.demonitor_process(monitor)
 
   // There is no down message
-  let assert Error(Nil) = process.select(selector, 5)
+  let assert Error(Nil) = process.selector_receive(selector, 5)
 
   // Remove monitor from selector
   let assert True =
-    empty_selector == selector |> process.deselecting_specific_monitor(monitor)
+    empty_selector == selector |> process.deselect_specific_monitor(monitor)
 }
 
 pub fn call_test() {
@@ -309,7 +309,7 @@ pub fn call_forever_test() {
 @external(erlang, "erlang", "send")
 fn send(a: process.Pid, b: anything) -> Nil
 
-pub fn selecting_record_test() {
+pub fn select_record_test() {
   send(process.self(), #("a", 1))
   send(process.self(), #("a", 1, 2))
   send(process.self(), #("b", 2, 3))
@@ -322,82 +322,82 @@ pub fn selecting_record_test() {
 
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record("h", 1, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("h", 1, unsafe_coerce)
+    |> process.selector_receive(0)
 
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record("c", 1, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("c", 1, unsafe_coerce)
+    |> process.selector_receive(0)
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record("c", 1, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("c", 1, unsafe_coerce)
+    |> process.selector_receive(0)
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record("c", 2, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("c", 2, unsafe_coerce)
+    |> process.selector_receive(0)
 
   let assert Ok(#("g", 22, 23, 24, 25, 26, 27, 28)) =
     process.new_selector()
-    |> process.selecting_record("g", 7, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("g", 7, unsafe_coerce)
+    |> process.selector_receive(0)
 
   let assert Ok(#("f", 16, 17, 18, 19, 20, 21)) =
     process.new_selector()
-    |> process.selecting_record("f", 6, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("f", 6, unsafe_coerce)
+    |> process.selector_receive(0)
 
   let assert Ok(#("e", 11, 12, 13, 14, 15)) =
     process.new_selector()
-    |> process.selecting_record("e", 5, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("e", 5, unsafe_coerce)
+    |> process.selector_receive(0)
 
   let assert Ok(#("d", 7, 8, 9, 10)) =
     process.new_selector()
-    |> process.selecting_record("d", 4, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("d", 4, unsafe_coerce)
+    |> process.selector_receive(0)
 
   let assert Ok(#("c", 4, 5, 6)) =
     process.new_selector()
-    |> process.selecting_record("c", 3, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("c", 3, unsafe_coerce)
+    |> process.selector_receive(0)
 
   let assert Ok(#("b", 2, 3)) =
     process.new_selector()
-    |> process.selecting_record("b", 2, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("b", 2, unsafe_coerce)
+    |> process.selector_receive(0)
 
   let assert Ok(#("a", 1)) =
     process.new_selector()
-    |> process.selecting_record("a", 1, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("a", 1, unsafe_coerce)
+    |> process.selector_receive(0)
 
   let assert Error(Nil) =
     process.new_selector()
-    |> process.selecting_record("a", 1, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("a", 1, unsafe_coerce)
+    |> process.selector_receive(0)
 
   let assert Ok(#("a", 1, 2)) =
     process.new_selector()
-    |> process.selecting_record("a", 2, unsafe_coerce)
-    |> process.select(0)
+    |> process.select_record("a", 2, unsafe_coerce)
+    |> process.selector_receive(0)
 }
 
-pub fn selecting_anything_test() {
+pub fn select_anything_test() {
   process.flush_messages()
   send(process.self(), 1)
   send(process.self(), 2.0)
 
   let selector =
     process.new_selector()
-    |> process.selecting_anything(decode.run(_, decode.int))
+    |> process.select_anything(decode.run(_, decode.int))
 
-  let assert Ok(Ok(1)) = process.select(selector, 0)
+  let assert Ok(Ok(1)) = process.selector_receive(selector, 0)
   let assert Ok(Error([
     decode.DecodeError(expected: "Int", found: "Float", path: []),
-  ])) = process.select(selector, 0)
-  let assert Error(Nil) = process.select(selector, 0)
+  ])) = process.selector_receive(selector, 0)
+  let assert Error(Nil) = process.selector_receive(selector, 0)
 }
 
 pub fn linking_self_test() {
@@ -511,8 +511,8 @@ pub fn select_forever_test() {
 
   let assert 1 =
     process.new_selector()
-    |> process.selecting(subject, function.identity)
-    |> process.select_forever
+    |> process.select(subject)
+    |> process.selector_receive_forever
 }
 
 pub fn map_selector_test() {
@@ -523,12 +523,12 @@ pub fn map_selector_test() {
 
   let selector =
     process.new_selector()
-    |> process.selecting(subject1, int.to_string)
-    |> process.selecting(subject2, float.to_string)
+    |> process.select_map(subject1, int.to_string)
+    |> process.select_map(subject2, float.to_string)
     |> process.map_selector(Some)
 
-  let assert Some("1") = process.select_forever(selector)
-  let assert Some("2.0") = process.select_forever(selector)
+  let assert Some("1") = process.selector_receive_forever(selector)
+  let assert Some("2.0") = process.selector_receive_forever(selector)
 }
 
 pub fn merge_selector_test() {
@@ -539,39 +539,37 @@ pub fn merge_selector_test() {
 
   let selector =
     process.new_selector()
-    |> process.selecting(subject1, fn(a) { #("a", a) })
-    |> process.selecting(subject2, fn(a) { #("a", a) })
+    |> process.select_map(subject1, fn(a) { #("a", a) })
+    |> process.select_map(subject2, fn(a) { #("a", a) })
     |> process.merge_selector(
       process.new_selector()
-      |> process.selecting(subject2, fn(a) { #("b", a) }),
+      |> process.select_map(subject2, fn(a) { #("b", a) }),
     )
 
-  let assert #("a", 1) = process.select_forever(selector)
-  let assert #("b", 2) = process.select_forever(selector)
+  let assert #("a", 1) = process.selector_receive_forever(selector)
+  let assert #("b", 2) = process.selector_receive_forever(selector)
 }
 
-pub fn selecting_trapped_exits_kill_test() {
-  selecting_trapped_exits(fn() { process.kill(process.self()) })
+pub fn select_trapped_exits_kill_test() {
+  select_trapped_exits(fn() { process.kill(process.self()) })
   |> should.equal(process.Killed)
 }
 
-pub fn selecting_trapped_exits_abnormal_test() {
-  selecting_trapped_exits(fn() {
+pub fn select_trapped_exits_abnormal_test() {
+  select_trapped_exits(fn() {
     process.send_abnormal_exit(process.self(), "reason")
   })
   |> should.equal(process.Abnormal(dynamic.from("reason")))
 }
 
-pub fn selecting_trapped_exits_normal_test() {
-  selecting_trapped_exits(fn() { Nil })
+pub fn select_trapped_exits_normal_test() {
+  select_trapped_exits(fn() { Nil })
   |> should.equal(process.Normal)
 }
 
 /// Traps exits, starts a linked child, runs `terminating_with` in the child,
 /// expects an `ExitMessage`, and returns the exit reason
-pub fn selecting_trapped_exits(
-  terminating_with: fn() -> Nil,
-) -> process.ExitReason {
+pub fn select_trapped_exits(terminating_with: fn() -> Nil) -> process.ExitReason {
   process.flush_messages()
 
   process.trap_exits(True)
@@ -579,8 +577,8 @@ pub fn selecting_trapped_exits(
 
   let assert Ok(process.ExitMessage(exited, reason)) =
     process.new_selector()
-    |> process.selecting_trapped_exits(function.identity)
-    |> process.select(10)
+    |> process.select_trapped_exits(function.identity)
+    |> process.selector_receive(10)
 
   let assert True = pid == exited
   process.trap_exits(False)
@@ -624,24 +622,24 @@ pub fn unregister_name_test() {
   let _ = process.unregister(name)
 }
 
-pub fn deselecting_test() {
+pub fn deselect_test() {
   let subject1 = process.new_subject()
   let subject2 = process.new_subject()
   let selector0 = process.new_selector()
-  let selector1 = selector0 |> process.selecting(subject1, function.identity)
-  let selector2 = selector1 |> process.selecting(subject2, function.identity)
+  let selector1 = selector0 |> process.select(subject1)
+  let selector2 = selector1 |> process.select(subject2)
 
   selector2
-  |> process.deselecting(subject2)
+  |> process.deselect(subject2)
   |> should.equal(selector1)
 
   selector1
-  |> process.deselecting(subject1)
+  |> process.deselect(subject1)
   |> should.equal(selector0)
 
   selector2
-  |> process.deselecting(subject1)
-  |> process.deselecting(subject2)
+  |> process.deselect(subject1)
+  |> process.deselect(subject2)
   |> should.equal(selector0)
 }
 

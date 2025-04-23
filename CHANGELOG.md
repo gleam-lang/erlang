@@ -19,8 +19,10 @@
     functions.
   - The `subject_owner` function now returns a result as a named subject may not
     have any process registered for that name.
-  - The `selecting_record*` functions have been replaced by the
-    `selecting_record` function.
+  - The `selecting_*` functions have been replaced by the
+    `select_*` functions.
+  - The `select*` functions have been replaced by the
+    `selector_receive*` functions.
   - The `ProcessDown` type has been removed.
   - The `Down` type has been added.
   - The `selecting_monitors` function has been added.

@@ -3,7 +3,6 @@ import gleam/dynamic/decode
 import gleam/erlang/atom.{type Atom}
 import gleam/erlang/port.{type Port}
 import gleam/erlang/reference.{type Reference}
-import gleam/function
 import gleam/string
 
 /// A `Pid` (or Process identifier) is a reference to an Erlang process. Each
@@ -227,19 +226,19 @@ pub fn receive_forever(from subject: Subject(message)) -> message
 /// A type that enables a process to wait for messages from multiple `Subject`s
 /// at the same time, returning whichever message arrives first.
 ///
-/// Used with the `new_selector`, `selecting`, and `select` functions.
+/// Used with the `new_selector`, `selector_receive`, and `select*` functions.
 ///
 /// # Examples
 ///
 /// ```gleam
 /// let int_subject = new_subject()
-/// let float_subject = new_subject()
+/// let string_subject = new_subject()
 /// send(int_subject, 1)
 ///
 /// let selector =
 ///   new_selector()
-///   |> selecting(int_subject, int.to_string)
-///   |> selecting(float_subject, float.to_string)
+///   |> select(string_subject)
+///   |> select_map(int_subject, int.to_string)
 ///
 /// select(selector, 10)
 /// // -> Ok("1")
@@ -254,8 +253,8 @@ pub type Selector(payload)
 pub fn new_selector() -> Selector(payload)
 
 /// Receive a message that has been sent to current process using any of the
-/// `Subject`s that have been added to the `Selector` with the `selecting`
-/// function.
+/// `Subject`s that have been added to the `Selector` with the `select*`
+/// functions.
 ///
 /// If there is not an existing message for the `Selector` in the process'
 /// mailbox or one does not arrive `within` the permitted timeout then the
@@ -266,12 +265,12 @@ pub fn new_selector() -> Selector(payload)
 /// with it then it will not receive a message.
 ///
 /// To wait forever for the next message rather than for a limited amount of
-/// time see the `select_forever` function.
+/// time see the `selector_receive_forever` function.
 ///
 /// The `within` parameter specifies the timeout duration in milliseconds.
 ///
 @external(erlang, "gleam_erlang_ffi", "select")
-pub fn select(
+pub fn selector_receive(
   from from: Selector(payload),
   within within: Int,
 ) -> Result(payload, Nil)
@@ -280,7 +279,7 @@ pub fn select(
 /// arrive rather than timing out after a specified amount of time.
 ///
 @external(erlang, "gleam_erlang_ffi", "select")
-pub fn select_forever(from from: Selector(payload)) -> payload
+pub fn selector_receive_forever(from from: Selector(payload)) -> payload
 
 /// Add a transformation function to a selector. When a message is received
 /// using this selector the transformation function is applied to the message.
@@ -314,7 +313,7 @@ pub type ExitReason {
 /// sent to the process when a linked process exits the process must call the
 /// `trap_exit` beforehand.
 ///
-pub fn selecting_trapped_exits(
+pub fn select_trapped_exits(
   selector: Selector(a),
   handler: fn(ExitMessage) -> a,
 ) -> Selector(a) {
@@ -339,15 +338,30 @@ pub fn flush_messages() -> Nil
 /// Add a new `Subject` to the `Selector` so that its messages can be selected
 /// from the receiver process inbox.
 ///
+/// See `select_map` to add subjects of a different message type.
+//
+
+/// See `deselect` to remove a subject from a selector.
+///
+pub fn select(
+  selector: Selector(payload),
+  for subject: Subject(payload),
+) -> Selector(payload) {
+  select_map(selector, subject, fn(x) { x })
+}
+
+/// Add a new `Subject` to the `Selector` so that its messages can be selected
+/// from the receiver process inbox.
+///
 /// The `mapping` function provided with the `Subject` can be used to convert
 /// the type of messages received using this `Subject`. This is useful for when
 /// you wish to add multiple `Subject`s to a `Selector` when they have differing
 /// message types. If you do not wish to transform the incoming messages in any
 /// way then the `identity` function can be given.
 ///
-/// See `deselecting` to remove a subject from a selector.
+/// See `deselect` to remove a subject from a selector.
 ///
-pub fn selecting(
+pub fn select_map(
   selector: Selector(payload),
   for subject: Subject(message),
   mapping transform: fn(message) -> payload,
@@ -362,7 +376,7 @@ pub fn selecting(
 /// Remove a new `Subject` from the `Selector` so that its messages will not be
 /// selected from the receiver process inbox.
 ///
-pub fn deselecting(
+pub fn deselect(
   selector: Selector(payload),
   for subject: Subject(message),
 ) -> Selector(payload) {
@@ -375,7 +389,7 @@ pub fn deselecting(
 /// Add a handler to a selector for tuple messages with a given tag in the
 /// first position followed by a given number of fields.
 ///
-/// Typically you want to use the `selecting` function with a `Subject` instead,
+/// Typically you want to use the `select` function with a `Subject` instead,
 /// but this function may be useful if you need to receive messages sent from
 /// other BEAM languages that do not use the `Subject` type.
 ///
@@ -383,7 +397,7 @@ pub fn deselecting(
 /// the same tag in the first position. This is because when a message is sent
 /// via a subject a new tag is used that is unique and specific to that subject.
 ///
-pub fn selecting_record(
+pub fn select_record(
   selector: Selector(payload),
   tag tag: tag,
   fields arity: Int,
@@ -403,7 +417,7 @@ type AnythingSelectorTag {
 /// is handled, or when you need to handle messages from other BEAM languages
 /// which do not use subjects or record format messages.
 ///
-pub fn selecting_anything(
+pub fn select_anything(
   selector: Selector(payload),
   mapping handler: fn(Dynamic) -> payload,
 ) -> Selector(payload) {
@@ -469,7 +483,7 @@ pub type Down {
 /// be received.
 ///
 /// The down message can be received with a selector and the
-/// `selecting_monitors` function.
+/// `select_monitors` function.
 ///
 /// The process can be demonitored with the `demonitor_process` function.
 ///
@@ -479,28 +493,28 @@ pub fn monitor(pid: Pid) -> Monitor {
 
 /// Select for a message sent for a given monitor.
 ///
-/// Each monitor handler added to a selector has a selecting performance cost,
-/// so prefer [`selecting_monitors`](#selecting_monitors) if you are selecting
+/// Each monitor handler added to a selector has a select performance cost,
+/// so prefer [`select_monitors`](#select_monitors) if you are select
 /// for multiple monitors.
 ///
 /// The handler can be removed from the selector later using
-/// [`deselecting_specific_monitor`](#deselecting_specific_monitor).
+/// [`deselect_specific_monitor`](#deselect_specific_monitor).
 ///
-pub fn selecting_specific_monitor(
+pub fn select_specific_monitor(
   selector: Selector(payload),
   monitor: Monitor,
   mapping: fn(Down) -> payload,
-) -> Selector(payload) {
+) {
   insert_selector_handler(selector, monitor, mapping)
 }
 
-/// Select for any messages sent for any monitors set up by the selecting process.
+/// Select for any messages sent for any monitors set up by the select process.
 ///
 /// If you want to select for a specific message then use 
-/// [`selecting_specific_monitor`](#selecting_specific_monitor), but this
+/// [`select_specific_monitor`](#select_specific_monitor), but this
 /// function is preferred if you need to select for multiple monitors.
 ///
-pub fn selecting_monitors(
+pub fn select_monitors(
   selector: Selector(payload),
   mapping: fn(Down) -> payload,
 ) -> Selector(payload) {
@@ -530,11 +544,11 @@ pub fn demonitor_process(monitor monitor: Monitor) -> Nil {
 fn erlang_demonitor_process(monitor: Monitor) -> DoNotLeak
 
 /// Remove a `Monitor` from a `Selector` prevoiusly added by
-/// [`selecting_specific_monitor`](#selecting_specific_monitor). If
+/// [`select_specific_monitor`](#select_specific_monitor). If
 /// the `Monitor` is not in the `Selector` it will be returned
 /// unchanged.
 ///
-pub fn deselecting_specific_monitor(
+pub fn deselect_specific_monitor(
   selector: Selector(payload),
   monitor: Monitor,
 ) -> Selector(payload) {
@@ -560,8 +574,8 @@ fn perform_call(
   // Await a reply or handle failure modes (timeout, process down, etc)
   let reply =
     new_selector()
-    |> selecting(reply_subject, function.identity)
-    |> selecting_specific_monitor(monitor, fn(down) {
+    |> select(reply_subject)
+    |> select_specific_monitor(monitor, fn(down) {
       panic as { "callee exited: " <> string.inspect(down) }
     })
     |> run_selector
@@ -636,7 +650,7 @@ pub fn call(
   waiting timeout: Int,
   sending make_request: fn(Subject(reply)) -> message,
 ) -> reply {
-  perform_call(subject, make_request, select(_, timeout))
+  perform_call(subject, make_request, selector_receive(_, timeout))
 }
 
 /// Send a message to a process and wait for a reply.
@@ -652,7 +666,7 @@ pub fn call_forever(
   subject: Subject(message),
   make_request: fn(Subject(reply)) -> message,
 ) -> reply {
-  perform_call(subject, make_request, fn(s) { Ok(select_forever(s)) })
+  perform_call(subject, make_request, fn(s) { Ok(selector_receive_forever(s)) })
 }
 
 /// Creates a link between the calling process and another process.
@@ -779,7 +793,7 @@ pub fn send_abnormal_exit(pid: Pid, reason: anything) -> Nil {
 ///
 /// When trapping exits (after this function is called) if a linked process
 /// crashes an exit message is sent to the process instead. These messages can
-/// be handled with the `selecting_trapped_exits` function.
+/// be handled with the `select_trapped_exits` function.
 ///
 @external(erlang, "gleam_erlang_ffi", "trap_exits")
 pub fn trap_exits(a: Bool) -> Nil
