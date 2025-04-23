@@ -391,7 +391,7 @@ pub fn select_anything_test() {
 
   let selector =
     process.new_selector()
-    |> process.select_anything(decode.run(_, decode.int))
+    |> process.select_other(decode.run(_, decode.int))
 
   let assert Ok(Ok(1)) = process.selector_receive(selector, 0)
   let assert Ok(Error([
