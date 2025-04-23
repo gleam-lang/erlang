@@ -417,7 +417,7 @@ type AnythingSelectorTag {
 /// is handled, or when you need to handle messages from other BEAM languages
 /// which do not use subjects or record format messages.
 ///
-pub fn select_anything(
+pub fn select_other(
   selector: Selector(payload),
   mapping handler: fn(Dynamic) -> payload,
 ) -> Selector(payload) {
