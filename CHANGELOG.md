@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.0-rc1 - Unreleased
+## v1.0.0-rc1 - 2025-04-24
 
 - In the `gleam/erlang/process` module:
   - The `Name` type has been introduced. This type is used to give processes
