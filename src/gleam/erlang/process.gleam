@@ -28,7 +28,11 @@ pub fn self() -> Pid
 ///
 /// [1]: https://www.erlang.org/doc/reference_manual/processes.html
 ///
-@external(erlang, "erlang", "spawn_link")
+/// This function starts processes via the Erlang `proc_lib` module, and as
+/// such they benefit from the functionality described in the
+/// [`proc_lib` documentation](https://www.erlang.org/doc/apps/stdlib/proc_lib.html).
+///
+@external(erlang, "proc_lib", "spawn_link")
 pub fn spawn(running: fn() -> anything) -> Pid
 
 /// Create a new Erlang process that runs concurrently to the creator. In other
@@ -41,7 +45,11 @@ pub fn spawn(running: fn() -> anything) -> Pid
 ///
 /// [1]: https://www.erlang.org/doc/reference_manual/processes.html
 ///
-@external(erlang, "erlang", "spawn")
+/// This function starts processes via the Erlang `proc_lib` module, and as
+/// such they benefit from the functionality described in the
+/// [`proc_lib` documentation](https://www.erlang.org/doc/apps/stdlib/proc_lib.html).
+///
+@external(erlang, "proc_lib", "spawn")
 pub fn spawn_unlinked(a: fn() -> anything) -> Pid
 
 /// A `Subject` is a value that processes can use to send and receive messages

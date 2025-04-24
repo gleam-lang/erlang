@@ -16,7 +16,9 @@
     of `call` and `call_forever`.
   - The `CallError` type has been removed.
   - The `start` function has been replaced by the `spawn` and `spawn_unlinked`
-    functions.
+    functions. These functions use the Erlang `proc_lib` spawn functions and so
+    benefit from the functionality described in the
+    [`proc_lib` documentation](https://www.erlang.org/doc/apps/stdlib/proc_lib.html).
   - The `subject_owner` function now returns a result as a named subject may not
     have any process registered for that name.
   - The `selecting_*` functions have been replaced by the
