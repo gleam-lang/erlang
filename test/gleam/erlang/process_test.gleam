@@ -76,6 +76,18 @@ pub fn receive_test() {
   let assert Error(Nil) = process.receive(subject, 0)
 }
 
+@external(erlang, "gleam_erlang_test_ffi", "assert_gleam_panic")
+fn assert_panic(f: fn() -> t) -> String
+
+pub fn receive_other_test() {
+  let subject = process.new_subject()
+  process.spawn(fn() { process.send(subject, process.new_subject()) })
+  let assert Ok(subject) = process.receive(subject, 20)
+
+  assert_panic(fn() { process.receive(subject, 0) })
+  |> should.equal("Cannot receive with a subject owned by another process")
+}
+
 pub fn receive_forever_test() {
   let subject = process.new_subject()
 

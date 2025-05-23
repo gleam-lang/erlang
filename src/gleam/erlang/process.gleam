@@ -219,10 +219,30 @@ pub fn send(subject: Subject(message), message: message) -> Nil {
 ///
 /// The `within` parameter specifies the timeout duration in milliseconds.
 ///
-@external(erlang, "gleam_erlang_ffi", "receive")
+/// ## Panics
+///
+/// This function will panic if a process tries to receive with a non-named
+/// subject that it does not own.
+///
 pub fn receive(
   from subject: Subject(message),
   within timeout: Int,
+) -> Result(message, Nil) {
+  case subject {
+    NamedSubject(..) -> perform_receive(subject, timeout)
+    Subject(owner:, ..) ->
+      case owner == self() {
+        True -> perform_receive(subject, timeout)
+        False ->
+          panic as "Cannot receive with a subject owned by another process"
+      }
+  }
+}
+
+@external(erlang, "gleam_erlang_ffi", "receive")
+fn perform_receive(
+  subject: Subject(message),
+  timeout: Int,
 ) -> Result(message, Nil)
 
 /// Receive a message that has been sent to current process using the `Subject`.

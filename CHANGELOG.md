@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.0-rc2 - Unreleased
+
+- `process.receive` will now panic if given a non-named subject that is not
+  owned by the current process.
+
 ## v1.0.0-rc1 - 2025-04-24
 
 - In the `gleam/erlang/process` module:
