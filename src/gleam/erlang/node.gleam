@@ -50,3 +50,14 @@ pub type ConnectError {
 ///
 @external(erlang, "gleam_erlang_ffi", "connect_node")
 pub fn connect(node: Atom) -> Result(Node, ConnectError)
+
+/// Get the atom name of a node.
+///
+/// ## Examples
+///
+/// ```gleam
+/// assert name(my_node) == atom.create("app1@localhost")
+/// ```
+///
+@external(erlang, "gleam_erlang_ffi", "identity")
+pub fn name(node: Node) -> Atom

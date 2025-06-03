@@ -2,6 +2,7 @@
 
 ## v1.0.0-rc2 - Unreleased
 
+- The `gleam/erlang/node` function gains the `name` function.
 - `process.receive` will now panic if given a non-named subject that is not
   owned by the current process.
 

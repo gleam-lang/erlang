@@ -6,7 +6,7 @@ import gleam/erlang/node
 pub fn self_test() {
   let a = node.self()
   let b = node.self()
-  let assert True = a == b
+  assert a == b
 }
 
 pub fn visible_test() {
@@ -15,5 +15,9 @@ pub fn visible_test() {
 
 pub fn connect_not_alive_test() {
   let name = atom.create("not_found@localhost")
-  let assert Error(node.LocalNodeIsNotAlive) = node.connect(name)
+  assert node.connect(name) == Error(node.LocalNodeIsNotAlive)
+}
+
+pub fn name_test() {
+  assert node.name(node.self()) == atom.create("nonode@nohost")
 }
