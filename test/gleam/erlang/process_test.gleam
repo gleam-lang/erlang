@@ -8,7 +8,6 @@ import gleam/int
 import gleam/list
 import gleam/option.{Some}
 import gleam/set
-import gleeunit/should
 
 @external(erlang, "gleam_erlang_ffi", "identity")
 fn unsafe_coerce(a: dynamic.Dynamic) -> anything
@@ -84,8 +83,8 @@ pub fn receive_other_test() {
   process.spawn(fn() { process.send(subject, process.new_subject()) })
   let assert Ok(subject) = process.receive(subject, 20)
 
-  assert_panic(fn() { process.receive(subject, 0) })
-  |> should.equal("Cannot receive with a subject owned by another process")
+  assert assert_panic(fn() { process.receive(subject, 0) })
+    == "Cannot receive with a subject owned by another process"
 }
 
 pub fn receive_forever_test() {
@@ -153,20 +152,19 @@ pub fn selector_test() {
 }
 
 pub fn monitor_normal_exit_test() {
-  monitor_process_exit(fn() { Nil })
-  |> should.equal(process.Normal)
+  assert monitor_process_exit(fn() { Nil }) == process.Normal
 }
 
 pub fn monitor_killed_test() {
-  monitor_process_exit(fn() { process.kill(process.self()) })
-  |> should.equal(process.Killed)
+  assert monitor_process_exit(fn() { process.kill(process.self()) })
+    == process.Killed
 }
 
 pub fn monitor_abnormal_exit_test() {
-  monitor_process_exit(fn() {
-    process.send_abnormal_exit(process.self(), "reason")
-  })
-  |> should.equal(process.Abnormal(dynamic.from("reason")))
+  assert monitor_process_exit(fn() {
+      process.send_abnormal_exit(process.self(), "reason")
+    })
+    == process.Abnormal(dynamic.string("reason"))
 }
 
 /// Spawns a child, monitors exits, runs `terminating_with` in the child,
@@ -563,20 +561,19 @@ pub fn merge_selector_test() {
 }
 
 pub fn select_trapped_exits_kill_test() {
-  select_trapped_exits(fn() { process.kill(process.self()) })
-  |> should.equal(process.Killed)
+  assert select_trapped_exits(fn() { process.kill(process.self()) })
+    == process.Killed
 }
 
 pub fn select_trapped_exits_abnormal_test() {
-  select_trapped_exits(fn() {
-    process.send_abnormal_exit(process.self(), "reason")
-  })
-  |> should.equal(process.Abnormal(dynamic.from("reason")))
+  assert select_trapped_exits(fn() {
+      process.send_abnormal_exit(process.self(), "reason")
+    })
+    == process.Abnormal(dynamic.string("reason"))
 }
 
 pub fn select_trapped_exits_normal_test() {
-  select_trapped_exits(fn() { Nil })
-  |> should.equal(process.Normal)
+  assert select_trapped_exits(fn() { Nil }) == process.Normal
 }
 
 /// Traps exits, starts a linked child, runs `terminating_with` in the child,
@@ -606,8 +603,11 @@ pub fn flush_messages_test() {
   let assert Error(Nil) = process.receive(subject, 0)
 }
 
+@external(erlang, "gleam_erlang_ffi", "identity")
+fn atom_to_dynamic(atom: atom.Atom) -> dynamic.Dynamic
+
 pub fn register_name_taken_test() {
-  let taken_name = unsafe_coerce(dynamic.from(atom.create("code_server")))
+  let taken_name = unsafe_coerce(atom_to_dynamic(atom.create("code_server")))
   let assert Ok(a) = process.named(taken_name)
   let assert Error(Nil) = process.register(process.self(), taken_name)
   let assert Ok(b) = process.named(taken_name)
@@ -641,18 +641,14 @@ pub fn deselect_test() {
   let selector1 = selector0 |> process.select(subject1)
   let selector2 = selector1 |> process.select(subject2)
 
-  selector2
-  |> process.deselect(subject2)
-  |> should.equal(selector1)
+  assert process.deselect(selector2, subject2) == selector1
 
-  selector1
-  |> process.deselect(subject1)
-  |> should.equal(selector0)
+  assert process.deselect(selector1, subject1) == selector0
 
-  selector2
-  |> process.deselect(subject1)
-  |> process.deselect(subject2)
-  |> should.equal(selector0)
+  assert selector2
+    |> process.deselect(subject1)
+    |> process.deselect(subject2)
+    == selector0
 }
 
 pub fn name_test() {

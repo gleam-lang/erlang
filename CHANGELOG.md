@@ -1,8 +1,10 @@
 # Changelog
 
-## v1.0.0-rc2 - Unreleased
+## v1.0.0-rc2 - 2025-06-12
 
-- The `gleam/erlang/node` function gains the `name` function.
+- The `send_abnormal_exit` function in the  `gleam/erlang` module now takes the
+  reason as a string.
+- The `gleam/erlang/node` module gains the `name` function.
 - `process.receive` will now panic if given a non-named subject that is not
   owned by the current process.
 
