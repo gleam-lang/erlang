@@ -2,7 +2,7 @@ name = "gleam_erlang"
 
 version = "1.0.0-rc1"
 licences = ["Apache-2.0"]
-description = "A Gleam library for working with Erlang"
+description = "Types and functions for programs running on Erlang!"
 
 repository = { type = "github", user = "gleam-lang", repo = "erlang" }
 links = [

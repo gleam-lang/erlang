@@ -1,8 +1,12 @@
 # Gleam Erlang 🐙
 
-A library for making use of Erlang specific code!
+Types and functions for programs running on Erlang!
 
-```shell
+[![Package Version](https://img.shields.io/hexpm/v/gleam_erlang)](https://hex.pm/packages/gleam_erlang)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/gleam_erlang/)
+
+
+```sh
 gleam add gleam_erlang@1
 ```
 ```gleam
@@ -18,4 +22,4 @@ pub fn main() {
 
 Documentation can be found at <https://hexdocs.pm/gleam_erlang/>.
 
-This library requires OTP 23.0 or higher.
+This library requires OTP 27.0 or higher.
