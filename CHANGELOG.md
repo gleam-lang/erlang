@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.0-rc2 - 2025-06-12
+## v1.0.0 - 2025-06-12
 
 - The `send_abnormal_exit` function in the  `gleam/erlang` module now takes the
   reason as a string.
