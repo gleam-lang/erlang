@@ -2,8 +2,6 @@
 
 ## v1.0.0 - 2025-06-12
 
-- The `send_abnormal_exit` function in the  `gleam/erlang` module now takes the
-  reason as a string.
 - The `gleam/erlang/node` module gains the `name` function.
 - `process.receive` will now panic if given a non-named subject that is not
   owned by the current process.

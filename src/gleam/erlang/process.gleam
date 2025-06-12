@@ -808,7 +808,7 @@ pub fn send_exit(to pid: Pid) -> Nil {
 ///
 /// [1]: http://erlang.org/doc/man/erlang.html#exit-2
 ///
-pub fn send_abnormal_exit(pid: Pid, reason: String) -> Nil {
+pub fn send_abnormal_exit(pid: Pid, reason: anything) -> Nil {
   erlang_send_exit(pid, reason)
   Nil
 }
