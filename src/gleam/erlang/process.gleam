@@ -268,7 +268,7 @@ pub fn receive_forever(from subject: Subject(message)) -> message
 ///   |> select(string_subject)
 ///   |> select_map(int_subject, int.to_string)
 ///
-/// select(selector, 10)
+/// selector_receive(selector, 10)
 /// // -> Ok("1")
 /// ```
 ///
