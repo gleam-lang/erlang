@@ -56,7 +56,7 @@ pub fn spawn_unlinked(a: fn() -> anything) -> Pid
 /// to and from each other in a well typed way.
 ///
 /// Each subject is "owned" by the process that created it. Any process can use
-/// the `send` function to sent a message of the correct type to the process
+/// the `send` function to send a message of the correct type to the process
 /// that owns the subject, and the owner can use the `receive` function or the
 /// `Selector` type to receive these messages.
 ///
