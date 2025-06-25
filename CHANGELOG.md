@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.0 - 2025-06-25
+
+- The `gleam/erlang/atom` module gains the `to_dynamic` and `decoder` functions.
+
 ## v1.0.0 - 2025-06-12
 
 - The `gleam/erlang/node` module gains the `name` function.

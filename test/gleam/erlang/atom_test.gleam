@@ -1,3 +1,5 @@
+import gleam/dynamic
+import gleam/dynamic/decode
 import gleam/erlang/atom
 import gleam/int
 
@@ -21,4 +23,12 @@ pub fn create_from_string_test() {
 pub fn to_string_test() {
   let assert "ok" = atom.to_string(atom.create("ok"))
   let assert "expect" = atom.to_string(atom.create("expect"))
+}
+
+pub fn dynamic_test() {
+  let wibble = atom.create("wibble")
+
+  assert decode.run(atom.to_dynamic(wibble), atom.decoder()) == Ok(wibble)
+  assert decode.run(dynamic.int(1), atom.decoder())
+    == Error([decode.DecodeError("Atom", "Int", [])])
 }

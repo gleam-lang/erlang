@@ -1,6 +1,6 @@
 name = "gleam_erlang"
 
-version = "1.0.0"
+version = "1.1.0"
 licences = ["Apache-2.0"]
 description = "Types and functions for programs running on Erlang!"
 
