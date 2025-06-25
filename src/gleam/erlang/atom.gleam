@@ -10,7 +10,7 @@ import gleam/dynamic/decode
 ///
 /// ## Creating atoms
 ///
-/// We can create atoms with the the [`create_from_string`](#create_from_string)
+/// We can create atoms with the the [`create`](#create)
 /// function, though we must be careful when doing so as atoms are never
 /// garbage collected. If we create too many atoms (for example, if we convert
 /// user input into atoms) we may hit the max limit of atoms and cause the
