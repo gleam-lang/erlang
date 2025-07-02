@@ -133,6 +133,15 @@ pub fn named_subject(name: Name(message)) -> Subject(message) {
   NamedSubject(name)
 }
 
+/// Get the name of a subject, returning an error if it doesn't have one.
+///
+pub fn subject_name(subject: Subject(message)) -> Result(Name(message), Nil) {
+  case subject {
+    NamedSubject(name:) -> Ok(name)
+    Subject(..) -> Error(Nil)
+  }
+}
+
 /// Create a new `Subject` owned by the current process.
 ///
 pub fn new_subject() -> Subject(message) {

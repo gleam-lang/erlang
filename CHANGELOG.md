@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.2.0 - 2025-07-02
+
+- The `gleam/erlang/process` module gains the `subject_name` function.
+
 ## v1.1.0 - 2025-06-25
 
 - The `gleam/erlang/atom` module gains the `to_dynamic` and `decoder` functions.

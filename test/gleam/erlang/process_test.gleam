@@ -42,6 +42,13 @@ pub fn new_name_test() {
     |> set.size
 }
 
+pub fn subject_name_test() {
+  let name = process.new_name("name")
+  let subject = process.named_subject(name)
+  assert process.subject_name(subject) == Ok(name)
+  assert process.subject_name(process.new_subject()) == Error(Nil)
+}
+
 pub fn subject_owner_named_test() {
   let name = process.new_name("name")
   let subject = process.named_subject(name)
