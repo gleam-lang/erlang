@@ -376,8 +376,7 @@ pub fn flush_messages() -> Nil
 /// from the receiver process inbox.
 ///
 /// See `select_map` to add subjects of a different message type.
-//
-
+///
 /// See `deselect` to remove a subject from a selector.
 ///
 pub fn select(
