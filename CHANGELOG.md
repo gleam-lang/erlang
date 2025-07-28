@@ -29,7 +29,7 @@
   - The `try_call` and `try_call_forever` functions have been removed in favour
     of `call` and `call_forever`.
   - The `CallError` type has been removed.
-  - The `start` function has been replaced by the `spawn` and `spawn_unlinked`
+  - The `start` and `start_linked` functions has been replaced by the `spawn` and `spawn_unlinked`
     functions. These functions use the Erlang `proc_lib` spawn functions and so
     benefit from the functionality described in the
     [`proc_lib` documentation](https://www.erlang.org/doc/apps/stdlib/proc_lib.html).
