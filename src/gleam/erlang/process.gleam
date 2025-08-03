@@ -76,8 +76,19 @@ pub fn spawn_unlinked(a: fn() -> anything) -> Pid
 /// ```
 ///
 pub opaque type Subject(message) {
-  Subject(owner: Pid, tag: Reference)
+  Subject(owner: Pid, tag: Dynamic)
   NamedSubject(name: Name(message))
+}
+
+/// Create a subject for the given process with the give tag. This is unsafe!
+/// There's nothing here that verifies that the message the subject receives is
+/// expected and that the tag is not already in use.
+///
+/// You should almost certainly not use this function.
+///
+@internal
+pub fn unsafely_create_subject(owner: Pid, tag: Dynamic) -> Subject(message) {
+  Subject(owner, tag)
 }
 
 /// A name is an identity that a process can adopt, after which they will receive
@@ -145,7 +156,7 @@ pub fn subject_name(subject: Subject(message)) -> Result(Name(message), Nil) {
 /// Create a new `Subject` owned by the current process.
 ///
 pub fn new_subject() -> Subject(message) {
-  Subject(owner: self(), tag: reference.new())
+  Subject(owner: self(), tag: reference_to_dynamic(reference.new()))
 }
 
 /// Get the owner process for a subject, which is the process that will
@@ -730,7 +741,7 @@ pub fn unlink(pid: Pid) -> Nil {
 pub type Timer
 
 @external(erlang, "erlang", "send_after")
-fn pid_send_after(a: Int, b: Pid, c: #(Reference, msg)) -> Timer
+fn pid_send_after(a: Int, b: Pid, c: #(Dynamic, msg)) -> Timer
 
 @external(erlang, "erlang", "send_after")
 fn name_send_after(a: Int, b: Name(msg), c: #(Name(msg), msg)) -> Timer
@@ -743,6 +754,9 @@ pub fn send_after(subject: Subject(msg), delay: Int, message: msg) -> Timer {
     Subject(owner, tag) -> pid_send_after(delay, owner, #(tag, message))
   }
 }
+
+@external(erlang, "gleam_erlang_ffi", "identity")
+fn reference_to_dynamic(reference: Reference) -> Dynamic
 
 @external(erlang, "erlang", "cancel_timer")
 fn erlang_cancel_timer(a: Timer) -> Dynamic

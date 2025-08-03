@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.0 - 2025-08-03
+
+- Internal changes to the subject type.
+
 ## v1.2.0 - 2025-07-02
 
 - The `gleam/erlang/process` module gains the `subject_name` function.
