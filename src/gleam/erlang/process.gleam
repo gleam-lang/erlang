@@ -52,6 +52,8 @@ pub fn spawn(running: fn() -> anything) -> Pid
 @external(erlang, "proc_lib", "spawn")
 pub fn spawn_unlinked(a: fn() -> anything) -> Pid
 
+type Alias
+
 /// A `Subject` is a value that processes can use to send and receive messages
 /// to and from each other in a well typed way.
 ///
@@ -78,6 +80,7 @@ pub fn spawn_unlinked(a: fn() -> anything) -> Pid
 pub opaque type Subject(message) {
   Subject(owner: Pid, tag: Dynamic)
   NamedSubject(name: Name(message))
+  PrioritySubject(owner: Pid, alias: Alias, tag: Dynamic)
 }
 
 /// Create a subject for the given process with the give tag. This is unsafe!
@@ -89,6 +92,27 @@ pub opaque type Subject(message) {
 @internal
 pub fn unsafely_create_subject(owner: Pid, tag: Dynamic) -> Subject(message) {
   Subject(owner, tag)
+}
+
+@external(erlang, "gleam_erlang_ffi", "new_priority_alias")
+fn new_priority_alias() -> Alias
+
+/// Create a subject that sends and receives priority messages.
+/// Priority messages will be inserted before regular messages,
+/// after other priority messages.
+/// 
+/// Warning: OTP 28 and above is required for this feature.
+/// Warning: Priority messages are intended to solve very specific problems.
+/// You very seldom need to resort to usage of priority messages. Receiving 
+/// processes have not been optimized for handling large amounts of priority 
+/// messages.
+///
+pub fn priority_subject() -> Subject(message) {
+  PrioritySubject(
+    owner: self(),
+    alias: new_priority_alias(),
+    tag: reference_to_dynamic(reference.new()),
+  )
 }
 
 /// A name is an identity that a process can adopt, after which they will receive
@@ -150,6 +174,7 @@ pub fn subject_name(subject: Subject(message)) -> Result(Name(message), Nil) {
   case subject {
     NamedSubject(name:) -> Ok(name)
     Subject(..) -> Error(Nil)
+    PrioritySubject(..) -> Error(Nil)
   }
 }
 
@@ -169,6 +194,7 @@ pub fn subject_owner(subject: Subject(message)) -> Result(Pid, Nil) {
   case subject {
     NamedSubject(name) -> named(name)
     Subject(pid, _) -> Ok(pid)
+    PrioritySubject(owner:, ..) -> Ok(owner)
   }
 }
 
@@ -176,6 +202,9 @@ type DoNotLeak
 
 @external(erlang, "erlang", "send")
 fn raw_send(a: Pid, b: message) -> DoNotLeak
+
+@external(erlang, "gleam_erlang_ffi", "send_priority")
+fn raw_send_alias(a: Alias, b: message) -> DoNotLeak
 
 /// Send a message to a process using a `Subject`. The message must be of the
 /// type that the `Subject` accepts.
@@ -220,6 +249,8 @@ pub fn send(subject: Subject(message), message: message) -> Nil {
       let assert Ok(pid) = named(name) as "Sending to unregistered name"
       raw_send(pid, #(name, message))
     }
+    PrioritySubject(owner: _, alias:, tag:) ->
+      raw_send_alias(alias, #(tag, message))
   }
   Nil
 }
@@ -249,7 +280,7 @@ pub fn receive(
   within timeout: Int,
 ) -> Result(message, Nil) {
   case subject {
-    NamedSubject(..) -> perform_receive(subject, timeout)
+    NamedSubject(..) | PrioritySubject(..) -> perform_receive(subject, timeout)
     Subject(owner:, ..) ->
       case owner == self() {
         True -> perform_receive(subject, timeout)
@@ -416,7 +447,8 @@ pub fn select_map(
   let handler = fn(message: #(Reference, message)) { transform(message.1) }
   case subject {
     NamedSubject(name) -> insert_selector_handler(selector, #(name, 2), handler)
-    Subject(_, tag:) -> insert_selector_handler(selector, #(tag, 2), handler)
+    Subject(_, tag:) | PrioritySubject(tag:, ..) ->
+      insert_selector_handler(selector, #(tag, 2), handler)
   }
 }
 
@@ -429,7 +461,8 @@ pub fn deselect(
 ) -> Selector(payload) {
   case subject {
     NamedSubject(name) -> remove_selector_handler(selector, #(name, 2))
-    Subject(_, tag:) -> remove_selector_handler(selector, #(tag, 2))
+    Subject(_, tag:) | PrioritySubject(tag:, ..) ->
+      remove_selector_handler(selector, #(tag, 2))
   }
 }
 
@@ -752,6 +785,8 @@ pub fn send_after(subject: Subject(msg), delay: Int, message: msg) -> Timer {
   case subject {
     NamedSubject(name) -> name_send_after(delay, name, #(name, message))
     Subject(owner, tag) -> pid_send_after(delay, owner, #(tag, message))
+    PrioritySubject(..) ->
+      panic as "send_after does not support priority aliases"
   }
 }
 
