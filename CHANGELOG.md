@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Please ignore
+
 ## v1.3.0 - 2025-08-03
 
 - Internal changes to the subject type.
