@@ -523,7 +523,8 @@ pub type Down {
 /// The message is always sent exactly once. If the target process is
 /// alive when this function is called, the message is sent when the target 
 /// process exits. If the target process is not alive, the message is
-/// delivered immediately with reason `Abnormal(atom.create("noproc")).`
+/// delivered immediately with reason
+/// `Abnormal(atom.to_dynamic(atom.create("noproc"))).`
 ///
 /// The down message can be received with a selector and the
 /// `select_monitors` function.
