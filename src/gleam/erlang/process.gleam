@@ -80,7 +80,7 @@ pub opaque type Subject(message) {
   NamedSubject(name: Name(message))
 }
 
-/// Create a subject for the given process with the give tag. This is unsafe!
+/// Create a subject for the given process with the given tag. This is unsafe!
 /// There's nothing here that verifies that the message the subject receives is
 /// expected and that the tag is not already in use.
 ///
