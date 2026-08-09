@@ -2,7 +2,9 @@ import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/erlang/atom.{type Atom}
 import gleam/erlang/port.{type Port}
+import gleam/erlang/port/receive.{type PortData}
 import gleam/erlang/reference.{type Reference}
+import gleam/result
 import gleam/string
 
 /// A `Pid` (or Process identifier) is a reference to an Erlang process. Each
@@ -78,6 +80,8 @@ pub fn spawn_unlinked(a: fn() -> anything) -> Pid
 pub opaque type Subject(message) {
   Subject(owner: Pid, tag: Dynamic)
   NamedSubject(name: Name(message))
+  // backup_owner needs to exist because ports close and we can't deduce the owner after a port closes, but the messages still exist in a mailbox of a pid
+  PortSubject(port: Port, backup_owner: Pid)
 }
 
 /// Create a subject for the given process with the given tag. This is unsafe!
@@ -149,7 +153,7 @@ pub fn named_subject(name: Name(message)) -> Subject(message) {
 pub fn subject_name(subject: Subject(message)) -> Result(Name(message), Nil) {
   case subject {
     NamedSubject(name:) -> Ok(name)
-    Subject(..) -> Error(Nil)
+    _ -> Error(Nil)
   }
 }
 
@@ -158,6 +162,31 @@ pub fn subject_name(subject: Subject(message)) -> Result(Name(message), Nil) {
 pub fn new_subject() -> Subject(message) {
   Subject(owner: self(), tag: reference_to_dynamic(reference.new()))
 }
+
+
+pub fn port_subject(port: Port) -> Subject(PortData) {
+  PortSubject(
+    port: port,
+    backup_owner: port_owner(port) |> result.unwrap(self()),
+  )
+}
+
+pub fn port_open(command: port.PortCommand, options: List(port.PortOptions)) -> Result(Subject(PortData), _) {
+  port.open(command, options) |> result.map(port_subject)
+}
+
+@external(erlang, "erlang", "port_connect")
+fn perform_port_connect(port: Port, pid: Pid) -> Nil
+
+pub fn port_connect(port: Port, pid: Pid) -> Subject(PortData) {
+  perform_port_connect(port, pid)
+  PortSubject(port, backup_owner: pid)
+}
+
+/// Returns Error if the port is already closed
+/// if possible, try to use subject_owner()
+@external(erlang, "gleam_erlang_ffi", "port_owner")
+pub fn port_owner(port: Port) -> Result(Pid, Nil)
 
 /// Get the owner process for a subject, which is the process that will
 /// receive any messages sent using the subject.
@@ -169,6 +198,14 @@ pub fn subject_owner(subject: Subject(message)) -> Result(Pid, Nil) {
   case subject {
     NamedSubject(name) -> named(name)
     Subject(pid, _) -> Ok(pid)
+    PortSubject(port, backup_owner) -> Ok(port_owner(port) |> result.unwrap(backup_owner))
+  }
+}
+
+pub fn subject_port(subject: Subject(message)) -> Result(Port, Nil) {
+  case subject {
+    PortSubject(port, ..) -> Ok(port)
+    _ -> Error(Nil)
   }
 }
 
@@ -215,6 +252,7 @@ pub fn send(subject: Subject(message), message: message) -> Nil {
       let assert Ok(pid) = named(name) as "Sending to unregistered name"
       raw_send(pid, #(name, message))
     }
+    PortSubject(..) -> panic as "Cannot send on PortSubject"
   }
   Nil
 }
@@ -243,14 +281,11 @@ pub fn receive(
   from subject: Subject(message),
   within timeout: Int,
 ) -> Result(message, Nil) {
-  case subject {
-    NamedSubject(..) -> perform_receive(subject, timeout)
-    Subject(owner:, ..) ->
-      case owner == self() {
-        True -> perform_receive(subject, timeout)
-        False ->
-          panic as "Cannot receive with a subject owned by another process"
-      }
+  let self = self()
+  case subject_owner(subject) {
+    Ok(pid) if pid == self -> perform_receive(subject, timeout)
+    _ ->
+      panic as "Cannot receive with a subject owned by another process"
   }
 }
 
@@ -263,8 +298,19 @@ fn perform_receive(
 /// Receive a message that has been sent to current process using the `Subject`.
 ///
 /// Same as `receive` but waits forever and returns the message as is.
+pub fn receive_forever(from subject: Subject(message)) -> message {
+  let self = self()
+  case subject_owner(subject) {
+    Ok(pid) if pid == self -> perform_receive_forever(subject)
+    _ ->
+      panic as "Cannot receive with a subject owned by another process"
+  }
+}
+
 @external(erlang, "gleam_erlang_ffi", "receive")
-pub fn receive_forever(from subject: Subject(message)) -> message
+fn perform_receive_forever(from subject: Subject(message)) -> message
+
+
 
 /// A type that enables a process to wait for messages from multiple `Subject`s
 /// at the same time, returning whichever message arrives first.
@@ -412,6 +458,7 @@ pub fn select_map(
   case subject {
     NamedSubject(name) -> insert_selector_handler(selector, #(name, 2), handler)
     Subject(_, tag:) -> insert_selector_handler(selector, #(tag, 2), handler)
+    PortSubject(port:, ..) -> insert_selector_handler(selector, #(port, 2), handler)
   }
 }
 
@@ -425,6 +472,7 @@ pub fn deselect(
   case subject {
     NamedSubject(name) -> remove_selector_handler(selector, #(name, 2))
     Subject(_, tag:) -> remove_selector_handler(selector, #(tag, 2))
+    PortSubject(port:, ..) -> remove_selector_handler(selector, #(port, 2))
   }
 }
 
@@ -758,6 +806,7 @@ pub fn send_after(subject: Subject(msg), delay: Int, message: msg) -> Timer {
   case subject {
     NamedSubject(name) -> name_send_after(delay, name, #(name, message))
     Subject(owner, tag) -> pid_send_after(delay, owner, #(tag, message))
+    PortSubject(..) ->  panic as "Cannot send on PortSubject"
   }
 }
 

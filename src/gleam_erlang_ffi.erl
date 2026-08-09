@@ -5,7 +5,7 @@
     select/2, trap_exits/1, map_selector/2, merge_selector/2, flush_messages/0,
     priv_directory/1, connect_node/1, register_process/2, unregister_process/1,
     process_named/1, identity/1, 'receive'/1, 'receive'/2, new_name/1,
-    cast_down_message/1, cast_exit_reason/1
+    cast_down_message/1, cast_exit_reason/1, my_open_port/2, port_owner/1
 ]).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, nil}.
@@ -83,6 +83,10 @@ cast_down_message({'DOWN', Ref, port, Pid, Reason}) ->
     receive
         {Ref, Message} -> Message
     end;
+'receive'({port_subject, Port, _Pid}) ->
+    receive
+        {Port, Message} -> Message
+    end;
 'receive'({named_subject, Name}) ->
     receive
         {Name, Message} -> Message
@@ -94,12 +98,44 @@ cast_down_message({'DOWN', Ref, port, Pid, Reason}) ->
     after Timeout ->
         {error, nil}
     end;
+'receive'({port_subject, Port, _Pid}, Timeout) ->
+    receive
+        {Port, Message} -> {ok, Message}
+    after Timeout ->
+        {error, nil}
+    end;
 'receive'({named_subject, Name}, Timeout) ->
     receive
         {Name, Message} -> {ok, Message}
     after Timeout ->
         {error, nil}
     end.
+
+% sometimes this errors out if the port is already closed
+port_owner(Port) ->
+    case erlang:port_info(Port, connected) of
+        {connected, Pid} -> {ok, Pid};
+        undefined -> {error, nil}
+    end.
+
+my_open_port(PortName, PortSettings) ->
+    try
+        Port = open_port(PortName, PortSettings),
+        {ok, Port}
+    catch error:Reason ->
+        case Reason of
+            badarg -> {error, badarg};
+            system_limit -> {error, system_limit};
+            enomem -> {error, enomem};
+            eagain -> {error, eagain};
+            enametoolong -> {error, enametoolong};
+            emfile -> {error, emfile};
+            enfile -> {error, enfile};
+            eaccess -> {error, eaccess};
+            enoent -> {error, enoent}
+        end
+    end.
+
 
 demonitor(Reference) ->
     erlang:demonitor(Reference, [flush]).
