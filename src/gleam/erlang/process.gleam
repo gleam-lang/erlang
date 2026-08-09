@@ -239,18 +239,21 @@ pub fn send(subject: Subject(message), message: message) -> Nil {
 /// This function will panic if a process tries to receive with a non-named
 /// subject that it does not own.
 ///
+/// of note, this function will error even if there are queued up messages
+/// within the process' mailbox directed at a named subject that was
+/// *previously* registered to this process, and then got re-registered
+/// to another.
+/// To recieve messages on subjects not directed at the current pid,
+/// use `Select`
+///
 pub fn receive(
   from subject: Subject(message),
   within timeout: Int,
 ) -> Result(message, Nil) {
-  case subject {
-    NamedSubject(..) -> perform_receive(subject, timeout)
-    Subject(owner:, ..) ->
-      case owner == self() {
-        True -> perform_receive(subject, timeout)
-        False ->
-          panic as "Cannot receive with a subject owned by another process"
-      }
+  let self = self()
+  case subject_owner(subject) {
+    Ok(pid) if pid == self -> perform_receive(subject, timeout)
+    _ -> panic as "Cannot receive with a subject owned by another process"
   }
 }
 
@@ -263,8 +266,16 @@ fn perform_receive(
 /// Receive a message that has been sent to current process using the `Subject`.
 ///
 /// Same as `receive` but waits forever and returns the message as is.
+pub fn receive_forever(from subject: Subject(message)) -> message {
+  let self = self()
+  case subject_owner(subject) {
+    Ok(pid) if pid == self -> perform_receive_forever(subject)
+    _ -> panic as "Cannot receive with a subject owned by another process"
+  }
+}
+
 @external(erlang, "gleam_erlang_ffi", "receive")
-pub fn receive_forever(from subject: Subject(message)) -> message
+fn perform_receive_forever(from subject: Subject(message)) -> message
 
 /// A type that enables a process to wait for messages from multiple `Subject`s
 /// at the same time, returning whichever message arrives first.
