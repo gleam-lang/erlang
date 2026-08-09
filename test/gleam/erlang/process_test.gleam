@@ -666,3 +666,18 @@ pub fn name_test() {
   let assert Ok("Hello") = process.receive(subject, 0)
   process.unregister(name)
 }
+
+pub fn subject_priority_test() {
+  let subject = process.new_subject()
+  let priority_subject = process.priority_subject()
+
+  process.send(subject, 123)
+  process.sleep(100)
+  process.send(priority_subject, 321)
+  let selector =
+    process.new_selector()
+    |> process.select(subject)
+    |> process.select(priority_subject)
+
+  assert process.selector_receive_forever(selector) == 321
+}

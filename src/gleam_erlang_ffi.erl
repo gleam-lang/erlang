@@ -5,7 +5,7 @@
     select/2, trap_exits/1, map_selector/2, merge_selector/2, flush_messages/0,
     priv_directory/1, connect_node/1, register_process/2, unregister_process/1,
     process_named/1, identity/1, 'receive'/1, 'receive'/2, new_name/1,
-    cast_down_message/1, cast_exit_reason/1
+    cast_down_message/1, cast_exit_reason/1, new_priority_alias/0, send_priority/2
 ]).
 
 -spec atom_from_string(binary()) -> {ok, atom()} | {error, nil}.
@@ -86,6 +86,10 @@ cast_down_message({'DOWN', Ref, port, Pid, Reason}) ->
 'receive'({named_subject, Name}) ->
     receive
         {Name, Message} -> Message
+    end;
+'receive'({priority_subject, _Pid, _Alias, Ref}) ->
+    receive
+        {Ref, Message} -> Message
     end.
 
 'receive'({subject, _Pid, Ref}, Timeout) ->
@@ -97,6 +101,12 @@ cast_down_message({'DOWN', Ref, port, Pid, Reason}) ->
 'receive'({named_subject, Name}, Timeout) ->
     receive
         {Name, Message} -> {ok, Message}
+    after Timeout ->
+        {error, nil}
+    end;
+'receive'({priority_subject, _Pid, _Alias, Ref}, Timeout) ->
+    receive
+        {Ref, Message} -> {ok, Message}
     after Timeout ->
         {error, nil}
     end.
@@ -162,3 +172,9 @@ process_named(Name) ->
 
 identity(X) ->
     X.
+
+new_priority_alias() ->
+    erlang:alias([priority]).
+
+send_priority(Alias, Message) ->
+    erlang:send(Alias, Message, [priority]).
