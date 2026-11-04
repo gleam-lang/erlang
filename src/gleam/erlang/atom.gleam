@@ -31,7 +31,7 @@ pub fn get(a: String) -> Result(Atom, Nil)
 /// string.
 ///
 /// We must be careful when using this function as there is a limit to the
-/// number of atom that can fit in the virtual machine's atom table. Never
+/// number of atoms that can fit in the virtual machine's atom table. Never
 /// convert user input into atoms as filling the atom table will cause the
 /// virtual machine to crash!
 ///
